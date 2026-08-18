@@ -9,7 +9,15 @@
        <priority>1.0</priority>
   </url>
 
-  <!-- עמודי קטגוריות מרכזיים -->
+  <!-- עמוד הקטגוריות הראשי -->
+  <url>
+       <loc>https://jdj.co.il/category.html</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.9</priority>
+  </url>
+
+  <!-- עמודי קטגוריות מפולחים -->
   <url>
        <loc>https://jdj.co.il/category.html?type=routes</loc>
        <lastmod>2026-08-18</lastmod>
