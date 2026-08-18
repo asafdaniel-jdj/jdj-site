@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מסלולי הג'יפים של מדבר יהודה | הבית למטיילי שטח 4x4</title>
+    
+    <!-- תגיות Open Graph לשיתוף בוואטסאפ וברשתות -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://routes.jdj.co.il/">
+    <meta property="og:title" content="מסלולי הג'יפים של מדבר יהודה">
+    <meta property="og:description" content="מסלולי ג׳יפים נבחרים במדבר יהודה, הנגב, בקעת הירדן והשומרון כולל מפות ניווט וקבצי GPX להורדה.">
+    <meta property="og:image" content="https://routes.jdj.co.il/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <!-- Google Fonts: Heebo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body { font-family: 'Heebo', sans-serif; }
+        
+        /* הסתרת פס גלילה ויזואלי בקרוסלת מובייל תוך שמירה על גלילה חופשית */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- 🌐 Hero Wrapper -->
+    <div class="relative w-full border-b border-slate-200 h-[450px] min-h-[450px] md:h-auto md:min-h-[580px] flex flex-col justify-between">
+        
+        <!-- 🖼️ תמונת הרקע הרספונסיבית -->
+        <div class="absolute inset-0 w-full h-full z-0 overflow-hidden">
+            <picture class="w-full h-full block">
+                <source media="(max-width: 768px)" srcset="access-banner-mobile.jpg">
+                <img src="access-banner.jpg" alt="מסלולי הג'יפים של מדבר יהודה" class="w-full h-full object-cover object-center">
+            </picture>
+            
+            <!-- 🌫️ גרדיאנט לבן עדין בחלק העליון -->
+            <div class="absolute inset-x-0 top-0 h-[150px] md:h-56 bg-gradient-to-b from-white/95 via-white/85 to-transparent pointer-events-none"></div>
+        </div>
+
+        <!-- 🌐 תפריט עליון (Master Header) -->
+        <header class="w-full relative z-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-24 md:h-28">
+                    
+                    <a href="index.html" class="flex items-center group py-2">
+                        <img src="Newlogo.png" alt="מסלולי הג'יפים של מדבר יהודה" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform group-hover:scale-105 duration-200">
+                    </a>
+
+                    <nav class="hidden lg:flex items-center gap-6 xl:gap-9 text-lg md:text-xl font-bold text-slate-900 tracking-tight">
+                        <a href="index.html" class="text-indigo-600 border-b-2 border-indigo-600 pb-0.5 transition">דף הבית</a>
+                        <a href="category.html?type=routes" class="hover:text-indigo-600 transition">מסלולי טיול</a>
+                        <a href="category.html?type=technical" class="hover:text-indigo-600 transition">מקטעים טכניים</a>
+                        <a href="category.html?type=viewpoints" class="hover:text-indigo-600 transition">נקודות תצפית</a>
+                        <a href="category.html?type=water" class="hover:text-indigo-600 transition">מעיינות וגבים</a>
+                        <a href="category.html?type=poi" class="hover:text-indigo-600 transition">נקודות עניין</a>
+                    </nav>
+
+                    <button onclick="toggleMobileMenu()" aria-label="פתח תפריט" class="lg:hidden w-11 h-11 rounded-2xl bg-white/80 backdrop-blur-md text-slate-900 flex items-center justify-center transition border border-slate-200 shadow-sm">
+                        <i id="menuIcon" class="fa-solid fa-bars text-xl"></i>
+                    </button>
+
+                </div>
+            </div>
+
+            <div id="mobileMenu" class="hidden lg:hidden bg-white/95 backdrop-blur-xl border-t border-slate-200 px-4 pt-3 pb-6 space-y-3 text-slate-900 font-bold text-lg shadow-xl tracking-tight">
+                <a href="index.html" class="block px-3 py-2.5 rounded-xl text-indigo-600 bg-indigo-50">🏠 דף הבית</a>
+                <a href="category.html?type=routes" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">מסלולי טיול</a>
+                <a href="category.html?type=technical" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">מקטעים טכניים</a>
+                <a href="category.html?type=viewpoints" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">נקודות תצפית</a>
+                <a href="category.html?type=water" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">מעיינות וגבים</a>
+                <a href="category.html?type=poi" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">נקודות עניין</a>
+            </div>
+        </header>
+
+        <!-- 🔍 קומפוננטה 2: מנוע חיפוש ואזורים -->
+        <div class="relative z-10 w-full max-w-4xl mx-auto px-4 pb-6 md:pb-12 text-right space-y-3 md:space-y-4 transform -translate-y-[10px] lg:-translate-y-[58px] transition-transform duration-200">
+            
+            <form onsubmit="executeRouteSearch(event)" class="relative flex items-center bg-white shadow-2xl rounded-2xl md:rounded-3xl p-1.5 md:p-2 border border-slate-200 transition-all duration-300 hover:border-indigo-400 w-[calc(100%-32px)] md:w-full mx-auto">
+                <i class="fa-solid fa-magnifying-glass absolute right-4 md:right-5 text-slate-400 text-base md:text-xl pointer-events-none"></i>
+                <input type="text" id="routeSearchInput" 
+                       placeholder="✨ מה בא לכם לעשות? כתבו חופשי... למשל: מסלול קצר במדבר יהודה עם ילדים ומים" 
+                       class="w-full pr-11 md:pr-14 pl-3 md:pl-4 py-3 md:py-5 bg-transparent text-slate-900 text-xs md:text-lg font-bold placeholder-slate-400 focus:outline-none tracking-tight">
+                <button type="submit" class="bg-slate-900 hover:bg-indigo-900 text-white font-extrabold px-5 md:px-11 py-2.5 md:py-4 rounded-xl md:rounded-2xl text-xs md:text-lg shadow-lg transition shrink-0 flex items-center gap-1.5 md:gap-2 tracking-tight">
+                    <span>חפש</span>
+                    <i class="fa-solid fa-arrow-left text-xs md:text-sm text-indigo-400"></i>
+                </button>
+            </form>
+
+            <div class="grid grid-cols-2 gap-2.5 w-[calc(100%-48px)] max-w-[390px] mx-auto md:w-auto md:max-w-none md:flex md:flex-wrap md:items-center md:justify-center md:gap-3 md:pt-1">
+                <a href="category.html?type=routes&region=מדבר יהודה" class="w-full md:w-auto text-center bg-white/95 hover:bg-white text-slate-900 font-extrabold px-3 py-2 md:px-7 md:py-2.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-400 hover:text-indigo-600 hover:shadow transition text-xs md:text-base tracking-tight">
+                    מדבר יהודה
+                </a>
+                <a href="category.html?type=routes&region=הנגב והערבה" class="w-full md:w-auto text-center bg-white/95 hover:bg-white text-slate-900 font-extrabold px-3 py-2 md:px-7 md:py-2.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-400 hover:text-indigo-600 hover:shadow transition text-xs md:text-base tracking-tight">
+                    הנגב והערבה
+                </a>
+                <a href="category.html?type=routes&region=בקעת הירדן" class="w-full md:w-auto text-center bg-white/95 hover:bg-white text-slate-900 font-extrabold px-3 py-2 md:px-7 md:py-2.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-400 hover:text-indigo-600 hover:shadow transition text-xs md:text-base tracking-tight">
+                    בקעת הירדן
+                </a>
+                <a href="category.html?type=routes&region=השומרון" class="w-full md:w-auto text-center bg-white/95 hover:bg-white text-slate-900 font-extrabold px-3 py-2 md:px-7 md:py-2.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-400 hover:text-indigo-600 hover:shadow transition text-xs md:text-base tracking-tight">
+                    השומרון
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 📄 תוכן העמוד הראשי -->
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 md:py-10 space-y-8 md:space-y-14 flex-grow">
+
+        <!-- 💎 סרגל קטגוריות -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 md:gap-5">
+            <a href="category.html?type=routes" class="bg-white py-4 px-3 md:p-5 rounded-2xl border border-slate-200 shadow-md hover:shadow-xl hover:border-indigo-500 transition text-center space-y-2.5 md:space-y-3 group md:hover:-translate-y-1 block">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-slate-900 text-indigo-400 flex items-center justify-center text-lg md:text-xl mx-auto shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition">
+                    <i class="fa-solid fa-route"></i>
+                </div>
+                <div class="font-extrabold text-slate-900 text-xs md:text-base tracking-tight group-hover:text-indigo-600 transition">מסלולי טיול</div>
+            </a>
+            
+            <a href="category.html?type=technical" class="bg-white py-4 px-3 md:p-5 rounded-2xl border border-slate-200 shadow-md hover:shadow-xl hover:border-indigo-500 transition text-center space-y-2.5 md:space-y-3 group md:hover:-translate-y-1 block">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-slate-900 text-indigo-400 flex items-center justify-center text-lg md:text-xl mx-auto shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition">
+                    <i class="fa-solid fa-gear"></i>
+                </div>
+                <div class="font-extrabold text-slate-900 text-xs md:text-base tracking-tight group-hover:text-indigo-600 transition">מקטעים טכניים</div>
+            </a>
+            
+            <a href="category.html?type=viewpoints" class="bg-white py-4 px-3 md:p-5 rounded-2xl border border-slate-200 shadow-md hover:shadow-xl hover:border-indigo-500 transition text-center space-y-2.5 md:space-y-3 group md:hover:-translate-y-1 block">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-slate-900 text-indigo-400 flex items-center justify-center text-lg md:text-xl mx-auto shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition">
+                    <i class="fa-solid fa-binoculars"></i>
+                </div>
+                <div class="font-extrabold text-slate-900 text-xs md:text-base tracking-tight group-hover:text-indigo-600 transition">נקודות תצפית</div>
+            </a>
+            
+            <a href="category.html?type=water" class="bg-white py-4 px-3 md:p-5 rounded-2xl border border-slate-200 shadow-md hover:shadow-xl hover:border-indigo-500 transition text-center space-y-2.5 md:space-y-3 group md:hover:-translate-y-1 block">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-slate-900 text-indigo-400 flex items-center justify-center text-lg md:text-xl mx-auto shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition">
+                    <i class="fa-solid fa-water"></i>
+                </div>
+                <div class="font-extrabold text-slate-900 text-xs md:text-base tracking-tight group-hover:text-indigo-600 transition">מעיינות וגבים</div>
+            </a>
+            
+            <a href="category.html?type=poi" class="bg-white py-4 px-3 md:p-5 rounded-2xl border border-slate-200 shadow-md hover:shadow-xl hover:border-indigo-500 transition text-center space-y-2.5 md:space-y-3 col-span-2 sm:col-span-1 group md:hover:-translate-y-1 block">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-slate-900 text-indigo-400 flex items-center justify-center text-lg md:text-xl mx-auto shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div class="font-extrabold text-slate-900 text-xs md:text-base tracking-tight group-hover:text-indigo-600 transition">נקודות עניין</div>
+            </a>
+        </div>
+
+        <!-- 🌟 המסלולים המומלצים שלנו (3 המסלולים המומלצים) -->
+        <div class="space-y-4 md:space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-2.5 tracking-tight">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-sm shadow">
+                        <i class="fa-solid fa-compass"></i>
+                    </div>
+                    <span>המסלולים המומלצים שלנו</span>
+                </h2>
+                <a href="category.html?type=routes" class="text-xs sm:text-sm font-bold text-indigo-600 hover:text-indigo-800 transition tracking-tight">
+                    לכל המסלולים ←
+                </a>
+            </div>
+
+            <div id="homeFeaturedGrid" class="flex overflow-x-auto snap-x snap-mandatory gap-3 no-scrollbar pb-2 pt-1 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:pb-0 md:snap-none">
+                <div class="col-span-full text-center py-12 text-slate-500 font-bold w-full">
+                    <i class="fa-solid fa-spinner fa-spin text-2xl text-indigo-600 mb-2"></i>
+                    <p>טוען נתונים...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🟩🟦 סרגל שני מלבנים מעוצבים -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-stretch">
+            
+            <!-- 🟩 מלבן 1: קבוצת הוואטסאפ השקטה -->
+            <div class="bg-white rounded-3xl p-5 md:p-8 shadow-sm border-2 border-emerald-600/90 flex flex-col justify-between space-y-4 md:space-y-6 transition hover:shadow-md group">
+                <div class="space-y-2 md:space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="inline-flex items-center gap-1.5 md:gap-2 bg-emerald-50 text-emerald-800 text-[11px] md:text-xs font-black px-3 py-0.5 md:py-1 rounded-full border border-emerald-200/80">
+                            <i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i>
+                            <span>קבוצה שקטה</span>
+                        </div>
+                        <i class="fa-solid fa-bell text-emerald-600 text-base md:text-lg"></i>
+                    </div>
+
+                    <h3 class="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+                        עדכוני שטח וטיולים בזמן אמת
+                    </h3>
+                    
+                    <p class="text-xs md:text-sm text-slate-600 font-medium leading-relaxed">
+                        הצטרפו לקבוצת הוואטסאפ השקטה שלנו – שבה יפורסמו מסלולים וטיולים חדשים שעולים לאוויר, עדכוני שיטפונות, מצב גבים וכתבות מעניינות לשטח.
+                    </p>
+                </div>
+
+                <a href="https://chat.whatsapp.com/EXAMPLE" target="_blank" class="w-full bg-white border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-600 hover:text-white font-extrabold py-3 md:py-3.5 px-4 md:px-6 rounded-2xl text-center text-xs md:text-sm transition shadow-sm flex items-center justify-center gap-2 tracking-tight min-h-[44px]">
+                    <i class="fa-brands fa-whatsapp text-base md:text-lg"></i>
+                    <span>הצטרפו לקבוצת הוואטסאפ השקטה</span>
+                </a>
+            </div>
+
+            <!-- 🟦 מלבן 2: צור קשר ודיווח מהשטח -->
+            <div id="contactSection" class="bg-white rounded-3xl p-5 md:p-8 shadow-sm border-2 border-indigo-900 flex flex-col justify-between space-y-4 md:space-y-5 transition hover:shadow-md">
+                <div class="space-y-1.5 md:space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="inline-flex items-center gap-1.5 md:gap-2 bg-indigo-50 text-indigo-900 text-[11px] md:text-xs font-black px-3 py-0.5 md:py-1 rounded-full border border-indigo-200/80">
+                            <i class="fa-solid fa-comment-dots text-indigo-600 text-sm"></i>
+                            <span>דיווח מהשטח</span>
+                        </div>
+                        <i class="fa-solid fa-paper-plane text-indigo-900 text-base md:text-lg"></i>
+                    </div>
+
+                    <h3 class="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+                        צור קשר ודיווח מהשטח
+                    </h3>
+                    
+                    <p class="text-[11px] md:text-xs text-slate-500 font-medium">
+                        יש לכם עדכון על מצב ציר, גב מים מלא, או הצעת מסלול חדש? נשמח לשמוע!
+                    </p>
+                </div>
+
+                <form onsubmit="handleContactSubmit(event)" class="space-y-2 text-xs font-bold">
+                    <input type="text" required placeholder="שם מלא" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-500 transition min-h-[44px]">
+                    <input type="tel" required placeholder="טלפון / וואטסאפ" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-500 transition min-h-[44px]">
+                    <textarea rows="2" required placeholder="ספרו לנו מה העדכון..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-500 transition resize-none"></textarea>
+                    
+                    <button type="submit" class="w-full bg-white border-2 border-indigo-900 text-indigo-900 hover:bg-indigo-900 hover:text-white font-extrabold py-2.5 md:py-3 rounded-2xl shadow-sm transition text-xs md:text-sm tracking-tight flex items-center justify-center gap-2 min-h-[44px]">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                        <span>שלח הודעה</span>
+                    </button>
+                </form>
+                <p id="contactToast" class="text-center text-xs text-emerald-600 font-bold hidden">ההודעה נשלחה בהצלחה! תודה רבה.</p>
+            </div>
+
+        </div>
+
+        <!-- ❓ שאלות נפוצות (FAQ דינמי מ-Supabase) -->
+        <div id="faqSection" class="bg-white rounded-3xl p-5 sm:p-7 md:p-8 border border-slate-200 shadow-sm space-y-4">
+            <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3 tracking-tight">
+                <i class="fa-solid fa-circle-question text-indigo-600"></i>
+                <span>שאלות נפוצות למטיילי שטח וג'יפאים</span>
+            </h3>
+            
+            <div id="faqContainer" class="space-y-3 text-xs sm:text-sm text-slate-700">
+                <div class="text-center py-6 text-slate-400 font-bold">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> טוען שאלות ותשובות...
+                </div>
+            </div>
+        </div>
+
+        <!-- 🗺️ עוד מדריכים שימושיים למטייל (קישורים פנימיים) -->
+        <div class="bg-gradient-to-br from-white to-indigo-50/40 rounded-3xl border border-slate-200 p-5 sm:p-7 md:p-8 shadow-sm space-y-4">
+            <h3 class="text-lg sm:text-xl font-black text-slate-900 text-center flex items-center justify-center gap-2 tracking-tight">
+                <i class="fa-solid fa-map-location-dot text-indigo-600"></i>
+                <span>עוד מדריכים שימושיים למטייל</span>
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 pt-1">
+                <a href="access.html" class="flex items-center gap-3.5 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition group">
+                    <div class="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0 text-lg group-hover:bg-indigo-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-route"></i>
+                    </div>
+                    <div>
+                        <div class="font-extrabold text-slate-900 text-sm md:text-base tracking-tight">דרכי גישה</div>
+                        <div class="text-xs text-slate-500 font-medium">ומסלולים לשטח</div>
+                    </div>
+                </a>
+
+                <a href="mview.html" class="flex items-center gap-3.5 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition group">
+                    <div class="w-11 h-11 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 text-lg group-hover:bg-teal-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-binoculars"></i>
+                    </div>
+                    <div>
+                        <div class="font-extrabold text-slate-900 text-sm md:text-base tracking-tight">נקודות תצפית</div>
+                        <div class="text-xs text-slate-500 font-medium">במצוק ההעתקים</div>
+                    </div>
+                </a>
+
+                <a href="camp.html" class="flex items-center gap-3.5 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition group">
+                    <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 text-lg group-hover:bg-emerald-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-campground"></i>
+                    </div>
+                    <div>
+                        <div class="font-extrabold text-slate-900 text-sm md:text-base tracking-tight">חניוני לילה</div>
+                        <div class="text-xs text-slate-500 font-medium">ללא תשלום במדבר</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 🔻 פוטר האתר -->
+    <footer class="w-full bg-slate-900 text-slate-300 border-t-4 border-indigo-600 mt-8 md:mt-12">
+        <div class="bg-slate-950/90 py-5 md:py-6 px-4 border-b border-slate-800">
+            <div class="max-w-7xl mx-auto text-center md:text-right space-y-2">
+                <h3 class="text-base font-black text-white flex items-center justify-center md:justify-start gap-2 tracking-tight">
+                    <i class="fa-solid fa-compass text-indigo-400"></i> מסלולי הג'יפים של מדבר יהודה
+                </h3>
+                <p class="text-xs text-slate-400 leading-relaxed max-w-5xl font-medium">
+                    הבית של מטיילי השטח, הניווט והג'יפאים במדבר יהודה, הנגב, בקעת הירדן והשומרון. מפות אינטראקטיביות, קבצי GPX להורדה, נקודות תצפית, גבי מים ועדכוני שטחי אש בזמן אמת.
+                </p>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-8 text-xs md:text-sm font-bold tracking-tight">
+            
+            <div class="border-b border-slate-800 md:border-b-0 pb-2 md:pb-0 space-y-3">
+                <button onclick="toggleFooterAccordion('footerSec1', 'footerArr1')" class="w-full flex items-center justify-between py-2 md:py-0 text-white font-black text-sm md:text-base md:border-b md:border-slate-800 md:pb-2 cursor-pointer md:cursor-default">
+                    <span>סוגי תוכן באתר</span>
+                    <i id="footerArr1" class="fa-solid fa-chevron-down text-xs md:hidden transition-transform duration-200"></i>
+                </button>
+                <ul id="footerSec1" class="hidden md:block space-y-2 text-slate-400 font-semibold pb-2 md:pb-0 transition-all duration-200">
+                    <li><a href="category.html?type=routes" class="hover:text-indigo-400 transition block py-1 md:py-0">🚘 מסלולי טיול 4x4</a></li>
+                    <li><a href="category.html?type=technical" class="hover:text-indigo-400 transition block py-1 md:py-0">⚙️ מקטעים ומעלה טכניים</a></li>
+                    <li><a href="category.html?type=viewpoints" class="hover:text-indigo-400 transition block py-1 md:py-0">🔭 נקודות תצפית נוף</a></li>
+                    <li><a href="category.html?type=water" class="hover:text-indigo-400 transition block py-1 md:py-0">💧 מעיינות, גבים ומים</a></li>
+                    <li><a href="category.html?type=poi" class="hover:text-indigo-400 transition block py-1 md:py-0">📌 נקודות עניין והיסטוריה</a></li>
+                </ul>
+            </div>
+
+            <div class="border-b border-slate-800 md:border-b-0 pb-2 md:pb-0 space-y-3">
+                <button onclick="toggleFooterAccordion('footerSec2', 'footerArr2')" class="w-full flex items-center justify-between py-2 md:py-0 text-white font-black text-sm md:text-base md:border-b md:border-slate-800 md:pb-2 cursor-pointer md:cursor-default">
+                    <span>מדריכים שימושיים</span>
+                    <i id="footerArr2" class="fa-solid fa-chevron-down text-xs md:hidden transition-transform duration-200"></i>
+                </button>
+                <ul id="footerSec2" class="hidden md:block space-y-2 text-slate-400 font-semibold pb-2 md:pb-0 transition-all duration-200">
+                    <li><a href="access.html" class="hover:text-indigo-400 transition block py-1 md:py-0">🚗 דרכי גישה ומסלולים</a></li>
+                    <li><a href="mview.html" class="hover:text-indigo-400 transition block py-1 md:py-0">🔭 נקודות תצפית במצוק ההעתקים</a></li>
+                    <li><a href="camp.html" class="hover:text-indigo-400 transition block py-1 md:py-0">⛺ חניוני לילה חינמיים</a></li>
+                </ul>
+            </div>
+
+            <div class="border-b border-slate-800 md:border-b-0 pb-2 md:pb-0 space-y-3">
+                <button onclick="toggleFooterAccordion('footerSec3', 'footerArr3')" class="w-full flex items-center justify-between py-2 md:py-0 text-white font-black text-sm md:text-base md:border-b md:border-slate-800 md:pb-2 cursor-pointer md:cursor-default">
+                    <span>מידע כללי ומשפטי</span>
+                    <i id="footerArr3" class="fa-solid fa-chevron-down text-xs md:hidden transition-transform duration-200"></i>
+                </button>
+                <ul id="footerSec3" class="hidden md:block space-y-2 text-slate-400 font-semibold pb-2 md:pb-0 transition-all duration-200">
+                    <li><a href="about.html" class="hover:text-indigo-400 transition block py-1 md:py-0">ℹ️ אודות המיזם והחזון</a></li>
+                    <li><a href="disclaimer.html" class="hover:text-indigo-400 transition block py-1 md:py-0">⚖️ הגבלת אחריות ותנאים</a></li>
+                    <li><a href="#faqSection" class="hover:text-indigo-400 transition block py-1 md:py-0">❓ שאלות ותשובות (FAQ)</a></li>
+                </ul>
+            </div>
+
+            <div class="pb-2 md:pb-0 space-y-3">
+                <button onclick="toggleFooterAccordion('footerSec4', 'footerArr4')" class="w-full flex items-center justify-between py-2 md:py-0 text-white font-black text-sm md:text-base md:border-b md:border-slate-800 md:pb-2 cursor-pointer md:cursor-default">
+                    <span>קהילה ויצירת קשר</span>
+                    <i id="footerArr4" class="fa-solid fa-chevron-down text-xs md:hidden transition-transform duration-200"></i>
+                </button>
+                
+                <div id="footerSec4" class="hidden md:block space-y-3 pb-2 md:pb-0 transition-all duration-200">
+                    <p class="text-slate-400 text-xs leading-relaxed font-medium">רוצים לקבל עדכוני שיטפונות ומצב גבים? הצטרפו לקהילה שלנו!</p>
+                    <div class="flex items-center gap-2 pt-1">
+                        <a href="https://chat.whatsapp.com/EXAMPLE" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow-md" title="וואטסאפ">
+                            <i class="fa-brands fa-whatsapp text-base"></i>
+                        </a>
+                        <a href="https://bit.ly/4v9TpFw" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center transition shadow-md" title="פייסבוק">
+                            <i class="fa-brands fa-facebook-f text-sm"></i>
+                        </a>
+                        <a href="https://bit.ly/4aIY4pK" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center transition shadow-md" title="אינסטגרם">
+                            <i class="fa-brands fa-instagram text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-950 py-4 px-6 border-t border-slate-800/80 text-xs text-slate-500">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-right font-medium">
+                <div>© כל הזכויות שמורות למסלולי הג'יפים של מדבר יהודה.</div>
+                <div class="flex items-center gap-4">
+                    <a href="disclaimer.html" class="hover:text-slate-300 transition underline">הגבלת אחריות</a>
+                    <a href="about.html" class="hover:text-slate-300 transition underline">אודות</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 📜 JS שליפה מ-Supabase -->
+    <script>
+        const SUPABASE_URL = 'https://edjmwcnxsqnsxqrcsjxp.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let allHomeItems = [];
+
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        }
+
+        function toggleFooterAccordion(contentId, arrowId) {
+            if (window.innerWidth >= 768) return;
+            const content = document.getElementById(contentId);
+            const arrow = document.getElementById(arrowId);
+            if (content) content.classList.toggle('hidden');
+            if (arrow) arrow.classList.toggle('rotate-180');
+        }
+
+        function cleanDashes(text) {
+            return text ? text.replace(/\s*[–—־-]\s*/g, ' ').trim() : '';
+        }
+
+        function isTrueValue(val) {
+            return (val === true || val === 'true' || val === 'כן' || val === 'מתאים' || val === 1 || val === '1');
+        }
+
+        async function initHomePage() {
+            try {
+                // 1. שליפת 3 המסלולים המומלצים
+                const { data: recData, error: recError } = await supabaseClient
+                    .from('routes')
+                    .select('*')
+                    .eq('route_type', 'מסלול טיול')
+                    .eq('is_recommended', true)
+                    .order('id', { ascending: false })
+                    .limit(3);
+
+                if (recError) throw recError;
+
+                let featuredList = recData || [];
+
+                // השלמה במידה ויש פחות מ-3
+                if (featuredList.length < 3) {
+                    const seenIds = new Set(featuredList.map(item => item.id));
+                    const needed = 3 - featuredList.length;
+
+                    let fallbackQuery = supabaseClient
+                        .from('routes')
+                        .select('*')
+                        .eq('route_type', 'מסלול טיול')
+                        .order('id', { ascending: false })
+                        .limit(needed);
+
+                    if (seenIds.size > 0) {
+                        fallbackQuery = fallbackQuery.not('id', 'in', `(${Array.from(seenIds).join(',')})`);
+                    }
+
+                    const { data: extraData } = await fallbackQuery;
+                    if (extraData && extraData.length > 0) {
+                        featuredList = featuredList.concat(extraData);
+                    }
+                }
+
+                if (featuredList.length === 0) {
+                    document.getElementById('homeFeaturedGrid').innerHTML = '<p class="col-span-full text-center text-rose-500 font-bold w-full">לא נמצאו מסלולים להצגה</p>';
+                } else {
+                    allHomeItems = featuredList;
+                    renderHomeFeaturedGrid();
+                }
+
+            } catch (err) {
+                console.error('Connection error:', err);
+                document.getElementById('homeFeaturedGrid').innerHTML = '<p class="col-span-full text-center text-rose-500 font-bold w-full">שגיאה בחיבור ל-Supabase</p>';
+            }
+
+            // 2. טעינת ה-FAQ הדינמי מתוך טבלת pages
+            await loadFaqData();
+        }
+
+        function renderHomeFeaturedGrid() {
+            const grid = document.getElementById('homeFeaturedGrid');
+            grid.innerHTML = '';
+
+            allHomeItems.forEach(item => {
+                const card = document.createElement('a');
+                card.href = `item.html?id=${item.id}`;
+                card.className = 'flex-[0_0_88%] max-w-[88%] md:flex-initial md:max-w-none snap-start bg-white rounded-3xl border border-slate-200/80 p-4 sm:p-5 shadow-sm hover:shadow-xl hover:border-indigo-400 transition cursor-pointer flex flex-col justify-between overflow-hidden group';
+
+                const hasWater = isTrueValue(item.water_dip);
+                const isRec = isTrueValue(item.is_recommended);
+                const isTech = isTrueValue(item.is_technical) || (item.nature && item.nature.includes('טכני'));
+                const imageUrl = item.main_image || 'access-banner.jpg';
+
+                card.innerHTML = `
+                    <div>
+                        <div class="relative mb-3 sm:mb-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
+                            <img src="${imageUrl}" 
+                                 alt="${cleanDashes(item.title)}" 
+                                 onerror="this.onerror=null; this.src='access-banner.jpg';"
+                                 class="w-full h-44 sm:h-48 object-cover group-hover:scale-105 transition duration-300">
+                            
+                            <div class="absolute top-3 right-3 flex flex-col gap-1.5">
+                                ${isRec ? `
+                                    <div class="bg-amber-500 text-white font-black text-xs px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 backdrop-blur-sm border border-amber-300">
+                                        <i class="fa-solid fa-star text-amber-200 text-xs"></i>
+                                        <span>מומלץ</span>
+                                    </div>
+                                ` : ''}
+                                ${hasWater ? `
+                                    <div class="bg-blue-600 text-white font-black text-xs px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 backdrop-blur-sm">
+                                        <i class="fa-solid fa-droplet text-xs"></i>
+                                        <span>מים</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-1.5 mb-1.5 sm:mb-2">
+                            ${isTech ? `
+                                <span class="bg-rose-600 text-white font-black text-xs px-2.5 py-0.5 sm:py-1 rounded-xl shadow-xs flex items-center gap-1">
+                                    <span>טכני</span>
+                                    <i class="fa-solid fa-gear text-[10px]"></i>
+                                </span>
+                            ` : ''}
+                            <span class="bg-purple-50 text-purple-900 text-xs font-bold px-3 py-0.5 sm:py-1 rounded-xl border border-purple-200/60">${item.region || 'מדבר יהודה'}</span>
+                        </div>
+
+                        <h3 class="font-extrabold text-slate-900 text-lg sm:text-xl mb-1.5 sm:mb-2 group-hover:text-indigo-600 transition tracking-tight">${cleanDashes(item.title)}</h3>
+                        <p class="text-xs md:text-sm text-slate-600 mb-3 sm:mb-4 line-clamp-2 leading-relaxed font-medium">${cleanDashes(item.short_description || '')}</p>
+
+                        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-4 sm:mb-5 text-xs font-bold">
+                            <span class="bg-slate-100 text-slate-700 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl flex items-center gap-1">
+                                <span>${item.difficulty || 'רגיל'}</span>
+                                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-[11px]"></i>
+                            </span>
+                            <span class="bg-slate-100 text-slate-700 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl flex items-center gap-1">
+                                <span>${item.length_km || 0} ק"מ</span>
+                                <i class="fa-solid fa-ruler-horizontal text-slate-400 text-[11px]"></i>
+                            </span>
+                            ${hasWater ? `
+                                <span class="bg-teal-50 text-teal-700 border border-teal-200/80 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl flex items-center gap-1">
+                                    <span>כולל מים</span>
+                                    <i class="fa-solid fa-droplets text-teal-500 text-[11px]"></i>
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div class="w-full border-2 border-indigo-800 text-indigo-900 group-hover:bg-indigo-900 group-hover:text-white font-extrabold py-3 sm:py-3.5 px-4 rounded-2xl text-center text-xs sm:text-sm transition flex items-center justify-center gap-2 tracking-tight">
+                        <i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i>
+                        <span>לכל הפרטים והמפה</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        async function loadFaqData() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('pages')
+                    .select('faq_data')
+                    .eq('id', 'faq')
+                    .single();
+
+                const faqContainer = document.getElementById('faqContainer');
+                if (error || !data || !data.faq_data || !Array.isArray(data.faq_data)) {
+                    faqContainer.innerHTML = '<p class="text-slate-400 text-center py-2 font-medium">לא נמצאו שאלות ותשובות.</p>';
+                    return;
+                }
+
+                faqContainer.innerHTML = '';
+                data.faq_data.forEach(item => {
+                    const details = document.createElement('details');
+                    details.className = 'group bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 cursor-pointer transition';
+                    details.innerHTML = `
+                        <summary class="font-extrabold text-slate-900 flex items-center justify-between list-none tracking-tight">
+                            <span>${item.q}</span>
+                            <i class="fa-solid fa-chevron-down text-indigo-600 text-xs transition-transform duration-200 group-open:rotate-180"></i>
+                        </summary>
+                        <p class="mt-2.5 text-slate-600 leading-relaxed text-xs sm:text-sm font-medium border-t border-slate-200/50 pt-2.5">${item.a}</p>
+                    `;
+                    faqContainer.appendChild(details);
+                });
+            } catch (err) {
+                console.error('Error loading FAQ:', err);
+            }
+        }
+
+        function executeRouteSearch(e) {
+            e.preventDefault();
+            const query = document.getElementById('routeSearchInput').value.trim();
+            if (query) {
+                window.location.href = `category.html?type=routes&q=${encodeURIComponent(query)}`;
+            } else {
+                window.location.href = `category.html?type=routes`;
+            }
+        }
+
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            document.getElementById('contactToast').classList.remove('hidden');
+            e.target.reset();
+            setTimeout(() => {
+                document.getElementById('contactToast').classList.add('hidden');
+            }, 4000);
+        }
+
+        initHomePage();
+    </script>
+</body>
+</html>
