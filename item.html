@@ -14,6 +14,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle">מסלולי הג'יפים של מדבר יהודה | פרטי מסלול</title>
+    <meta name="description" id="metaDescription" content="צפו במסלול המלא, נקודות ציון, מפת שטח וקובץ GPX להורדה למטיילי שטח 4x4.">
+    <link rel="canonical" id="canonicalUrl" href="https://jdj.co.il/item.html">
     
     <!-- תגיות Open Graph דינמיות לשיתוף -->
     <meta property="og:type" content="article">
@@ -21,12 +23,22 @@
     <meta property="og:title" id="ogTitle" content="מסלולי הג'יפים של מדבר יהודה">
     <meta property="og:description" id="ogDesc" content="צפו במסלול המלא, נקודות ציון, מפת שטח וקובץ GPX להורדה.">
     <meta property="og:image" id="ogImage" content="https://jdj.co.il/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" id="twTitle" content="מסלולי הג'יפים של מדבר יהודה | פרטי מסלול">
+    <meta name="twitter:description" id="twDesc" content="צפו במסלול המלא, נקודות ציון, מפת שטח וקובץ GPX להורדה.">
+    <meta name="twitter:image" id="twImage" content="https://jdj.co.il/og-image.jpg">
 
     <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
     
-    <!-- Google Fonts: Heebo -->
+    <!-- Preconnect & Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://edjmwcnxsqnsxqrcsjxp.supabase.co" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS CDN -->
@@ -317,7 +329,7 @@
                             <p class="text-xs text-slate-600 font-medium mt-0.5">קבוצת וואטסאפ שקטה לעדכוני מסלולים חדשים, שיטפונות ומצב גבים.</p>
                         </div>
                     </div>
-                    <a href="https://chat.whatsapp.com/EXAMPLE" target="_blank" class="w-full sm:w-auto bg-white border border-emerald-600 text-emerald-700 hover:bg-emerald-600 hover:text-white font-black py-2.5 px-6 rounded-xl text-xs sm:text-sm transition shadow-xs shrink-0 flex items-center justify-center gap-2 tracking-tight">
+                    <a href="https://chat.whatsapp.com/HA9Rjk6rSoyAii1YKUrPvS" target="_blank" class="w-full sm:w-auto bg-white border border-emerald-600 text-emerald-700 hover:bg-emerald-600 hover:text-white font-black py-2.5 px-6 rounded-xl text-xs sm:text-sm transition shadow-xs shrink-0 flex items-center justify-center gap-2 tracking-tight">
                         <i class="fa-brands fa-whatsapp text-base"></i>
                         <span>הצטרפו לקבוצה</span>
                     </a>
@@ -460,7 +472,7 @@
                 <div id="footerSec4" class="hidden md:block space-y-3 pb-2 md:pb-0 transition-all duration-200">
                     <p class="text-slate-400 text-xs leading-relaxed font-medium">רוצים לקבל עדכוני שיטפונות ומצב גבים? הצטרפו לקהילה שלנו!</p>
                     <div class="flex items-center gap-2 pt-1">
-                        <a href="https://chat.whatsapp.com/EXAMPLE" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow-md" title="וואטסאפ">
+                        <a href="https://chat.whatsapp.com/HA9Rjk6rSoyAii1YKUrPvS" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow-md" title="וואטסאפ">
                             <i class="fa-brands fa-whatsapp text-base"></i>
                         </a>
                         <a href="https://bit.ly/4v9TpFw" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center transition shadow-md" title="פייסבוק">
@@ -579,16 +591,25 @@
 
             const cleanTitle = cleanDashes(item.title);
             const pageCleanTitle = cleanTitle + ' | מסלולי הג\'יפים של מדבר יהודה';
+            const itemUrl = `https://jdj.co.il/item.html?id=${item.id}`;
+            const shortDesc = cleanDashes(item.short_description || 'צפו במסלול המלא, נקודות ציון, מפת שטח וקובץ GPX להורדה למטיילי שטח 4x4.');
+            const shareImg = item.main_image || 'https://jdj.co.il/og-image.jpg';
             
             document.title = pageCleanTitle;
             document.getElementById('pageTitle').innerText = pageCleanTitle;
+            document.getElementById('metaDescription').setAttribute('content', shortDesc);
+            document.getElementById('canonicalUrl').setAttribute('href', itemUrl);
             document.getElementById('breadcrumbTitle').innerText = cleanTitle;
             document.getElementById('topPageHeading').innerText = cleanTitle;
 
-            document.getElementById('ogUrl').content = window.location.href;
-            document.getElementById('ogTitle').content = cleanTitle;
-            if (item.short_description) document.getElementById('ogDesc').content = cleanDashes(item.short_description);
-            if (item.main_image) document.getElementById('ogImage').content = item.main_image;
+            document.getElementById('ogUrl').content = itemUrl;
+            document.getElementById('ogTitle').content = pageCleanTitle;
+            document.getElementById('ogDesc').content = shortDesc;
+            document.getElementById('ogImage').content = shareImg;
+
+            document.getElementById('twTitle').content = pageCleanTitle;
+            document.getElementById('twDesc').content = shortDesc;
+            document.getElementById('twImage').content = shareImg;
 
             renderGallery(item);
 

@@ -14,19 +14,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageMetaTitle">מסלולי טיול ונקודות שטח | מסלולי הג'יפים של מדבר יהודה</title>
-    
+    <meta name="description" content="מאגר מסלולי טיול 4x4, מקטעים טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה, הנגב, בקעת הירדן והשומרון.">
+    <link rel="canonical" href="https://jdj.co.il/category.html">
+
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://jdj.co.il/category.html">
     <meta property="og:title" content="מסלולי טיול ונקודות שטח | מסלולי הג'יפים של מדבר יהודה">
-    <meta property="og:description" content="מאגר מסלולי טיול, מקטעים טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה והסביבה.">
+    <meta property="og:description" content="מאגר מסלולי טיול 4x4, מקטעים טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה, הנגב, בקעת הירדן והשומרון.">
     <meta property="og:image" content="https://jdj.co.il/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="מסלולי טיול ונקודות שטח | מסלולי הג'יפים של מדבר יהודה">
+    <meta name="twitter:description" content="מאגר מסלולי טיול 4x4, מקטעים טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה, הנגב, בקעת הירדן והשומרון.">
+    <meta name="twitter:image" content="https://jdj.co.il/og-image.jpg">
 
     <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
     
-    <!-- Google Fonts: Heebo -->
+    <!-- Preconnect & Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://edjmwcnxsqnsxqrcsjxp.supabase.co" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -35,8 +47,6 @@
 
     <style>
         body { font-family: 'Heebo', sans-serif; }
-
-        /* הסתרת סקרולבר ויזואלי לגלילת צ'יפים */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -375,7 +385,7 @@
                     <p class="text-[11px] sm:text-xs text-slate-600 font-medium">הצטרפו לקבלת מסלולים חדשים, עדכוני גבים ושיטפונות ישירות לנייד.</p>
                 </div>
             </div>
-            <a href="https://chat.whatsapp.com/EXAMPLE" target="_blank" class="w-full sm:w-auto bg-white border border-emerald-600 text-emerald-700 hover:bg-emerald-600 hover:text-white font-black py-2 px-5 rounded-xl text-xs transition shadow-xs shrink-0 flex items-center justify-center gap-2 tracking-tight">
+            <a href="https://chat.whatsapp.com/HA9Rjk6rSoyAii1YKUrPvS" target="_blank" class="w-full sm:w-auto bg-white border border-emerald-600 text-emerald-700 hover:bg-emerald-600 hover:text-white font-black py-2 px-5 rounded-xl text-xs transition shadow-xs shrink-0 flex items-center justify-center gap-2 tracking-tight">
                 <i class="fa-brands fa-whatsapp text-sm"></i>
                 <span>הצטרפו לקבוצה</span>
             </a>
@@ -444,7 +454,7 @@
                 <div id="footerSec4" class="hidden md:block space-y-3 pb-2 md:pb-0 transition-all duration-200">
                     <p class="text-slate-400 text-xs leading-relaxed font-medium">רוצים לקבל עדכוני שיטפונות ומצב גבים? הצטרפו לקהילה שלנו!</p>
                     <div class="flex items-center gap-2 pt-1">
-                        <a href="https://chat.whatsapp.com/EXAMPLE" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow-md" title="וואטסאפ">
+                        <a href="https://chat.whatsapp.com/HA9Rjk6rSoyAii1YKUrPvS" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow-md" title="וואטסאפ">
                             <i class="fa-brands fa-whatsapp text-base"></i>
                         </a>
                         <a href="https://bit.ly/4v9TpFw" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center transition shadow-md" title="פייסבוק">
@@ -510,6 +520,7 @@
         let currentSearchQuery = '';
         let currentSortMode = 'recommended';
         let visibleItemsCount = 6;
+        let isAiActive = false;
 
         function toggleMobileMenu() {
             document.getElementById('mobileMenu').classList.toggle('hidden');
@@ -587,14 +598,19 @@
                 activeNav.classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600', 'pb-0.5');
             }
 
-            if (currentSearchQuery) {
-                document.getElementById('categorySearchInput').value = currentSearchQuery;
+            if (initialRegion !== 'הכל') {
+                currentRegionFilter = initialRegion;
+                const radios = document.querySelectorAll('input[name="regionFilter"]');
+                radios.forEach(radio => {
+                    if (radio.value === initialRegion) radio.checked = true;
+                });
             }
 
             await fetchCategoryItems();
 
-            if (initialRegion !== 'הכל') {
-                setRegionFilter(initialRegion);
+            if (currentSearchQuery) {
+                document.getElementById('categorySearchInput').value = currentSearchQuery;
+                await handleCategorySearch(null);
             }
         }
 
@@ -616,7 +632,9 @@
 
                 rawCategoryItems = data || [];
                 updateDynamicFilterVisibility();
-                applyAllCategoryFilters();
+                if (!currentSearchQuery) {
+                    applyAllCategoryFilters();
+                }
 
             } catch (err) {
                 console.error('Error fetching data:', err);
@@ -727,7 +745,90 @@
             renderCategoryGrid();
         }
 
+        async function handleCategorySearch(e) {
+            if (e) e.preventDefault();
+            const rawQuery = document.getElementById('categorySearchInput').value.trim();
+
+            if (rawQuery === '') {
+                currentSearchQuery = '';
+                isAiActive = false;
+                applyAllCategoryFilters();
+                return;
+            }
+
+            currentSearchQuery = rawQuery;
+
+            const grid = document.getElementById('categoryGrid');
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-16 text-slate-500 font-bold">
+                    <i class="fa-solid fa-wand-magic-sparkles fa-spin text-3xl text-indigo-600 mb-3"></i>
+                    <p>מנוע ה-AI מנתח את החיפוש ומאתר תוצאות...</p>
+                </div>
+            `;
+
+            try {
+                const { data: filters, error } = await supabaseClient.functions.invoke('ai-search', {
+                    body: { query: rawQuery }
+                });
+
+                if (error) throw error;
+
+                isAiActive = true;
+
+                filteredCategoryItems = rawCategoryItems.filter(item => {
+                    if (currentRegionFilter !== 'הכל' && item.region !== currentRegionFilter) return false;
+                    if (filters.region && item.region !== filters.region) return false;
+
+                    if (filters.suitable_for_kids !== null && filters.suitable_for_kids !== undefined && isTrueValue(item.suitable_for_kids) !== filters.suitable_for_kids) return false;
+                    if (filters.water_dip !== null && filters.water_dip !== undefined && isTrueValue(item.water_dip) !== filters.water_dip) return false;
+                    if (filters.firing_zone_no && item.firing_zone && !item.firing_zone.includes('לא')) return false;
+
+                    const routeKm = parseFloat(item.length_km) || 0;
+                    if (filters.min_length_km && routeKm < filters.min_length_km) return false;
+                    if (filters.max_length_km && routeKm > filters.max_length_km) return false;
+
+                    let routeHours = 0;
+                    if (item.duration_hours) {
+                        const parts = item.duration_hours.split(':');
+                        routeHours = parseFloat(parts[0]) + (parseFloat(parts[1] || 0) / 60);
+                    }
+                    if (filters.min_duration_hours && routeHours < filters.min_duration_hours) return false;
+                    if (filters.max_duration_hours && routeHours > filters.max_duration_hours) return false;
+
+                    if (filters.difficulty && item.difficulty && !item.difficulty.includes(filters.difficulty)) return false;
+                    if (filters.is_technical !== null && filters.is_technical !== undefined && isTrueValue(item.is_technical) !== filters.is_technical) return false;
+
+                    if (filters.keywords && filters.keywords.length > 0) {
+                        const fullText = `${item.title || ''} ${item.short_description || ''} ${item.waypoint_highlights || ''} ${item.region || ''}`.toLowerCase();
+                        const matchesAny = filters.keywords.some(kw => fullText.includes(kw.toLowerCase()));
+                        if (!matchesAny) return false;
+                    }
+
+                    return true;
+                });
+
+                visibleItemsCount = 6;
+                const totalCount = filteredCategoryItems.length;
+                document.getElementById('resultsCount').innerText = totalCount;
+                document.getElementById('resultsCountMobile').innerText = totalCount;
+                document.getElementById('mobileApplyCount').innerText = totalCount;
+
+                updateActiveFilterBadgesAndChips();
+                sortAndRenderFilteredItems();
+
+            } catch (err) {
+                console.error('שגיאה בחיפוש AI, מעבר לסינון טקסטואלי:', err);
+                isAiActive = false;
+                applyAllCategoryFilters();
+            }
+        }
+
         function applyAllCategoryFilters() {
+            if (isAiActive && currentSearchQuery) {
+                handleCategorySearch(null);
+                return;
+            }
+
             const filterRecommended = document.getElementById('filterRecommended').checked;
             const filterTechnical = document.getElementById('filterTechnical').checked;
             const filterWater = document.getElementById('filterWater').checked;
@@ -867,6 +968,11 @@
                 chips.push({ label: `"${kw}"`, type: 'titleKw' });
             }
 
+            if (currentSearchQuery) {
+                activeCount++;
+                chips.push({ label: `חיפוש חכם: "${currentSearchQuery}"`, type: 'searchQuery' });
+            }
+
             const badgeEl = document.getElementById('activeFilterBadge');
             if (activeCount > 0) {
                 badgeEl.innerText = activeCount;
@@ -914,6 +1020,11 @@
             else if (type === 'noFiring') document.getElementById('filterNoFiring').checked = false;
             else if (type === 'difficulty') document.getElementById('filterDifficulty').value = 'הכל';
             else if (type === 'titleKw') document.getElementById('filterTitleInput').value = '';
+            else if (type === 'searchQuery') {
+                document.getElementById('categorySearchInput').value = '';
+                currentSearchQuery = '';
+                isAiActive = false;
+            }
 
             applyAllCategoryFilters();
         }
@@ -1036,12 +1147,6 @@
             applyAllCategoryFilters();
         }
 
-        function handleCategorySearch(e) {
-            e.preventDefault();
-            currentSearchQuery = document.getElementById('categorySearchInput').value;
-            applyAllCategoryFilters();
-        }
-
         function resetAllFilters() {
             document.getElementById('filterTitleInput').value = '';
             document.getElementById('filterRecommended').checked = false;
@@ -1057,6 +1162,7 @@
             document.getElementById('lenLong').checked = false;
 
             currentSearchQuery = '';
+            isAiActive = false;
             currentSortMode = 'recommended';
             document.getElementById('desktopSortSelect').value = 'recommended';
             document.getElementById('mobileSortSelect').value = 'recommended';
