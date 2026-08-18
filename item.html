@@ -14,14 +14,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle">מסלולי הג'יפים של מדבר יהודה | פרטי מסלול</title>
-    <meta name="description" id="metaDescription" content="צפו במסלול המלא, נקודות ציון, מפת שטח וקובץ GPX להורדה למטיילי שטח 4x4.">
+    <meta name="description" id="metaDescription" content="צפו בפרטי המסלול המלאים, דרגת קושי ועבירות, נקודות ציון לאורך הדרך, מפת שטח אינטראקטיבית וקובץ GPX להורדה למטיילי שטח 4x4.">
     <link rel="canonical" id="canonicalUrl" href="https://jdj.co.il/item.html">
     
     <!-- תגיות Open Graph דינמיות לשיתוף -->
     <meta property="og:type" content="article">
     <meta property="og:url" id="ogUrl" content="https://jdj.co.il/item.html">
     <meta property="og:title" id="ogTitle" content="מסלולי הג'יפים של מדבר יהודה">
-    <meta property="og:description" id="ogDesc" content="צפו במסלול המלא, נקודות ציון, מפת שטח וקובץ GPX להורדה.">
+    <meta property="og:description" id="ogDesc" content="צפו בפרטי המסלול המלאים, דרגת קושי ועבירות, נקודות ציון לאורך הדרך, מפת שטח אינטראקטיבית וקובץ GPX להורדה.">
     <meta property="og:image" id="ogImage" content="https://jdj.co.il/og-image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -29,7 +29,7 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" id="twTitle" content="מסלולי הג'יפים של מדבר יהודה | פרטי מסלול">
-    <meta name="twitter:description" id="twDesc" content="צפו במסלול המלא, נקודות ציון, מפת שטח וקובץ GPX להורדה.">
+    <meta name="twitter:description" id="twDesc" content="צפו בפרטי המסלול המלאים, דרגת קושי ועבירות, נקודות ציון לאורך הדרך, מפת שטח אינטראקטיבית וקובץ GPX להורדה.">
     <meta name="twitter:image" id="twImage" content="https://jdj.co.il/og-image.jpg">
 
     <link rel="icon" type="image/png" href="favicon.png">
@@ -45,6 +45,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- סקריפט סנכרון Canonical מיידי לפי ה-URL המלא עם הפרמטר -->
+    <script>
+      (function() {
+        const fullUrl = window.location.href;
+        const canTag = document.getElementById('canonicalUrl');
+        const ogUrl = document.getElementById('ogUrl');
+        if (canTag) canTag.setAttribute('href', fullUrl);
+        if (ogUrl) ogUrl.setAttribute('content', fullUrl);
+      })();
+    </script>
 
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -63,6 +74,7 @@
         }
     </style>
 </head>
+
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between overflow-x-hidden">
 
     <!-- 🌐 Hero Header -->

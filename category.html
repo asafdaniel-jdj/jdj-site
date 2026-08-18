@@ -14,14 +14,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageMetaTitle">מסלולי טיול ונקודות שטח | מסלולי הג'יפים של מדבר יהודה</title>
-    <meta name="description" content="מאגר מסלולי טיול 4x4, מקטעים טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה, הנגב, בקעת הירדן והשומרון.">
-    <link rel="canonical" href="https://jdj.co.il/category.html">
+    <meta id="pageMetaDesc" name="description" content="מאגר מסלולי טיול 4x4, מקטעים ומעלות טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה, הנגב, בקעת הירדן והשומרון עם מפות וסינונים.">
+    <link id="canonicalTag" rel="canonical" href="https://jdj.co.il/category.html">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://jdj.co.il/category.html">
-    <meta property="og:title" content="מסלולי טיול ונקודות שטח | מסלולי הג'יפים של מדבר יהודה">
-    <meta property="og:description" content="מאגר מסלולי טיול 4x4, מקטעים טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה, הנגב, בקעת הירדן והשומרון.">
+    <meta id="ogUrlTag" property="og:url" content="https://jdj.co.il/category.html">
+    <meta id="ogTitleTag" property="og:title" content="מסלולי טיול ונקודות שטח | מסלולי הג'יפים של מדבר יהודה">
+    <meta id="ogDescTag" property="og:description" content="מאגר מסלולי טיול 4x4, מקטעים ומעלות טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה, הנגב, בקעת הירדן והשומרון.">
     <meta property="og:image" content="https://jdj.co.il/og-image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -29,7 +29,7 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="מסלולי טיול ונקודות שטח | מסלולי הג'יפים של מדבר יהודה">
-    <meta name="twitter:description" content="מאגר מסלולי טיול 4x4, מקטעים טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה, הנגב, בקעת הירדן והשומרון.">
+    <meta name="twitter:description" content="מאגר מסלולי טיול 4x4, מקטעים ומעלות טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה, הנגב, בקעת הירדן והשומרון.">
     <meta name="twitter:image" content="https://jdj.co.il/og-image.jpg">
 
     <link rel="icon" type="image/png" href="favicon.png">
@@ -45,6 +45,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- סקריפט סנכרון Canonical מיידי לפי כתובת ה-URL הנוכחית -->
+    <script>
+      (function() {
+        const fullUrl = window.location.href;
+        const canTag = document.getElementById('canonicalTag');
+        const ogUrl = document.getElementById('ogUrlTag');
+        if (canTag) canTag.setAttribute('href', fullUrl);
+        if (ogUrl) ogUrl.setAttribute('content', fullUrl);
+      })();
+    </script>
+
     <style>
         body { font-family: 'Heebo', sans-serif; }
         .no-scrollbar::-webkit-scrollbar {
@@ -55,8 +66,7 @@
             scrollbar-width: none;
         }
     </style>
-</head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between overflow-x-hidden">
+</head><body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between overflow-x-hidden">
 
     <!-- 🌐 Hero Section אחוד עם צבעוניות עננות/תכלת רכה -->
     <div class="w-full bg-gradient-to-b from-sky-50/70 via-indigo-50/30 to-slate-50 relative overflow-hidden pb-4 border-b border-slate-200/60">

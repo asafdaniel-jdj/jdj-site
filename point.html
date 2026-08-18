@@ -15,15 +15,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageMetaTitle">מסלולי הג'יפים של מדבר יהודה | נקודות שטח</title>
     
-    <!-- Meta SEO דינמי -->
-    <meta name="description" id="metaDescription" content="צפו בפרטי הנקודה, דרכי הגעה, מפות וסרטונים מהשטח במדבר יהודה והסביבה.">
+    <!-- Meta SEO דינמי מורחב -->
+    <meta name="description" id="metaDescription" content="צפו בפרטי הנקודה המלאים, דרכי הגעה ועבירות שטח, תמונות, מפות וסרטונים מהשטח במדבר יהודה, הנגב ובקעת הירדן.">
     <link rel="canonical" id="canonicalUrl" href="https://jdj.co.il/point.html">
 
     <!-- Open Graph לשיתוף -->
     <meta property="og:type" content="article">
     <meta property="og:url" id="ogUrl" content="https://jdj.co.il/point.html">
     <meta property="og:title" id="ogTitle" content="מסלולי הג'יפים של מדבר יהודה">
-    <meta property="og:description" id="ogDesc" content="צפו בפרטי הנקודה, דרכי הגעה, מפות וסרטונים מהשטח.">
+    <meta property="og:description" id="ogDesc" content="צפו בפרטי הנקודה המלאים, דרכי הגעה ועבירות שטח, תמונות, מפות וסרטונים מהשטח.">
     <meta property="og:image" id="ogImage" content="https://jdj.co.il/og-image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -31,7 +31,7 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" id="twTitle" content="מסלולי הג'יפים של מדבר יהודה | נקודות שטח">
-    <meta name="twitter:description" id="twDesc" content="צפו בפרטי הנקודה, דרכי הגעה, מפות וסרטונים מהשטח.">
+    <meta name="twitter:description" id="twDesc" content="צפו בפרטי הנקודה המלאים, דרכי הגעה ועבירות שטח, תמונות, מפות וסרטונים מהשטח.">
     <meta name="twitter:image" id="twImage" content="https://jdj.co.il/og-image.jpg">
 
     <link rel="icon" type="image/png" href="favicon.png">
@@ -47,6 +47,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- סקריפט סנכרון Canonical מיידי לפי ה-URL המלא עם הפרמטר -->
+    <script>
+      (function() {
+        const fullUrl = window.location.href;
+        const canTag = document.getElementById('canonicalUrl');
+        const ogUrl = document.getElementById('ogUrl');
+        if (canTag) canTag.setAttribute('href', fullUrl);
+        if (ogUrl) ogUrl.setAttribute('content', fullUrl);
+      })();
+    </script>
 
     <style>
         body { font-family: 'Heebo', sans-serif; }
@@ -69,6 +80,7 @@
     }
     </script>
 </head>
+
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between overflow-x-hidden">
 
     <!-- 🌐 Header עליון -->
