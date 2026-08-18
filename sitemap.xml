@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- דף הבית -->
+  <!-- 🏠 דף הבית -->
   <url>
        <loc>https://jdj.co.il/</loc>
        <lastmod>2026-08-18</lastmod>
@@ -9,15 +9,13 @@
        <priority>1.0</priority>
   </url>
 
-  <!-- עמוד הקטגוריות הראשי -->
+  <!-- 📁 עמודי קטגוריות ראשיים -->
   <url>
        <loc>https://jdj.co.il/category.html</loc>
        <lastmod>2026-08-18</lastmod>
        <changefreq>daily</changefreq>
        <priority>0.9</priority>
   </url>
-
-  <!-- עמודי קטגוריות מפולחים -->
   <url>
        <loc>https://jdj.co.il/category.html?type=routes</loc>
        <lastmod>2026-08-18</lastmod>
@@ -28,28 +26,128 @@
        <loc>https://jdj.co.il/category.html?type=technical</loc>
        <lastmod>2026-08-18</lastmod>
        <changefreq>weekly</changefreq>
-       <priority>0.8</priority>
+       <priority>0.9</priority>
   </url>
   <url>
        <loc>https://jdj.co.il/category.html?type=viewpoints</loc>
        <lastmod>2026-08-18</lastmod>
        <changefreq>weekly</changefreq>
-       <priority>0.8</priority>
+       <priority>0.9</priority>
   </url>
   <url>
        <loc>https://jdj.co.il/category.html?type=water</loc>
        <lastmod>2026-08-18</lastmod>
        <changefreq>weekly</changefreq>
-       <priority>0.8</priority>
+       <priority>0.9</priority>
   </url>
   <url>
        <loc>https://jdj.co.il/category.html?type=poi</loc>
        <lastmod>2026-08-18</lastmod>
        <changefreq>weekly</changefreq>
+       <priority>0.9</priority>
+  </url>
+
+  <!-- 🚙 מסלולי טיול לפי אזורים (Silo Structure) -->
+  <url>
+       <loc>https://jdj.co.il/category.html?type=routes&amp;region=%D7%9E%D7%93%D7%91%D7%A8%20%D7%99%D7%94%D7%95%D7%93%D7%94</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.85</priority>
+  </url>
+  <url>
+       <loc>https://jdj.co.il/category.html?type=routes&amp;region=%D7%94%D7%A0%D7%92%D7%91</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.85</priority>
+  </url>
+  <url>
+       <loc>https://jdj.co.il/category.html?type=routes&amp;region=%D7%91%D7%A7%D7%A2%D7%AA%20%D7%94%D7%99%D7%A8%D7%93%D7%9F</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.85</priority>
+  </url>
+  <url>
+       <loc>https://jdj.co.il/category.html?type=routes&amp;region=%D7%94%D7%A9%D7%95%D7%9E%D7%A8%D7%95%D7%9F</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.85</priority>
+  </url>
+
+  <!-- ⚙️ מקטעים טכניים ומעלות לפי אזורים -->
+  <url>
+       <loc>https://jdj.co.il/category.html?type=technical&amp;region=%D7%9E%D7%93%D7%91%D7%A8%20%D7%99%D7%94%D7%95%D7%93%D7%94</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.8</priority>
+  </url>
+  <url>
+       <loc>https://jdj.co.il/category.html?type=technical&amp;region=%D7%94%D7%A0%D7%92%D7%91</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.8</priority>
+  </url>
+  <url>
+       <loc>https://jdj.co.il/category.html?type=technical&amp;region=%D7%91%D7%A7%D7%A2%D7%AA%20%D7%94%D7%99%D7%A8%D7%93%D7%9F</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
        <priority>0.8</priority>
   </url>
 
-  <!-- מדריכים שימושיים -->
+  <!-- 🔭 נקודות תצפית לפי אזורים -->
+  <url>
+       <loc>https://jdj.co.il/category.html?type=viewpoints&amp;region=%D7%9E%D7%93%D7%91%D7%A8%20%D7%99%D7%94%D7%95%D7%93%D7%94</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.8</priority>
+  </url>
+  <url>
+       <loc>https://jdj.co.il/category.html?type=viewpoints&amp;region=%D7%94%D7%A0%D7%92%D7%91</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.8</priority>
+  </url>
+  <url>
+       <loc>https://jdj.co.il/category.html?type=viewpoints&amp;region=%D7%91%D7%A7%D7%A2%D7%AA%20%D7%94%D7%99%D7%A8%D7%93%D7%9F</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.8</priority>
+  </url>
+
+  <!-- 💧 מעיינות וגבים לפי אזורים -->
+  <url>
+       <loc>https://jdj.co.il/category.html?type=water&amp;region=%D7%9E%D7%93%D7%91%D7%A8%20%D7%99%D7%94%D7%95%D7%93%D7%94</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.8</priority>
+  </url>
+  <url>
+       <loc>https://jdj.co.il/category.html?type=water&amp;region=%D7%94%D7%A0%D7%92%D7%91</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.8</priority>
+  </url>
+  <url>
+       <loc>https://jdj.co.il/category.html?type=water&amp;region=%D7%91%D7%A7%D7%A2%D7%AA%20%D7%94%D7%99%D7%A8%D7%93%D7%9F</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.8</priority>
+  </url>
+
+  <!-- 📌 נקודות עניין לפי אזורים -->
+  <url>
+       <loc>https://jdj.co.il/category.html?type=poi&amp;region=%D7%9E%D7%93%D7%91%D7%A8%20%D7%99%D7%94%D7%95%D7%93%D7%94</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.8</priority>
+  </url>
+  <url>
+       <loc>https://jdj.co.il/category.html?type=poi&amp;region=%D7%94%D7%A0%D7%92%D7%91</loc>
+       <lastmod>2026-08-18</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.8</priority>
+  </url>
+
+  <!-- 🚗 מדריכים שימושיים -->
   <url>
        <loc>https://jdj.co.il/access.html</loc>
        <lastmod>2026-08-18</lastmod>
@@ -69,7 +167,7 @@
        <priority>0.8</priority>
   </url>
 
-  <!-- מידע כללי ומשפטי -->
+  <!-- ℹ️ מידע כללי ומשפטי -->
   <url>
        <loc>https://jdj.co.il/about.html</loc>
        <lastmod>2026-08-18</lastmod>
