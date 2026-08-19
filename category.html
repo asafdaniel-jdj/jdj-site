@@ -583,6 +583,14 @@
             return (val === true || val === 'true' || val === 'כן' || val === 'מתאים' || val === 1 || val === '1');
         }
 
+        // פונקציית נירמול טקסט להשוואה עיוורת לגרשיים, מקפים ורווחים
+        function normalizeString(str) {
+            return (str || '')
+                .toLowerCase()
+                .replace(/['"׳״`\-–—־\s]/g, '')
+                .trim();
+        }
+
         async function initCategoryPage() {
             const urlParams = new URLSearchParams(window.location.search);
             currentCategoryType = urlParams.get('type') || 'routes';
@@ -800,8 +808,18 @@
                     if (filters.is_technical !== null && filters.is_technical !== undefined && isTrueValue(item.is_technical) !== filters.is_technical) return false;
 
                     if (filters.keywords && filters.keywords.length > 0) {
-                        const fullText = `${item.title || ''} ${item.short_description || ''} ${item.waypoint_highlights || ''} ${item.region || ''}`.toLowerCase();
-                        const matchesAny = filters.keywords.some(kw => fullText.includes(kw.toLowerCase()));
+                        const fullTextNormalized = normalizeString(
+                            `${item.title || ''} ${item.short_description || ''} ${item.waypoint_highlights || ''} ${item.route_story || ''} ${item.region || ''}`
+                        );
+
+                        const matchesAny = filters.keywords.some(kw => {
+                            const cleanKw = normalizeString(kw);
+                            if (cleanKw && fullTextNormalized.includes(cleanKw)) return true;
+
+                            const words = kw.split(/[\s\-–—־]+/).map(normalizeString).filter(w => w.length > 2);
+                            return words.some(w => fullTextNormalized.includes(w));
+                        });
+
                         if (!matchesAny) return false;
                     }
 
@@ -836,7 +854,7 @@
             const filterKids = document.getElementById('filterKids').checked;
             const filterNoFiring = document.getElementById('filterNoFiring').checked;
             const filterDifficulty = document.getElementById('filterDifficulty').value;
-            const filterTitle = document.getElementById('filterTitleInput').value.trim().toLowerCase();
+            const filterTitle = normalizeString(document.getElementById('filterTitleInput').value);
             
             const lenShort = document.getElementById('lenShort').checked;
             const lenMed = document.getElementById('lenMed').checked;
@@ -847,14 +865,18 @@
                 if (currentRegionFilter !== 'הכל' && item.region !== currentRegionFilter) return false;
 
                 if (currentSearchQuery.trim() !== '') {
-                    const q = currentSearchQuery.toLowerCase().trim();
-                    const fullText = `${item.title || ''} ${item.short_description || ''} ${item.region || ''} ${item.waypoint_highlights || ''}`.toLowerCase();
-                    if (!fullText.includes(q)) return false;
+                    const qNormalized = normalizeString(currentSearchQuery);
+                    const fullTextNormalized = normalizeString(
+                        `${item.title || ''} ${item.short_description || ''} ${item.region || ''} ${item.waypoint_highlights || ''} ${item.route_story || ''}`
+                    );
+                    if (!fullTextNormalized.includes(qNormalized)) return false;
                 }
 
                 if (filterTitle !== '') {
-                    const itemTitle = (item.title || '').toLowerCase();
-                    if (!itemTitle.includes(filterTitle)) return false;
+                    const itemTitleNormalized = normalizeString(
+                        `${item.title || ''} ${item.waypoint_highlights || ''}`
+                    );
+                    if (!itemTitleNormalized.includes(filterTitle)) return false;
                 }
 
                 if (hasLengthFilter) {
