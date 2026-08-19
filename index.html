@@ -234,7 +234,7 @@
                 </a>
             </div>
 
-            <!-- 🟦 מלבן 2: צור קשר ודיווח מהשטח -->
+            <!-- 🟦 מלבן 2: צור קשר ודיווח מהשטח (מחובר ישירות לוואטסאפ) -->
             <div id="contactSection" class="bg-white rounded-3xl p-5 md:p-8 shadow-sm border-2 border-indigo-900 flex flex-col justify-between space-y-4 md:space-y-5 transition hover:shadow-md">
                 <div class="space-y-1.5 md:space-y-2">
                     <div class="flex items-center justify-between">
@@ -242,7 +242,7 @@
                             <i class="fa-solid fa-comment-dots text-indigo-600 text-sm"></i>
                             <span>דיווח מהשטח</span>
                         </div>
-                        <i class="fa-solid fa-paper-plane text-indigo-900 text-base md:text-lg"></i>
+                        <i class="fa-brands fa-whatsapp text-emerald-600 text-lg"></i>
                     </div>
 
                     <h3 class="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight leading-snug">
@@ -255,16 +255,16 @@
                 </div>
 
                 <form onsubmit="handleContactSubmit(event)" class="space-y-2 text-xs font-bold">
-                    <input type="text" required placeholder="שם מלא" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-500 transition min-h-[44px]">
-                    <input type="tel" required placeholder="טלפון / וואטסאפ" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-500 transition min-h-[44px]">
-                    <textarea rows="2" required placeholder="ספרו לנו מה העדכון..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-500 transition resize-none"></textarea>
+                    <input type="text" id="contactName" required placeholder="שם מלא" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-500 transition min-h-[44px]">
+                    <input type="tel" id="contactPhone" required placeholder="טלפון / וואטסאפ לחזרה" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-500 transition min-h-[44px]">
+                    <textarea id="contactMessage" rows="2" required placeholder="ספרו לנו מה העדכון מהשטח..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-500 transition resize-none"></textarea>
                     
-                    <button type="submit" class="w-full bg-white border-2 border-indigo-900 text-indigo-900 hover:bg-indigo-900 hover:text-white font-extrabold py-2.5 md:py-3 rounded-2xl shadow-sm transition text-xs md:text-sm tracking-tight flex items-center justify-center gap-2 min-h-[44px]">
-                        <i class="fa-solid fa-paper-plane text-xs"></i>
-                        <span>שלח הודעה</span>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-2.5 md:py-3 rounded-2xl shadow-sm transition text-xs md:text-sm tracking-tight flex items-center justify-center gap-2 min-h-[44px]">
+                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                        <span>שלח דיווח ישירות לוואטסאפ</span>
                     </button>
                 </form>
-                <p id="contactToast" class="text-center text-xs text-emerald-600 font-bold hidden">ההודעה נשלחה בהצלחה! תודה רבה.</p>
+                <p id="contactToast" class="text-center text-xs text-emerald-600 font-bold hidden">פותח את הוואטסאפ לשליחה... תודה רבה!</p>
             </div>
 
         </div>
@@ -615,11 +615,30 @@
 
         function handleContactSubmit(e) {
             e.preventDefault();
-            document.getElementById('contactToast').classList.remove('hidden');
+
+            const MY_WHATSAPP_NUMBER = "972506591426"; 
+
+            const name = document.getElementById('contactName').value.trim();
+            const phone = document.getElementById('contactPhone').value.trim();
+            const msg = document.getElementById('contactMessage').value.trim();
+
+            const text = `🚨 *דיווח ופנייה חדשה מאתר מסלולי הג'יפים* 🚙\n\n` +
+                         `👤 *שם השולח:* ${name}\n` +
+                         `📞 *טלפון לחזרה:* ${phone}\n` +
+                         `📝 *תוכן הדיווח מהשטח:*\n${msg}`;
+
+            const waUrl = `https://api.whatsapp.com/send?phone=${MY_WHATSAPP_NUMBER}&text=${encodeURIComponent(text)}`;
+            
+            // פתיחת וואטסאפ בחלון חדש
+            window.open(waUrl, '_blank');
+
+            // חיווי הצלחה ואיפוס הטופס
+            const toast = document.getElementById('contactToast');
+            toast.classList.remove('hidden');
             e.target.reset();
             setTimeout(() => {
-                document.getElementById('contactToast').classList.add('hidden');
-            }, 4000);
+                toast.classList.add('hidden');
+            }, 5000);
         }
 
         initHomePage();
