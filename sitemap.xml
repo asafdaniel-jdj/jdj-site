@@ -4,7 +4,7 @@
   <!-- 🏠 דף הבית -->
   <url>
        <loc>https://jdj.co.il/</loc>
-       <lastmod>2026-08-18</lastmod>
+       <lastmod>2026-08-19</lastmod>
        <changefreq>daily</changefreq>
        <priority>1.0</priority>
   </url>
@@ -12,27 +12,41 @@
   <!-- 📁 עמוד הקטגוריות הראשי -->
   <url>
        <loc>https://jdj.co.il/category.html</loc>
-       <lastmod>2026-08-18</lastmod>
+       <lastmod>2026-08-19</lastmod>
        <changefreq>daily</changefreq>
        <priority>0.9</priority>
+  </url>
+
+  <!-- 📖 סיפורי מדבר ומורשת -->
+  <url>
+       <loc>https://jdj.co.il/stories.html</loc>
+       <lastmod>2026-08-19</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.8</priority>
+  </url>
+  <url>
+       <loc>https://jdj.co.il/article.html</loc>
+       <lastmod>2026-08-19</lastmod>
+       <changefreq>weekly</changefreq>
+       <priority>0.8</priority>
   </url>
 
   <!-- 🚗 מדריכים שימושיים -->
   <url>
        <loc>https://jdj.co.il/access.html</loc>
-       <lastmod>2026-08-18</lastmod>
+       <lastmod>2026-08-19</lastmod>
        <changefreq>weekly</changefreq>
        <priority>0.8</priority>
   </url>
   <url>
        <loc>https://jdj.co.il/mview.html</loc>
-       <lastmod>2026-08-18</lastmod>
+       <lastmod>2026-08-19</lastmod>
        <changefreq>weekly</changefreq>
        <priority>0.8</priority>
   </url>
   <url>
        <loc>https://jdj.co.il/camp.html</loc>
-       <lastmod>2026-08-18</lastmod>
+       <lastmod>2026-08-19</lastmod>
        <changefreq>weekly</changefreq>
        <priority>0.8</priority>
   </url>
@@ -40,13 +54,13 @@
   <!-- ℹ️ מידע כללי ומשפטי -->
   <url>
        <loc>https://jdj.co.il/about.html</loc>
-       <lastmod>2026-08-18</lastmod>
+       <lastmod>2026-08-19</lastmod>
        <changefreq>monthly</changefreq>
        <priority>0.5</priority>
   </url>
   <url>
        <loc>https://jdj.co.il/disclaimer.html</loc>
-       <lastmod>2026-08-18</lastmod>
+       <lastmod>2026-08-19</lastmod>
        <changefreq>monthly</changefreq>
        <priority>0.4</priority>
   </url>
