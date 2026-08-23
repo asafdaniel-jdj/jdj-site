@@ -51,7 +51,6 @@
 
     <style>
         body { font-family: 'Heebo', sans-serif; }
-
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -72,48 +71,90 @@
     </script>
 </head>
 
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between overflow-x-hidden">
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between overflow-x-hidden pb-20 lg:pb-0">
 
     <!-- 🌐 Header עליון -->
     <div class="w-full bg-gradient-to-b from-sky-50/70 via-indigo-50/30 to-slate-50 relative overflow-hidden pb-4 border-b border-slate-200/60">
         <div class="absolute top-0 inset-x-0 h-64 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-100/40 via-transparent to-transparent pointer-events-none"></div>
 
+        <!-- 🌐 תפריט עליון היברידי (Master Header) -->
         <header class="w-full relative z-20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-24 md:h-28">
+                <div class="relative flex items-center justify-between h-24 md:h-28">
                     
-                    <a href="index.html" class="flex items-center group py-2">
-                        <img src="Newlogo.png" alt="מסלולי הג'יפים של מדבר יהודה" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform group-hover:scale-105 duration-200">
-                    </a>
+                    <!-- 1. ימין: לוגו האתר -->
+                    <div class="flex items-center z-10">
+                        <a href="index.html" class="flex items-center group py-2">
+                            <img src="Newlogo.png" alt="מסלולי הג'יפים של מדבר יהודה" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
+                        </a>
+                    </div>
 
-                    <nav class="hidden lg:flex items-center gap-6 xl:gap-9 text-lg md:text-xl font-bold text-slate-900 tracking-tight">
-                        <a href="index.html" class="hover:text-indigo-600 transition">דף הבית</a>
-                        <a href="category.html?type=routes" id="nav-routes" class="hover:text-indigo-600 transition">מסלולי טיול</a>
-                        <a href="category.html?type=technical" id="nav-technical" class="hover:text-indigo-600 transition">מקטעים טכניים</a>
-                        <a href="category.html?type=viewpoints" id="nav-viewpoints" class="hover:text-indigo-600 transition">נקודות תצפית</a>
-                        <a href="category.html?type=water" id="nav-water" class="hover:text-indigo-600 transition">מעיינות וגבים</a>
-                        <a href="category.html?type=poi" id="nav-poi" class="hover:text-indigo-600 transition">נקודות עניין</a>
+                    <!-- 2. מרכז: 4 קטגוריות גלויות על ציר 50% בדיוק עם gap של 20px -->
+                    <nav class="hidden lg:flex items-center justify-center text-lg md:text-xl font-bold text-slate-900 tracking-tight absolute left-1/2 -translate-x-1/2" style="gap: 20px;">
+                        <a href="category.html?type=routes" id="nav-routes" class="hover:text-indigo-600 transition whitespace-nowrap">מסלולי טיול</a>
+                        <a href="category.html?type=technical" id="nav-technical" class="hover:text-indigo-600 transition whitespace-nowrap">מקטעים טכניים</a>
+                        <a href="category.html?type=viewpoints" id="nav-viewpoints" class="hover:text-indigo-600 transition whitespace-nowrap">נקודות תצפית</a>
+                        <a href="category.html?type=water" id="nav-water" class="hover:text-indigo-600 transition whitespace-nowrap">מעיינות וגבים</a>
                     </nav>
 
-                    <button onclick="toggleMobileMenu()" aria-label="פתח תפריט" class="lg:hidden w-11 h-11 rounded-2xl bg-white/80 backdrop-blur-md text-slate-900 flex items-center justify-center transition border border-slate-200 shadow-sm">
-                        <i id="menuIcon" class="fa-solid fa-bars text-xl"></i>
-                    </button>
+                    <!-- 3. שמאל: אייקון המבורגר שחור ונקי -->
+                    <div class="flex items-center z-10">
+                        <button onclick="toggleSideMenu()" aria-label="פתח תפריט" class="w-11 h-11 flex items-center justify-center text-slate-900 hover:text-indigo-600 transition cursor-pointer">
+                            <i class="fa-solid fa-bars text-2xl md:text-3xl"></i>
+                        </button>
+                    </div>
 
                 </div>
-            </div>
-
-            <div id="mobileMenu" class="hidden lg:hidden bg-white/95 backdrop-blur-xl border-t border-slate-200 px-4 pt-3 pb-6 space-y-3 text-slate-900 font-bold text-lg shadow-xl tracking-tight">
-                <a href="index.html" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">🏠 דף הבית</a>
-                <a href="category.html?type=routes" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">מסלולי טיול</a>
-                <a href="category.html?type=technical" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">מקטעים טכניים</a>
-                <a href="category.html?type=viewpoints" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">נקודות תצפית</a>
-                <a href="category.html?type=water" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">מעיינות וגבים</a>
-                <a href="category.html?type=poi" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">נקודות עניין</a>
             </div>
         </header>
     </div>
 
-    <!-- 📄 גוף העמוד הראשי -->
+    <!-- 🚪 תפריט צד מלא (Side Drawer) - נפתח משמאל בלבד -->
+    <div id="sideMenuDrawer" class="fixed inset-0 z-50 pointer-events-none transition-all duration-300">
+        <div id="sideMenuBackdrop" onclick="toggleSideMenu()" class="absolute inset-0 bg-slate-950/60 opacity-0 transition-opacity duration-300"></div>
+
+        <div id="sideMenuPanel" class="absolute top-0 left-0 w-full max-w-[360px] h-full bg-white shadow-2xl px-5 sm:px-6 pt-2.5 pb-5 sm:pt-3 sm:pb-6 flex flex-col justify-between overflow-y-auto transform -translate-x-full transition-transform duration-300 ease-out text-right">
+            <div class="space-y-2">
+                <div class="flex items-center justify-start border-b border-slate-100 pb-1">
+                    <button onclick="toggleSideMenu()" aria-label="סגור תפריט" class="w-9 h-9 -mr-1.5 text-slate-900 hover:text-indigo-600 flex items-center justify-center transition cursor-pointer">
+                        <i class="fa-solid fa-xmark text-2xl"></i>
+                    </button>
+                </div>
+
+                <nav class="flex flex-col text-slate-900 font-bold text-base tracking-tight">
+                    <div class="space-y-0.5">
+                        <a href="category.html?type=routes" id="drawer-nav-routes" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">מסלולי טיול</a>
+                        <a href="category.html?type=technical" id="drawer-nav-technical" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">מקטעים טכניים</a>
+                        <a href="category.html?type=viewpoints" id="drawer-nav-viewpoints" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">נקודות תצפית</a>
+                        <a href="category.html?type=water" id="drawer-nav-water" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">מעיינות וגבים</a>
+                        <a href="category.html?type=poi" id="drawer-nav-poi" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">נקודות עניין</a>
+                    </div>
+                    
+                    <div class="py-2"><div class="border-t border-slate-100"></div></div>
+
+                    <div class="space-y-0.5">
+                        <a href="stories.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">סיפורי מדבר ומורשת</a>
+                        <a href="access.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">דרכי גישה למסלולים</a>
+                        <a href="camp.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">חניוני לילה חינמיים</a>
+                        <a href="mview.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">תצפיות מצוק ההעתקים</a>
+                    </div>
+
+                    <div class="py-2"><div class="border-t border-slate-100"></div></div>
+
+                    <div class="space-y-0.5 text-slate-600 text-sm">
+                        <a href="about.html" class="block py-1.5 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">אודות המיזם</a>
+                        <a href="disclaimer.html" class="block py-1.5 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">הגבלת אחריות ותנאים</a>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 text-xs text-slate-400 text-center font-medium">
+                מסלולי הג'יפים של מדבר יהודה
+            </div>
+        </div>
+    </div>
+
+    <!-- 📄 גוף העמוד הראשי (רוחב מקורי מדויק max-w-5xl) -->
     <main class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-7 space-y-5 flex-grow">
         
         <!-- הודעת טעינה -->
@@ -134,10 +175,10 @@
                     <li class="text-slate-800 font-bold truncate" id="breadcrumbCurrentItem" aria-current="page"></li>
                 </ol>
 
-                <a href="category.html?type=poi" id="backBtnLink" class="bg-white hover:bg-slate-100 text-slate-700 font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-slate-200 shadow-xs transition text-xs flex items-center gap-1.5 shrink-0">
+                <button type="button" onclick="handleGoBack()" id="backBtnLink" class="bg-white hover:bg-slate-100 text-slate-700 font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-slate-200 shadow-xs transition text-xs flex items-center gap-1.5 shrink-0 cursor-pointer">
                     <i class="fa-solid fa-arrow-right"></i>
                     <span>חזרה</span>
-                </a>
+                </button>
             </nav>
 
             <!-- 🎯 כותרת H1 דינמית יחידה -->
@@ -145,76 +186,81 @@
                 <h1 id="mainH1Title" class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight"></h1>
             </header>
 
-            <!-- 🖼️ / 🎬 אזור המדיה המודרני -->
+            <!-- 🖼️ / 🎬 אזור המדיה המודרני (רוחב מלא מעל הפעולות) -->
             <div id="itemMediaWrapper" class="w-full"></div>
 
-            <!-- 📦 כרטיס המידע המרכזי -->
-            <div class="w-full bg-white rounded-3xl p-5 sm:p-7 md:p-8 border border-slate-200/90 shadow-md space-y-6">
+            <!-- 📦 מכלול פנימי: כרטיס המידע + Action Rail סטיקי משמאל (בתוך אותו קונטיינר מקורי) -->
+            <div class="relative w-full flex flex-col lg:flex-row items-start gap-5">
                 
-                <!-- שורת תגיות ותקציר ראשי -->
-                <div class="pb-2 space-y-3">
+                <!-- 📌 כרטיס המידע המרכזי -->
+                <div class="flex-1 min-w-0 w-full bg-white rounded-3xl p-5 sm:p-7 md:p-8 border border-slate-200/90 shadow-md space-y-6">
                     
-                    <div class="flex flex-wrap items-center justify-between gap-3">
+                    <!-- שורת תגיות ותקציר ראשי -->
+                    <div class="pb-2 space-y-3">
                         <div class="flex flex-wrap items-center justify-start gap-2" id="badgeContainer">
                             <span id="itemRegion" class="bg-purple-50 text-purple-900 font-bold text-xs px-3.5 py-1 rounded-full border border-purple-200/80 tracking-wide"></span>
-                            
-                            <!-- תגית סוג נקודה דינמית -->
                             <span id="itemTypeBadge" class="bg-indigo-50 text-indigo-900 font-bold text-xs px-3.5 py-1 rounded-full border border-indigo-200/80 tracking-wide"></span>
-                            
                             <div id="extraBadges" class="flex flex-wrap items-center gap-1.5"></div>
                         </div>
 
-                        <!-- כפתור שיתוף וואטסאפ -->
-                        <div class="flex items-center gap-2 shrink-0">
-                            <button onclick="shareOnWhatsApp()" class="w-9 h-9 bg-emerald-50 hover:bg-emerald-600 text-emerald-600 hover:text-white border border-emerald-200 rounded-xl flex items-center justify-center transition shadow-xs" title="שתף בוואטסאפ">
-                                <i class="fa-brands fa-whatsapp text-base"></i>
-                            </button>
+                        <!-- 📌 תקציר עשיר וייחודי -->
+                        <p id="itemShortDesc" class="text-sm md:text-base text-slate-700 leading-relaxed font-medium pt-1"></p>
+                    </div>
+
+                    <!-- 📊 קונטרול מאפיינים: מוצג אך ורק במקטע טכני -->
+                    <div id="specsContainer" class="hidden bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-100/90">
+                        <div id="specsGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-y-4 gap-x-3 text-xs sm:text-sm"></div>
+                    </div>
+
+                    <!-- 🚘 בלוק מסלולי טיול מלאים הכוללים נקודה זו -->
+                    <div id="includedInRoutesSection" class="hidden w-full bg-slate-50/70 rounded-2xl p-4 sm:p-5 border border-slate-100 space-y-3">
+                        <div class="flex items-center gap-2 border-b border-slate-200/60 pb-2.5">
+                            <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-route"></i>
+                            </div>
+                            <h3 class="text-sm sm:text-base font-black text-slate-900 tracking-tight">
+                                מופיע במסלולי טיול מלאים:
+                            </h3>
                         </div>
+                        
+                        <div id="includedRoutesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
                     </div>
 
-                    <!-- 📌 תקציר עשיר וייחודי -->
-                    <p id="itemShortDesc" class="text-sm md:text-base text-slate-700 leading-relaxed font-medium pt-1"></p>
                 </div>
 
-                <!-- 📊 קונטרול מאפיינים: מוצג אך ורק במקטע טכני -->
-                <div id="specsContainer" class="hidden bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-100/90">
-                    <div id="specsGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-y-4 gap-x-3 text-xs sm:text-sm"></div>
-                </div>
+                <!-- 🎛️ Action Rail סטיקי משמאל (דסקטופ בלבד - Action Dock מהודק) -->
+                <aside class="hidden lg:block w-[172px] shrink-0 sticky top-6 self-start z-10">
+                    <div class="bg-white rounded-3xl p-3 border border-slate-200/90 shadow-md flex flex-col gap-2.5">
+                        
+                        <!-- כותרת ראשית של ה-Dock -->
+                        <div class="flex items-center justify-center gap-1.5 border-b border-slate-100 pb-2 text-slate-700 font-extrabold text-xs tracking-tight">
+                            <i class="fa-solid fa-location-dot text-indigo-600 text-[11px]"></i>
+                            <span>פעולות בנקודה</span>
+                        </div>
 
-                <!-- 🔘 כפתורי פעולה CTA: אופרוד ראשי + פייסבוק משני -->
-                <div class="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-slate-100">
-                    
-                    <!-- Primary CTA: אופרוד -->
-                    <a id="itemOffroadBtn" href="#" target="_blank" rel="noopener noreferrer" class="w-full sm:flex-[1.6] bg-blue-900 hover:bg-slate-900 text-white font-black py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-map-location-dot text-white text-sm"></i>
-                        <span>פתח את מיקום הנקודה באופרוד</span>
-                    </a>
+                        <!-- 1. כפתור ראשי Offroad (שורה אחת, אייקון מימין, טקסט מוגדל ובולט) -->
+                        <div id="desktopPrimaryCtaContainer"></div>
 
-                    <!-- Secondary CTA: פוסט בפייסבוק -->
-                    <a id="itemFbBtn" href="#" target="_blank" rel="noopener noreferrer" class="w-full sm:flex-[1.2] bg-white hover:bg-blue-50 text-blue-700 font-bold py-3.5 px-4 rounded-xl text-center text-xs sm:text-sm border-2 border-blue-400 transition flex items-center justify-center gap-2 hidden">
-                        <i class="fa-brands fa-facebook text-blue-600 text-sm"></i>
-                        <span>לפוסט בפייסבוק</span>
-                    </a>
+                        <!-- 2. פעולה נוספת (צפה בפוסט) בתוך מסגרת דקה אם קיימת -->
+                        <div id="desktopActionsOutlineGroup" class="rounded-2xl border border-indigo-200 bg-indigo-50/20 p-1.5 flex flex-col gap-1 hidden"></div>
 
-                </div>
+                        <!-- מפריד ויזואלי -->
+                        <div class="border-t border-slate-200/80 pt-1.5 mt-0.5 space-y-1.5">
+                            <!-- כותרת שיתוף מחוזקת -->
+                            <div class="text-xs font-black text-slate-700 text-center tracking-wide">
+                                שיתוף
+                            </div>
+                            
+                            <!-- 3. קבוצת שיתוף ופעולות משניות (שלח לחברים + העתק קישור) -->
+                            <div id="desktopSecondaryActions" class="flex flex-col gap-1.5"></div>
+                        </div>
+
+                    </div>
+                </aside>
 
             </div>
 
-            <!-- 🚘 בלוק מסלולי טיול מלאים הכוללים נקודה זו -->
-            <div id="includedInRoutesSection" class="hidden w-full bg-white rounded-3xl p-5 sm:p-7 border border-slate-200 shadow-md space-y-4">
-                <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
-                        <i class="fa-solid fa-route"></i>
-                    </div>
-                    <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                        מופיע במסלולי טיול מלאים:
-                    </h3>
-                </div>
-                
-                <div id="includedRoutesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            </div>
-
-            <!-- 🛑 אזור סיום תוכן ומעבר להמלצות -->
+            <!-- 🛑 אזור סיום תוכן ומעבר להמלצות (ה-Action Rail נעצר מעל אזור זה) -->
             <div class="pt-6 mt-8 border-t border-slate-200/80 space-y-6">
 
                 <!-- 💬 באנר וואטסאפ -->
@@ -254,6 +300,82 @@
         </article>
 
     </main>
+
+    <!-- 📱 מובייל: Sticky Bottom Action Bar (ברור, מהודק עם כפתור 'פעולות' מחוזק ו-Active state) -->
+    <div id="mobileBottomBar" class="lg:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-2.5 px-4 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] flex items-center gap-2.5">
+        <button id="mobileOffroadBtn" onclick="triggerActionGate('offroad')" class="flex-[3] bg-blue-900 hover:bg-slate-900 active:scale-[0.98] text-white font-black py-3 px-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-xs transition cursor-pointer">
+            <i class="fa-solid fa-map-location-dot text-sm"></i>
+            <span>פתח באופרוד</span>
+        </button>
+        <button onclick="toggleMobileActionsSheet()" class="flex-[1.2] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-[0.98] text-slate-900 font-extrabold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs sm:text-sm border border-slate-300 shadow-xs shrink-0 transition-all duration-150 cursor-pointer" title="פעולות נוספות">
+            <span class="tracking-tight">פעולות</span>
+            <i class="fa-solid fa-bars text-xs text-slate-700"></i>
+        </button>
+    </div>
+
+    <!-- 📱 פאנל פעולות תחתון למובייל (Bottom Sheet - עם Drag Handle ו-Active States מובחנים) -->
+    <div id="mobileActionsSheet" class="fixed inset-0 z-50 pointer-events-none transition-all duration-300 lg:hidden">
+        <div id="mobileSheetBackdrop" onclick="toggleMobileActionsSheet()" class="absolute inset-0 bg-slate-950/60 opacity-0 transition-opacity duration-300"></div>
+        <div id="mobileSheetPanel" class="absolute bottom-0 inset-x-0 bg-white rounded-t-3xl pt-3 px-5 pb-5 shadow-2xl transform translate-y-full transition-transform duration-300 space-y-4 max-h-[85vh] overflow-y-auto">
+            
+            <!-- Drag Handle מרכזי -->
+            <div class="flex justify-center pb-1">
+                <div class="w-11 h-1 bg-slate-300 rounded-full"></div>
+            </div>
+
+            <!-- כותרת ראשית של ה-Sheet -->
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2 text-slate-900 font-black text-base">
+                    <i class="fa-solid fa-location-dot text-indigo-600 text-sm"></i>
+                    <h4>פעולות בנקודה</h4>
+                </div>
+                <button onclick="toggleMobileActionsSheet()" class="w-8 h-8 rounded-full bg-slate-100 active:bg-slate-200 active:scale-95 text-slate-600 flex items-center justify-center cursor-pointer transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            
+            <!-- 1. פעולות עיקריות נוספות (ללא כפילות של אופרוד שקיים כבר בבר התחתון) -->
+            <div id="mobilePrimaryActionsContainer" class="flex flex-col gap-2"></div>
+
+            <!-- מפריד ויזואלי -->
+            <div class="border-t border-slate-200/80 pt-2 space-y-2">
+                <div class="text-xs font-black text-slate-700 text-center tracking-wide">
+                    שיתוף
+                </div>
+                
+                <!-- 2. פעולות שיתוף בשתי עמודות (זו לצד זו עם active state) -->
+                <div id="mobileSecondaryActionsContainer" class="grid grid-cols-2 gap-2"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 🔻 מודאל אזהרת בטיחות לפני פתיחת הנקודה באופרוד -->
+    <div id="warningModalOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl relative border border-amber-200 text-center space-y-5">
+            <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl mx-auto border border-amber-300/60 shadow-inner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+
+            <div class="space-y-2">
+                <h3 class="text-lg font-black text-slate-900">אזהרת בטיחות ואחריות אישית</h3>
+                <p id="actionGateText" class="text-xs text-slate-600 leading-relaxed font-medium whitespace-pre-line">
+                    טוען אזהרת בטיחות...
+                </p>
+            </div>
+
+            <div class="pt-2 space-y-2">
+                <button onclick="confirmActionGate()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-3 px-4 rounded-xl text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-check"></i>
+                    <span>הבנתי, המשך לפעולה</span>
+                </button>
+
+                <button onclick="closeActionGate()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-xl text-xs transition cursor-pointer">
+                    ביטול
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- 🎬 Modal וידאו -->
     <div id="videoModal" class="fixed inset-0 bg-black/95 z-50 hidden flex-col justify-between p-4 md:p-8">
@@ -306,7 +428,6 @@
         </div>
 
         <div class="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-8 text-xs md:text-sm font-bold tracking-tight">
-            
             <div class="border-b border-slate-800 md:border-b-0 pb-2 md:pb-0 space-y-3">
                 <button onclick="toggleFooterAccordion('footerSec1', 'footerArr1')" class="w-full flex items-center justify-between py-2 md:py-0 text-white font-black text-sm md:text-base md:border-b md:border-slate-800 md:pb-2 cursor-pointer md:cursor-default">
                     <span>סוגי תוכן באתר</span>
@@ -342,6 +463,7 @@
                 <ul id="footerSec3" class="hidden md:block space-y-2 text-slate-400 font-semibold pb-2 md:pb-0 transition-all duration-200">
                     <li><a href="about.html" class="hover:text-indigo-400 transition block py-1 md:py-0">ℹ️ אודות המיזם והחזון</a></li>
                     <li><a href="disclaimer.html" class="hover:text-indigo-400 transition block py-1 md:py-0">⚖️ הגבלת אחריות ותנאים</a></li>
+                    <li><a href="accessibility.html" class="hover:text-indigo-400 transition block py-1 md:py-0">♿ הצהרת נגישות</a></li>
                 </ul>
             </div>
 
@@ -368,6 +490,7 @@
                 <div class="flex items-center gap-4">
                     <a href="disclaimer.html" class="hover:text-slate-300 transition underline">הגבלת אחריות</a>
                     <a href="about.html" class="hover:text-slate-300 transition underline">אודות</a>
+                    <a href="accessibility.html" class="hover:text-slate-300 transition underline">הצהרת נגישות</a>
                 </div>
             </div>
         </div>
@@ -400,25 +523,93 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const TYPE_TO_CATEGORY_CONFIG = {
-            'מקטע טכני':    { key: 'technical',  label: 'מקטעים טכניים', navId: 'nav-technical' },
-            'נקודת תצפית':  { key: 'viewpoints', label: 'נקודות תצפית',  navId: 'nav-viewpoints' },
-            'נקודות תצפית': { key: 'viewpoints', label: 'נקודות תצפית',  navId: 'nav-viewpoints' },
-            'מעין':         { key: 'water',      label: 'מעיינות וגבים', navId: 'nav-water' },
-            'מעיין':        { key: 'water',      label: 'מעיינות וגבים', navId: 'nav-water' },
-            'גב מים':       { key: 'water',      label: 'מעיינות וגבים', navId: 'nav-water' },
-            'מעיינות וגבים':{ key: 'water',      label: 'מעיינות וגבים', navId: 'nav-water' },
-            'נקודת עניין':  { key: 'poi',        label: 'נקודות עניין',  navId: 'nav-poi' },
-            'נקודות עניין': { key: 'poi',        label: 'נקודות עניין',  navId: 'nav-poi' },
-            'מקום היסטורי': { key: 'poi',        label: 'נקודות עניין',  navId: 'nav-poi' }
+            'מקטע טכני':    { key: 'technical',  label: 'מקטעים טכניים', navId: 'nav-technical', drawerId: 'drawer-nav-technical' },
+            'נקודת תצפית':  { key: 'viewpoints', label: 'נקודות תצפית',  navId: 'nav-viewpoints', drawerId: 'drawer-nav-viewpoints' },
+            'נקודות תצפית': { key: 'viewpoints', label: 'נקודות תצפית',  navId: 'nav-viewpoints', drawerId: 'drawer-nav-viewpoints' },
+            'מעין':         { key: 'water',      label: 'מעיינות וגבים', navId: 'nav-water',      drawerId: 'drawer-nav-water' },
+            'מעיין':        { key: 'water',      label: 'מעיינות וגבים', navId: 'nav-water',      drawerId: 'drawer-nav-water' },
+            'גב מים':       { key: 'water',      label: 'מעיינות וגבים', navId: 'nav-water',      drawerId: 'drawer-nav-water' },
+            'מעיינות וגבים':{ key: 'water',      label: 'מעיינות וגבים', navId: 'nav-water',      drawerId: 'drawer-nav-water' },
+            'נקודת עניין':  { key: 'poi',        label: 'נקודות עניין',  navId: 'nav-poi',        drawerId: 'drawer-nav-poi' },
+            'נקודות עניין': { key: 'poi',        label: 'נקודות עניין',  navId: 'nav-poi',        drawerId: 'drawer-nav-poi' },
+            'מקום היסטורי': { key: 'poi',        label: 'נקודות עניין',  navId: 'nav-poi',        drawerId: 'drawer-nav-poi' }
         };
 
+        let globalWarningText = "";
         let currentProduct = null;
+        let pendingActionType = null;
         let currentLightboxImages = [];
         let currentLightboxIndex = 0;
+        let defaultCategoryKey = 'poi';
 
-        function toggleMobileMenu() {
-            document.getElementById('mobileMenu').classList.toggle('hidden');
+        function handleGoBack() {
+            if (document.referrer && document.referrer.includes(window.location.host)) {
+                window.history.back();
+            } else {
+                window.location.href = `category.html?type=${defaultCategoryKey}`;
+            }
         }
+
+        function toggleSideMenu() {
+            const drawer = document.getElementById('sideMenuDrawer');
+            const backdrop = document.getElementById('sideMenuBackdrop');
+            const panel = document.getElementById('sideMenuPanel');
+
+            if (!drawer || !backdrop || !panel) return;
+
+            const isClosed = drawer.classList.contains('pointer-events-none');
+
+            if (isClosed) {
+                drawer.classList.remove('pointer-events-none');
+                document.body.classList.add('overflow-hidden');
+                setTimeout(() => {
+                    backdrop.classList.remove('opacity-0');
+                    panel.classList.remove('-translate-x-full');
+                }, 10);
+            } else {
+                backdrop.classList.add('opacity-0');
+                panel.classList.add('-translate-x-full');
+                document.body.classList.remove('overflow-hidden');
+                setTimeout(() => {
+                    drawer.classList.add('pointer-events-none');
+                }, 300);
+            }
+        }
+
+        function toggleMobileActionsSheet() {
+            const sheet = document.getElementById('mobileActionsSheet');
+            const backdrop = document.getElementById('mobileSheetBackdrop');
+            const panel = document.getElementById('mobileSheetPanel');
+            if (!sheet || !backdrop || !panel) return;
+
+            const isClosed = sheet.classList.contains('pointer-events-none');
+            if (isClosed) {
+                sheet.classList.remove('pointer-events-none');
+                setTimeout(() => {
+                    backdrop.classList.remove('opacity-0');
+                    panel.classList.remove('translate-y-full');
+                }, 10);
+            } else {
+                backdrop.classList.add('opacity-0');
+                panel.classList.add('translate-y-full');
+                setTimeout(() => {
+                    sheet.classList.add('pointer-events-none');
+                }, 300);
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const drawer = document.getElementById('sideMenuDrawer');
+                if (drawer && !drawer.classList.contains('pointer-events-none')) toggleSideMenu();
+                const sheet = document.getElementById('mobileActionsSheet');
+                if (sheet && !sheet.classList.contains('pointer-events-none')) toggleMobileActionsSheet();
+                const videoModal = document.getElementById('videoModal');
+                if (videoModal && !videoModal.classList.contains('hidden')) closeVideoModal();
+                const lb = document.getElementById('lightboxModal');
+                if (lb && !lb.classList.contains('hidden')) closeLightbox();
+            }
+        });
 
         function toggleFooterAccordion(contentId, arrowId) {
             if (window.innerWidth >= 768) return;
@@ -452,9 +643,27 @@
             return videos;
         }
 
+        async function fetchGlobalWarningFromDB() {
+            try {
+                const { data } = await supabaseClient
+                    .from('pages')
+                    .select('warning_text')
+                    .eq('id', 'disclaimer')
+                    .single();
+
+                if (data && data.warning_text) {
+                    globalWarningText = data.warning_text;
+                }
+            } catch (e) {
+                console.log('Error fetching global warning:', e);
+            }
+        }
+
         async function initPointPage() {
             const urlParams = new URLSearchParams(window.location.search);
             const itemId = urlParams.get('id');
+
+            fetchGlobalWarningFromDB();
 
             if (!itemId) {
                 document.getElementById('loadingState').innerHTML = `
@@ -487,6 +696,120 @@
             }
         }
 
+        /* 🎛️ Action Rail & Mobile Action Sheet Rendering for POINT */
+        function renderActionRails(item) {
+            const primaryCta = {
+                id: 'offroad',
+                label: 'פתח באופרוד',
+                icon: 'fa-solid fa-map-location-dot',
+                show: true,
+                onClick: () => triggerActionGate('offroad')
+            };
+
+            const secondaryActionList = [
+                {
+                    id: 'facebook',
+                    label: 'צפה בפוסט',
+                    icon: 'fa-brands fa-facebook',
+                    iconColor: 'text-blue-600',
+                    show: !!(item.facebook_link && item.facebook_link.trim() !== ''),
+                    onClick: () => openFacebookDirect()
+                }
+            ];
+
+            const shareActionList = [
+                {
+                    id: 'whatsapp',
+                    label: 'שלח לחברים',
+                    icon: 'fa-brands fa-whatsapp text-emerald-600 text-sm',
+                    show: true,
+                    onClick: () => shareOnWhatsApp()
+                },
+                {
+                    id: 'copyLink',
+                    label: 'העתק קישור',
+                    icon: 'fa-solid fa-link text-slate-600 text-xs',
+                    show: true,
+                    onClick: (btnEl) => copyPointLink(btnEl)
+                }
+            ];
+
+            // 1. דסקטופ: Action Dock שמאלי
+            const ctaContainer = document.getElementById('desktopPrimaryCtaContainer');
+            const outlineGroup = document.getElementById('desktopActionsOutlineGroup');
+            const desktopSecondary = document.getElementById('desktopSecondaryActions');
+            
+            ctaContainer.innerHTML = '';
+            outlineGroup.innerHTML = '';
+            desktopSecondary.innerHTML = '';
+
+            // 1.1 כפתור ראשי Offroad בדסקטופ
+            const ctaBtn = document.createElement('button');
+            ctaBtn.onclick = primaryCta.onClick;
+            ctaBtn.className = 'w-full bg-blue-900 hover:bg-slate-900 active:scale-[0.98] text-white font-black py-3 px-3 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border border-blue-950/40 text-center';
+            ctaBtn.innerHTML = `<i class="${primaryCta.icon} text-sm shrink-0 text-white"></i><span class="text-[13px] font-black tracking-tight whitespace-nowrap">${primaryCta.label}</span>`;
+            ctaContainer.appendChild(ctaBtn);
+
+            // 1.2 פעולה נוספת (פייסבוק)
+            const visibleSecondary = secondaryActionList.filter(a => a.show);
+            if (visibleSecondary.length > 0) {
+                outlineGroup.classList.remove('hidden');
+                visibleSecondary.forEach(act => {
+                    const btn = document.createElement('button');
+                    btn.onclick = act.onClick;
+                    btn.className = 'w-full bg-white hover:bg-indigo-50/80 active:scale-[0.98] text-slate-800 hover:text-indigo-950 font-bold py-2 px-2.5 rounded-xl text-xs border border-indigo-100 hover:border-indigo-300 shadow-2xs transition-all duration-150 flex items-center gap-2 text-right cursor-pointer';
+                    btn.innerHTML = `<i class="${act.icon} ${act.iconColor || 'text-indigo-600'} text-xs shrink-0 w-4 text-center"></i><span class="font-bold leading-tight whitespace-nowrap">${act.label}</span>`;
+                    outlineGroup.appendChild(btn);
+                });
+            } else {
+                outlineGroup.classList.add('hidden');
+            }
+
+            // 1.3 פעולות שיתוף בדסקטופ
+            shareActionList.filter(a => a.show).forEach(act => {
+                const btn = document.createElement('button');
+                btn.onclick = () => act.onClick(btn);
+                btn.className = 'w-full bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-700 hover:text-slate-950 font-bold py-2 px-2.5 rounded-xl text-xs border border-slate-200 hover:border-slate-300 shadow-2xs transition-all duration-150 flex items-center gap-2 text-right cursor-pointer';
+                btn.innerHTML = `<i class="${act.icon} shrink-0 w-4 text-center"></i><span class="btn-text font-bold leading-tight whitespace-nowrap">${act.label}</span>`;
+                desktopSecondary.appendChild(btn);
+            });
+
+            // 2. מובייל: Bottom Sheet
+            const mobilePrimaryContainer = document.getElementById('mobilePrimaryActionsContainer');
+            const mobileSecondaryContainer = document.getElementById('mobileSecondaryActionsContainer');
+            
+            mobilePrimaryContainer.innerHTML = '';
+            mobileSecondaryContainer.innerHTML = '';
+
+            // 2.1 פעולה נוספת במובייל (פייסבוק)
+            if (visibleSecondary.length > 0) {
+                mobilePrimaryContainer.classList.remove('hidden');
+                visibleSecondary.forEach(act => {
+                    const btn = document.createElement('button');
+                    btn.onclick = () => {
+                        toggleMobileActionsSheet();
+                        act.onClick();
+                    };
+                    btn.className = 'w-full bg-slate-50 hover:bg-indigo-50/70 active:bg-indigo-100 active:border-indigo-300 active:scale-[0.98] text-slate-800 font-bold py-3 px-4 rounded-xl text-sm border border-slate-200 shadow-xs flex items-center gap-3 text-right transition-all duration-150 cursor-pointer';
+                    btn.innerHTML = `<i class="${act.icon} ${act.iconColor || 'text-indigo-600'} text-base w-5 text-center shrink-0"></i><span class="font-bold leading-tight">${act.label}</span>`;
+                    mobilePrimaryContainer.appendChild(btn);
+                });
+            } else {
+                mobilePrimaryContainer.classList.add('hidden');
+            }
+
+            // 2.2 פעולות שיתוף במובייל (2 עמודות)
+            shareActionList.filter(a => a.show).forEach(act => {
+                const btn = document.createElement('button');
+                btn.onclick = () => {
+                    act.onClick(btn);
+                };
+                btn.className = 'w-full bg-white hover:bg-slate-50 active:bg-slate-100 active:border-slate-300 active:scale-[0.98] text-slate-800 font-bold py-2.5 px-3 rounded-xl text-xs border border-slate-200 shadow-xs flex items-center justify-center gap-2 transition-all duration-150 cursor-pointer text-center';
+                btn.innerHTML = `<i class="${act.icon} shrink-0"></i><span class="btn-text font-bold leading-tight">${act.label}</span>`;
+                mobileSecondaryContainer.appendChild(btn);
+            });
+        }
+
         function renderPointDetails(item) {
             document.getElementById('loadingState').classList.add('hidden');
             document.getElementById('itemContainer').classList.remove('hidden');
@@ -497,11 +820,19 @@
             const isTech = routeType === 'מקטע טכני';
             const itemUrl = `https://jdj.co.il/point.html?id=${item.id}`;
 
-            const catConfig = TYPE_TO_CATEGORY_CONFIG[routeType] || { key: 'poi', label: 'נקודות עניין', navId: 'nav-poi' };
+            const catConfig = TYPE_TO_CATEGORY_CONFIG[routeType] || { key: 'poi', label: 'נקודות עניין', navId: 'nav-poi', drawerId: 'drawer-nav-poi' };
+            defaultCategoryKey = catConfig.key;
 
             const activeNav = document.getElementById(catConfig.navId);
             if (activeNav) {
                 activeNav.classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600', 'pb-0.5');
+            }
+
+            if (catConfig.drawerId) {
+                const activeDrawerNav = document.getElementById(catConfig.drawerId);
+                if (activeDrawerNav) {
+                    activeDrawerNav.classList.add('text-indigo-600', 'bg-indigo-50/60');
+                }
             }
 
             const pageTitle = `${cleanTitle} - ${routeType} ב${regionName} | מסלולי הג'יפים של מדבר יהודה`;
@@ -524,7 +855,6 @@
 
             document.getElementById('breadcrumbCategoryLink').innerText = catConfig.label;
             document.getElementById('breadcrumbCategoryLink').href = `category.html?type=${catConfig.key}`;
-            document.getElementById('backBtnLink').href = `category.html?type=${catConfig.key}`;
             document.getElementById('breadcrumbCurrentItem').innerText = cleanTitle;
             document.getElementById('mainH1Title').innerText = cleanTitle;
 
@@ -637,26 +967,14 @@
                 specsGrid.innerHTML = '';
             }
 
-            const offroadBtn = document.getElementById('itemOffroadBtn');
-            if (item.offroad_link) {
-                offroadBtn.href = item.offroad_link;
-            } else {
-                offroadBtn.href = `https://offroad.co.il/search?q=${encodeURIComponent(cleanTitle)}`;
-            }
-
-            const fbBtn = document.getElementById('itemFbBtn');
-            if (item.facebook_link && item.facebook_link.trim() !== '') {
-                fbBtn.href = item.facebook_link;
-                fbBtn.classList.remove('hidden');
-            } else {
-                fbBtn.classList.add('hidden');
-            }
-
             const seeAllBtn = document.getElementById('seeAllRelatedBtn');
             if (seeAllBtn) {
                 seeAllBtn.href = `category.html?type=${catConfig.key}`;
                 seeAllBtn.innerText = `לכל ה${catConfig.label} ←`;
             }
+
+            // רינדור מערכת הפעולות החדשה
+            renderActionRails(item);
         }
 
         function renderHeroMedia(item) {
@@ -734,6 +1052,46 @@
             }
         }
 
+        function triggerActionGate(actionType) {
+            if (!currentProduct) return;
+            pendingActionType = actionType;
+
+            const textEl = document.getElementById('actionGateText');
+            if (currentProduct.warning_text && currentProduct.warning_text.trim() !== '') {
+                textEl.innerText = currentProduct.warning_text;
+            } else if (globalWarningText && globalWarningText.trim() !== '') {
+                textEl.innerText = globalWarningText;
+            } else {
+                textEl.innerText = "הנסיעה בשטח פתוח ובמסלולי 4x4 כרוכה בסיכונים אמיתיים - כולל תנאי דרך משתנים, מזג אוויר קיצוני ואזורים מרוחקים ללא כיסוי סלולרי. השימוש באתר ובמידע המוצג בו הוא באחריותכם הבלעדית, ואינו מהווה תחליף לשיקול דעת עצמאי, בדיקת תנאי השטח מול הרשויות הרלוונטיות, והתאמת הרכב והציוד למסלול.";
+            }
+
+            const modal = document.getElementById('warningModalOverlay');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeActionGate() {
+            pendingActionType = null;
+            const modal = document.getElementById('warningModalOverlay');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function confirmActionGate() {
+            if (!currentProduct || !pendingActionType) return;
+            closeActionGate();
+
+            const cleanTitle = cleanDashes(currentProduct.title);
+            const targetUrl = currentProduct.offroad_link || `https://offroad.co.il/search?q=${encodeURIComponent(cleanTitle)}`;
+            window.open(targetUrl, '_blank');
+        }
+
+        function openFacebookDirect() {
+            if (currentProduct && currentProduct.facebook_link) {
+                window.open(currentProduct.facebook_link, '_blank');
+            }
+        }
+
         function openVideoModal(videoSrc) {
             const modal = document.getElementById('videoModal');
             const player = document.getElementById('modalVideoPlayer');
@@ -773,26 +1131,26 @@
 
                 data.forEach(route => {
                     const card = document.createElement('div');
-                    card.className = 'flex flex-col sm:flex-row items-center gap-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-indigo-300 transition group';
+                    card.className = 'flex flex-col sm:flex-row items-center gap-3 p-3 rounded-2xl bg-white border border-slate-200/80 hover:border-indigo-300 transition group';
                     
                     const imageSrc = route.main_image || 'access-banner.jpg';
                     const routeTitle = cleanDashes(route.title);
 
                     card.innerHTML = `
-                        <div class="w-full sm:w-28 h-28 shrink-0 rounded-xl overflow-hidden bg-slate-200 relative border border-slate-100">
+                        <div class="w-full sm:w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-slate-200 relative border border-slate-100">
                             <img src="${imageSrc}" alt="${routeTitle}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                         </div>
-                        <div class="flex-grow flex flex-col justify-between w-full space-y-2">
+                        <div class="flex-grow flex flex-col justify-between w-full space-y-1.5">
                             <div>
                                 <span class="text-[10px] font-extrabold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
                                     ${route.region || 'מדבר יהודה'}
                                 </span>
-                                <h4 class="font-bold text-slate-900 text-sm mt-1 leading-snug group-hover:text-indigo-600 transition">
+                                <h4 class="font-bold text-slate-900 text-xs sm:text-sm mt-1 leading-snug group-hover:text-indigo-600 transition">
                                     ${routeTitle}
                                 </h4>
-                                ${route.length_km ? `<p class="text-slate-500 text-xs mt-0.5">${route.length_km} ק"מ · ${route.duration_hours ? route.duration_hours.substring(0, 5) : 'יום שלם'}</p>` : ''}
+                                ${route.length_km ? `<p class="text-slate-500 text-[11px] mt-0.5">${route.length_km} ק"מ · ${route.duration_hours ? route.duration_hours.substring(0, 5) : 'יום שלם'}</p>` : ''}
                             </div>
-                            <a href="item.html?id=${route.id}" class="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto self-start bg-indigo-900 hover:bg-slate-900 text-white font-bold text-xs py-2 px-3.5 rounded-lg transition shadow-xs">
+                            <a href="item.html?id=${route.id}" class="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto self-start bg-indigo-900 hover:bg-slate-900 text-white font-bold text-xs py-1.5 px-3 rounded-lg transition shadow-xs">
                                 <span>למסלול המלא</span>
                                 <i class="fa-solid fa-arrow-left text-[10px]"></i>
                             </a>
@@ -932,6 +1290,49 @@
             window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(shareText), '_blank');
         }
 
+        function copyPointLink(btnEl) {
+            const url = window.location.href;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    handleCopyFeedback(btnEl);
+                }).catch(() => fallbackCopyText(url, btnEl));
+            } else {
+                fallbackCopyText(url, btnEl);
+            }
+        }
+
+        function fallbackCopyText(text, btnEl) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                handleCopyFeedback(btnEl);
+            } catch (err) {
+                alert('העתקת הקישור לא נתמכת במכשיר זה');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function handleCopyFeedback(btnEl) {
+            if (btnEl) {
+                const textSpan = btnEl.querySelector('.btn-text');
+                if (textSpan) {
+                    const originalText = textSpan.innerText;
+                    textSpan.innerHTML = '<span class="text-emerald-700 font-black">הועתק ✓</span>';
+                    setTimeout(() => {
+                        textSpan.innerText = originalText;
+                    }, 2000);
+                }
+            }
+        }
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeLightbox();
@@ -990,5 +1391,6 @@
             checkCookieConsent();
         }
     </script>
+    <script src="accessibility.js"></script>
 </body>
 </html>
