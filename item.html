@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 
 <head>
@@ -25,7 +25,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta name="description" id="metaDescription" content="צפו בפרטי המסלול המלאים, דרגת קושי ועבירות, נקודות ציון לאורך הדרך, מפת שטח אינטראקטיבית וקובץ GPX להורדה למטיילי שטח 4x4.">
     <link rel="canonical" id="canonicalUrl" href="https://jdj.co.il/item.html">
     
-    <!-- תגיות Open Graph דינמיות לשיתוף -->
+    <!-- Open Graph -->
     <meta property="og:type" content="article">
     <meta property="og:url" id="ogUrl" content="https://jdj.co.il/item.html">
     <meta property="og:title" id="ogTitle" content="מסלולי הג'יפים של מדבר יהודה">
@@ -80,33 +80,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NS38C48X"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
 
     <!-- 🌐 Hero Header -->
     <div class="w-full bg-gradient-to-b from-sky-50/70 via-indigo-50/30 to-slate-50 relative overflow-hidden pb-4 border-b border-slate-200/60">
         <div class="absolute top-0 inset-x-0 h-64 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-100/40 via-transparent to-transparent pointer-events-none"></div>
 
-        <!-- 🌐 תפריט עליון היברידי (Master Header) -->
         <header class="w-full relative z-20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="relative flex items-center justify-between h-24 md:h-28">
                     
-                    <!-- 1. ימין: לוגו האתר -->
                     <div class="flex items-center z-10">
                         <a href="index.html" class="flex items-center group py-2">
                             <img src="Newlogo.png" alt="מסלולי הג'יפים של מדבר יהודה" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
                         </a>
                     </div>
 
-                    <!-- 2. מרכז: 4 קטגוריות גלויות על ציר 50% בדיוק עם gap של 20px -->
                     <nav class="hidden lg:flex items-center justify-center text-lg md:text-xl font-bold text-slate-900 tracking-tight absolute left-1/2 -translate-x-1/2" style="gap: 20px;">
                         <a href="category.html?type=routes" id="nav-routes" class="text-indigo-600 border-b-2 border-indigo-600 pb-0.5 transition whitespace-nowrap">מסלולי טיול</a>
                         <a href="category.html?type=technical" id="nav-technical" class="hover:text-indigo-600 transition whitespace-nowrap">מקטעים טכניים</a>
-                        <a href="category.html?type=viewpoints" id="nav-viewpoints" class="hover:text-indigo-600 transition whitespace-nowrap">נקודות תצפית</a>
+                        <a href="khan-catalog.html" id="nav-khans" class="hover:text-indigo-600 transition whitespace-nowrap">חאנים ולינה</a>
                         <a href="category.html?type=water" id="nav-water" class="hover:text-indigo-600 transition whitespace-nowrap">מעיינות וגבים</a>
                     </nav>
 
-                    <!-- 3. שמאל: אייקון המבורגר שחור ונקי -->
                     <div class="flex items-center z-10">
                         <button onclick="toggleSideMenu()" aria-label="פתח תפריט" class="w-11 h-11 flex items-center justify-center text-slate-900 hover:text-indigo-600 transition cursor-pointer">
                             <i class="fa-solid fa-bars text-2xl md:text-3xl"></i>
@@ -118,7 +113,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </header>
     </div>
 
-    <!-- 🚪 תפריט צד מלא (Side Drawer) - נפתח משמאל בלבד -->
+    <!-- 🚪 תפריט צד מלא -->
     <div id="sideMenuDrawer" class="fixed inset-0 z-50 pointer-events-none transition-all duration-300">
         <div id="sideMenuBackdrop" onclick="toggleSideMenu()" class="absolute inset-0 bg-slate-950/60 opacity-0 transition-opacity duration-300"></div>
 
@@ -142,6 +137,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="py-2"><div class="border-t border-slate-100"></div></div>
 
                     <div class="space-y-0.5">
+                        <a href="khan-catalog.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">חאנים ומתחמי לינה</a>
                         <a href="stories.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">סיפורי מדבר ומורשת</a>
                         <a href="access.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">דרכי גישה למסלולים</a>
                         <a href="camp.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">חניוני לילה חינמיים</a>
@@ -163,10 +159,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </div>
 
-    <!-- 📄 גוף העמוד הראשי (רוחב מקורי מדויק max-w-5xl) -->
+    <!-- 📄 גוף העמוד הראשי -->
     <main class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-7 space-y-5 flex-grow">
         
-        <!-- הודעת טעינה -->
         <div id="loadingState" class="text-center py-20">
             <i class="fa-solid fa-spinner fa-spin text-4xl text-indigo-600 mb-4"></i>
             <p class="text-slate-600 font-bold text-lg">טוען נתונים...</p>
@@ -174,7 +169,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <div id="itemContainer" class="hidden space-y-5">
 
-            <!-- 🧭 חלק עליון מעל הגלריה: Breadcrumbs וכפתור חזרה -->
+            <!-- 🧭 Breadcrumbs וכפתור חזרה -->
             <div class="space-y-2">
                 <div class="flex items-center justify-between text-xs sm:text-sm">
                     <div class="flex items-center gap-1.5 sm:gap-2 text-slate-500 font-medium overflow-hidden text-ellipsis whitespace-nowrap">
@@ -196,16 +191,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
             </div>
 
-            <!-- 🖼️ גלריית תמונות עליונה (מידות ופרופורציות מקוריות) -->
+            <!-- 🖼️ גלריית תמונות עליונה -->
             <div id="itemGalleryWrapper" class="w-full hidden"></div>
 
-            <!-- 📦 מכלול פנימי: כרטיס המידע + Action Rail סטיקי משמאל (בתוך אותו קונטיינר מקורי) -->
+            <!-- 📦 מכלול פנימי -->
             <div class="relative w-full flex flex-col lg:flex-row items-start gap-5">
                 
-                <!-- 📌 כרטיס המידע המרכזי של המסלול -->
                 <div class="flex-1 min-w-0 w-full bg-white rounded-3xl p-5 sm:p-7 md:p-8 border border-slate-200/90 shadow-md space-y-6">
                     
-                    <!-- שורת תגיות, כותרת ותקציר ראשי -->
                     <div class="border-b border-slate-100 pb-5 space-y-3">
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <div class="flex flex-wrap items-center gap-2" id="badgeContainer">
@@ -218,7 +211,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <p id="itemShortDesc" class="text-sm md:text-base text-slate-700 leading-relaxed font-medium pt-0.5"></p>
                     </div>
 
-                    <!-- 📊 גריד מפרט טכני ומאפיינים -->
                     <div class="bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-100/90">
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-y-4 gap-x-3 text-xs sm:text-sm">
                             
@@ -295,7 +287,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
                     </div>
 
-                    <!-- 📖 סיפור המסלול והתוואי (טקסט מוגדל 16-17px עם שורות מרווחות) -->
                     <div id="itemRouteStorySection" class="hidden space-y-2.5 pt-1">
                         <h3 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
                             <i class="fa-solid fa-book-open text-indigo-600 text-xs"></i>
@@ -313,7 +304,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
                     </div>
 
-                    <!-- 📌 נקודות עיקריות במסלול -->
                     <div class="space-y-3 pt-1">
                         <h3 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
                             <i class="fa-solid fa-location-dot text-indigo-600 text-xs"></i>
@@ -331,42 +321,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                 </div>
 
-                <!-- 🎛️ Action Rail סטיקי משמאל (דסקטופ בלבד - Action Dock מהודק) -->
                 <aside class="hidden lg:block w-[172px] shrink-0 sticky top-6 self-start z-10">
                     <div class="bg-white rounded-3xl p-3 border border-slate-200/90 shadow-md flex flex-col gap-2.5">
-                        
-                        <!-- כותרת ראשית -->
                         <div class="flex items-center justify-center gap-1.5 border-b border-slate-100 pb-2 text-slate-700 font-extrabold text-xs tracking-tight">
                             <i class="fa-solid fa-compass text-indigo-600 text-[11px]"></i>
                             <span>פעולות במסלול</span>
                         </div>
 
-                        <!-- 1. כפתור ראשי Offroad (שורה אחת, אייקון מימין, טקסט מוגדל ובולט) -->
                         <div id="desktopPrimaryCtaContainer"></div>
-
-                        <!-- 2. קבוצת 3 כפתורי פעולה בתוך מסגרת כחולה דקה מעוגלת -->
                         <div id="desktopActionsOutlineGroup" class="rounded-2xl border border-indigo-200 bg-indigo-50/20 p-1.5 flex flex-col gap-1"></div>
 
-                        <!-- מפריד ויזואלי -->
                         <div class="border-t border-slate-200/80 pt-1.5 mt-0.5 space-y-1.5">
-                            <!-- כותרת שיתוף מחוזקת -->
                             <div class="text-xs font-black text-slate-700 text-center tracking-wide">
                                 שיתוף
                             </div>
-                            
-                            <!-- 3. קבוצת שיתוף ופעולות משניות (אייקון מימין, ניסוחים חדשים) -->
                             <div id="desktopSecondaryActions" class="flex flex-col gap-1.5"></div>
                         </div>
-
                     </div>
                 </aside>
 
             </div>
 
-            <!-- 🛑 אזור סיום תוכן המסלול ומעבר לתכנים נוספים -->
-            <div class="pt-6 mt-8 border-t border-slate-200/80 space-y-6">
+            <div class="pt-6 mt-8 border-t border-slate-200/80 space-y-8">
 
-                <!-- 💬 באנר וואטסאפ -->
                 <div class="w-full bg-emerald-50/80 rounded-2xl py-4 px-6 md:py-4.5 md:px-7 border border-emerald-500/60 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
                     <div class="flex items-center gap-3.5 text-center sm:text-right">
                         <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl shrink-0 shadow-sm">
@@ -374,7 +351,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
                         <div>
                             <h3 class="text-sm sm:text-base font-black text-slate-900 tracking-tight leading-tight">עדכוני שטח ומסלולים בזמן אמת</h3>
-                            <p class="text-xs text-slate-600 font-medium mt-0.5">קבוצת וואטסאפ שקטה לעעדכוני מסלולים חדשים, שיטפונות ומצב גבים.</p>
+                            <p class="text-xs text-slate-600 font-medium mt-0.5">קבוצת וואטסאפ שקטה לעדכוני מסלולים חדשים, שיטפונות ומצב גבים.</p>
                         </div>
                     </div>
                     <a href="https://chat.whatsapp.com/HA9Rjk6rSoyAii1YKUrPvS" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto bg-white border border-emerald-600 text-emerald-700 hover:bg-emerald-600 hover:text-white font-black py-2.5 px-6 rounded-xl text-xs sm:text-sm transition shadow-xs shrink-0 flex items-center justify-center gap-2 tracking-tight">
@@ -383,19 +360,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </a>
                 </div>
 
-                <!-- 🌟 מסלולים מומלצים נוספים (מסלולי טיול בלבד) -->
-                <div id="relatedSection" class="space-y-4 pt-2">
+                <div id="relatedRoutesSection" class="space-y-4 pt-2">
                     <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
                         <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
                             <i class="fa-solid fa-compass text-indigo-600"></i>
-                            <span>אולי יעניין אותך גם</span>
+                            <span>מסלולים נוספים באזור</span>
                         </h3>
                         <a href="category.html?type=routes" id="seeAllRelatedLink" class="text-xs sm:text-sm font-bold text-indigo-600 hover:text-indigo-800 transition tracking-tight">
                             לכל המסלולים ←
                         </a>
                     </div>
 
-                    <div id="relatedGrid" class="flex overflow-x-auto snap-x snap-mandatory gap-3 no-scrollbar pb-2 pt-1 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible md:pb-0 md:snap-none"></div>
+                    <div id="relatedRoutesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5"></div>
+                </div>
+
+                <div id="relatedKhanSection" class="space-y-4 pt-2 hidden">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+                        <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
+                            <i class="fa-solid fa-campground text-emerald-600"></i>
+                            <span>חאן מומלץ באזור</span>
+                        </h3>
+                        <a href="khan-catalog.html" id="seeAllKhansLink" class="text-xs sm:text-sm font-bold text-emerald-700 hover:text-emerald-900 transition tracking-tight">
+                            לכל החאנים באזור ←
+                        </a>
+                    </div>
+
+                    <div id="relatedKhanCardContainer" class="w-full"></div>
                 </div>
 
             </div>
@@ -404,7 +394,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     </main>
 
-    <!-- 📱 מובייל: Sticky Bottom Action Bar (ברור, מהודק עם כפתור 'פעולות' מחוזק ו-Active state) -->
+    <!-- 📱 מובייל: Sticky Bottom Action Bar -->
     <div id="mobileBottomBar" class="lg:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-2.5 px-4 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] flex items-center gap-2.5">
         <button id="mobileOffroadBtn" onclick="triggerActionGate('offroad')" class="flex-[3] bg-blue-900 hover:bg-slate-900 active:scale-[0.98] text-white font-black py-3 px-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-xs transition cursor-pointer">
             <i class="fa-solid fa-map-location-dot text-sm"></i>
@@ -416,17 +406,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </button>
     </div>
 
-    <!-- 📱 פאנל פעולות תחתון למובייל (Bottom Sheet - עם Drag Handle ו-Active States מובחנים) -->
+    <!-- 📱 פאנל פעולות תחתון למובייל -->
     <div id="mobileActionsSheet" class="fixed inset-0 z-50 pointer-events-none transition-all duration-300 lg:hidden">
         <div id="mobileSheetBackdrop" onclick="toggleMobileActionsSheet()" class="absolute inset-0 bg-slate-950/60 opacity-0 transition-opacity duration-300"></div>
         <div id="mobileSheetPanel" class="absolute bottom-0 inset-x-0 bg-white rounded-t-3xl pt-3 px-5 pb-5 shadow-2xl transform translate-y-full transition-transform duration-300 space-y-4 max-h-[85vh] overflow-y-auto">
-            
-            <!-- Drag Handle מרכזי -->
             <div class="flex justify-center pb-1">
                 <div class="w-11 h-1 bg-slate-300 rounded-full"></div>
             </div>
 
-            <!-- כותרת ראשית של ה-Sheet -->
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div class="flex items-center gap-2 text-slate-900 font-black text-base">
                     <i class="fa-solid fa-compass text-indigo-600 text-sm"></i>
@@ -437,23 +424,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </button>
             </div>
             
-            <!-- 1. שלוש פעולות מסלול מרכזיות (עם active state ברור) -->
             <div id="mobilePrimaryActionsContainer" class="flex flex-col gap-2"></div>
 
-            <!-- מפריד ויזואלי -->
             <div class="border-t border-slate-200/80 pt-2 space-y-2">
                 <div class="text-xs font-black text-slate-700 text-center tracking-wide">
                     שיתוף
                 </div>
-                
-                <!-- 2. פעולות שיתוף בשתי עמודות (זו לצד זו עם active state) -->
                 <div id="mobileSecondaryActionsContainer" class="grid grid-cols-2 gap-2"></div>
             </div>
-
         </div>
     </div>
 
-    <!-- 🗺️ מודאל צפייה במפה (מופעל מתוך ה-Action Rail) -->
+    <!-- 🗺️ מודאל צפייה במפה -->
     <div id="mapModalOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-xs hidden justify-center items-center z-50 p-3 sm:p-6">
         <div class="bg-white rounded-3xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl relative border border-slate-200 flex flex-col gap-3 max-h-[92vh]">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -469,7 +451,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </div>
 
-    <!-- 🔻 מודאל אזהרת בטיחות לפני פעולות (GPX / אופרוד) -->
+    <!-- 🔻 מודאל אזהרת בטיחות -->
     <div id="warningModalOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl relative border border-amber-200 text-center space-y-5">
             <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl mx-auto border border-amber-300/60 shadow-inner">
@@ -549,6 +531,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <i id="footerArr2" class="fa-solid fa-chevron-down text-xs md:hidden transition-transform duration-200"></i>
                 </button>
                 <ul id="footerSec2" class="hidden md:block space-y-2 text-slate-400 font-semibold pb-2 md:pb-0 transition-all duration-200">
+                    <li><a href="khan-catalog.html" class="hover:text-indigo-400 transition block py-1 md:py-0">⛺ חאנים ומתחמי לינה</a></li>
                     <li><a href="stories.html" class="hover:text-indigo-400 transition block py-1 md:py-0">📖 סיפורי מדבר ומורשת</a></li>
                     <li><a href="access.html" class="hover:text-indigo-400 transition block py-1 md:py-0">🚗 דרכי גישה ומסלולים</a></li>
                     <li><a href="mview.html" class="hover:text-indigo-400 transition block py-1 md:py-0">🔭 נקודות תצפית במצוק ההעתקים</a></li>
@@ -605,7 +588,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <i class="fa-solid fa-cookie-bite"></i>
                 </div>
                 <div class="space-y-1 text-right">
-                    <h4 class="font-extrabold text-sm text-white tracking-tight">אנחנו משתמשים בעוגיות</h4>
+                    <h4 class="font-extrabold text-sm text-white tracking-tight">אנחנו משתמשים בקובצי עוגיות</h4>
                     <p class="text-xs text-slate-300 leading-relaxed font-normal">
                         האתר משתמש בקובצי Cookies ובשירותי אנליטיקה לשיפור חוויית הגלישה והתאמת התכנים.
                         <a href="disclaimer.html" class="text-indigo-400 underline hover:text-indigo-300 mr-1 transition font-medium">למידע נוסף</a>
@@ -641,6 +624,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         let isStoryExpanded = false;
 
         function handleGoBack() {
+            try {
+                sessionStorage.setItem('jdj_returning_from_item', 'true');
+            } catch (e) {}
+
             if (document.referrer && document.referrer.includes(window.location.host)) {
                 window.history.back();
             } else {
@@ -688,6 +675,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             } else {
                 backdrop.classList.add('opacity-0');
                 panel.classList.add('translate-y-full');
+                document.body.classList.remove('overflow-hidden');
                 setTimeout(() => {
                     sheet.classList.add('pointer-events-none');
                 }, 300);
@@ -790,7 +778,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         }
 
-        /* 🎛️ Action Rail & Mobile Action Sheet Rendering */
         function renderActionRails(item) {
             const primaryCta = {
                 id: 'offroad',
@@ -844,7 +831,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 }
             ];
 
-            // 1. דסקטופ: רינדור ה-Action Dock השמאלי (ללא שינוי)
             const ctaContainer = document.getElementById('desktopPrimaryCtaContainer');
             const outlineGroup = document.getElementById('desktopActionsOutlineGroup');
             const desktopSecondary = document.getElementById('desktopSecondaryActions');
@@ -853,14 +839,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             outlineGroup.innerHTML = '';
             desktopSecondary.innerHTML = '';
 
-            // 1.1 כפתור ראשי Offroad בדסקטופ
             const ctaBtn = document.createElement('button');
             ctaBtn.onclick = primaryCta.onClick;
             ctaBtn.className = 'w-full bg-blue-900 hover:bg-slate-900 active:scale-[0.98] text-white font-black py-3 px-3 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border border-blue-950/40 text-center';
             ctaBtn.innerHTML = `<i class="${primaryCta.icon} text-sm shrink-0 text-white"></i><span class="text-[13px] font-black tracking-tight whitespace-nowrap">${primaryCta.label}</span>`;
             ctaContainer.appendChild(ctaBtn);
 
-            // 1.2 שלוש פעולות מקובצות במסגרת כחולה בדסקטופ
             const visibleGrouped = groupedActions.filter(a => a.show);
             if (visibleGrouped.length > 0) {
                 outlineGroup.classList.remove('hidden');
@@ -875,7 +859,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 outlineGroup.classList.add('hidden');
             }
 
-            // 1.3 פעולות שיתוף בדסקטופ
             secondaryActions.filter(a => a.show).forEach(act => {
                 const btn = document.createElement('button');
                 btn.onclick = () => act.onClick(btn);
@@ -884,14 +867,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 desktopSecondary.appendChild(btn);
             });
 
-            // 2. מובייל: רינדור ה-Bottom Sheet (עם Active States מהירים ומובחנים)
             const mobilePrimaryContainer = document.getElementById('mobilePrimaryActionsContainer');
             const mobileSecondaryContainer = document.getElementById('mobileSecondaryActionsContainer');
             
             mobilePrimaryContainer.innerHTML = '';
             mobileSecondaryContainer.innerHTML = '';
 
-            // 2.1 שלוש פעולות ראשיות במובייל
             groupedActions.filter(a => a.show).forEach(act => {
                 const btn = document.createElement('button');
                 btn.onclick = () => {
@@ -903,7 +884,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 mobilePrimaryContainer.appendChild(btn);
             });
 
-            // 2.2 פעולות שיתוף במובייל (ב-2 עמודות עם Active State)
             secondaryActions.filter(a => a.show).forEach(act => {
                 const btn = document.createElement('button');
                 btn.onclick = () => {
@@ -1005,7 +985,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 fzIconBg.className = 'w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0';
             }
 
-            // סיפור המסלול - 5 שורות פתוחות עם טקסט מוגדל
             if (item.route_story && item.route_story.trim() !== '') {
                 const storyContent = document.getElementById('itemRouteStoryContent');
                 storyContent.innerText = item.route_story.trim();
@@ -1023,7 +1002,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             isWaypointsExpanded = false;
             renderWaypoints();
 
-            // רינדור עמודת הפעולות
             renderActionRails(item);
         }
 
@@ -1183,139 +1161,258 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const galleryImgs = parseGalleryImages(item);
             const cleanTitle = cleanDashes(item.title);
 
+            let allImages = [];
             if (galleryImgs.length > 0) {
-                currentLightboxImages = galleryImgs;
-                wrapper.classList.remove('hidden');
-
-                if (galleryImgs.length === 1) {
-                    wrapper.innerHTML = `
-                        <div class="w-full h-44 sm:h-64 md:h-72 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-sm cursor-pointer group bg-slate-100" onclick="openLightbox(0)">
-                            <img src="${galleryImgs[0]}" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" alt="${cleanTitle} - תמונה ראשית">
-                        </div>
-                    `;
-                } else {
-                    wrapper.innerHTML = `
-                        <div class="relative w-full h-44 sm:h-64 rounded-2xl overflow-hidden border border-slate-200 shadow-sm cursor-pointer group bg-slate-100 md:hidden" onclick="openLightbox(0)">
-                            <img src="${galleryImgs[0]}" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" alt="${cleanTitle} - תמונה ראשית">
-                            <div class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-xs text-white font-bold text-xs px-3.5 py-1.5 rounded-xl border border-white/20 flex items-center gap-1.5 shadow-md">
-                                <i class="fa-solid fa-images text-[11px]"></i>
-                                <span>+${galleryImgs.length - 1} תמונות נוספות</span>
-                            </div>
-                        </div>
-
-                        <div class="hidden md:grid ${galleryImgs.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-2 rounded-3xl overflow-hidden border border-slate-200 bg-slate-100 w-full">
-                            <div class="relative h-64 md:h-72 cursor-pointer group overflow-hidden" onclick="openLightbox(0)">
-                                <img src="${galleryImgs[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
-                            </div>
-                            <div class="relative h-64 md:h-72 cursor-pointer group overflow-hidden" onclick="openLightbox(1)">
-                                <img src="${galleryImgs[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 2">
-                            </div>
-                            ${galleryImgs.length > 2 ? `
-                                <div class="relative h-64 md:h-72 cursor-pointer group overflow-hidden" onclick="openLightbox(2)">
-                                    <img src="${galleryImgs[2]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 3">
-                                    ${galleryImgs.length > 3 ? `
-                                        <div class="absolute inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center text-white font-black text-base">
-                                            +${galleryImgs.length - 3} תמונות נוספות
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
-                }
+                allImages = galleryImgs;
             } else if (item.main_image) {
-                currentLightboxImages = [item.main_image];
-                wrapper.classList.remove('hidden');
+                allImages = [item.main_image];
+            }
+
+            currentLightboxImages = allImages;
+
+            if (allImages.length === 0) {
+                wrapper.classList.add('hidden');
+                return;
+            }
+
+            wrapper.classList.remove('hidden');
+
+            // תמונת בודדת
+            if (allImages.length === 1) {
                 wrapper.innerHTML = `
-                    <div class="w-full h-44 sm:h-64 md:h-72 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100 cursor-pointer group" onclick="openLightbox(0)">
-                        <img src="${item.main_image}" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" alt="${cleanTitle}">
+                    <div class="w-full h-52 sm:h-64 md:h-72 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-sm cursor-pointer group bg-slate-100" onclick="openLightbox(0)">
+                        <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" alt="${cleanTitle}">
+                    </div>
+                `;
+                return;
+            }
+
+            // פריסת פסיפס מותאמת (מקסימום 4-5 תמונות מוגשות במובייל ועד סדר שקוף)
+            const count = allImages.length;
+            const remainingCount = count > 5 ? count - 5 : 0;
+
+            let gridClass = "grid gap-1.5 sm:gap-2 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 bg-slate-100 w-full p-0.5 shadow-sm";
+            let layoutHtml = "";
+
+            if (count === 2) {
+                layoutHtml = `
+                    <div class="${gridClass} grid-cols-2 h-48 sm:h-60 md:h-72">
+                        <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(0)">
+                            <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
+                        </div>
+                        <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(1)">
+                            <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 2">
+                        </div>
+                    </div>
+                `;
+            } else if (count === 3) {
+                layoutHtml = `
+                    <div class="${gridClass} grid-cols-3 h-48 sm:h-60 md:h-72">
+                        <div class="relative h-full col-span-2 cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(0)">
+                            <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
+                        </div>
+                        <div class="relative h-full col-span-1 grid grid-rows-2 gap-1.5">
+                            <div class="relative h-full cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(1)">
+                                <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 2">
+                            </div>
+                            <div class="relative h-full cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(2)">
+                                <img src="${allImages[2]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 3">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (count === 4) {
+                layoutHtml = `
+                    <div class="${gridClass} grid-cols-2 h-52 sm:h-64 md:h-80">
+                        <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(0)">
+                            <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
+                        </div>
+                        <div class="grid grid-cols-1 grid-rows-3 gap-1.5 h-full">
+                            <div class="relative h-full cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(1)">
+                                <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 2">
+                            </div>
+                            <div class="relative h-full cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(2)">
+                                <img src="${allImages[2]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 3">
+                            </div>
+                            <div class="relative h-full cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(3)">
+                                <img src="${allImages[3]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 4">
+                            </div>
+                        </div>
                     </div>
                 `;
             } else {
-                currentLightboxImages = [];
-                wrapper.classList.add('hidden');
+                // 5 תמונות ומעלה - מקסימום 5 תמונות מוצגות בתצוגת פסיפס נקייה
+                layoutHtml = `
+                    <div class="${gridClass} grid-cols-2 h-56 sm:h-64 md:h-80">
+                        <!-- תמונה 1 גדולה משמאל -->
+                        <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(0)">
+                            <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
+                        </div>
+                        
+                        <!-- רשת של 4 תמונות קטנות ממימין -->
+                        <div class="grid grid-cols-2 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-1.5 h-full min-h-0">
+                            <div class="relative h-full min-h-0 cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(1)">
+                                <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 2">
+                            </div>
+                            <div class="relative h-full min-h-0 cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(2)">
+                                <img src="${allImages[2]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 3">
+                            </div>
+                            <div class="relative h-full min-h-0 cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(3)">
+                                <img src="${allImages[3]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 4">
+                            </div>
+                            <div class="relative h-full min-h-0 cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(4)">
+                                <img src="${allImages[4]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 5">
+                                ${remainingCount > 0 ? `
+                                    <div class="absolute inset-0 bg-slate-900/65 backdrop-blur-[1px] flex flex-col items-center justify-center text-white p-1 text-center font-black">
+                                        <span class="text-sm sm:text-base leading-none">+${remainingCount}</span>
+                                        <span class="text-[10px] font-bold mt-0.5 tracking-tight opacity-90">תמונות</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
+
+            wrapper.innerHTML = layoutHtml;
         }
 
         async function loadRelatedItems(item) {
             try {
-                let relatedList = [];
-                const seenIds = new Set([item.id]);
+                const region = item.region || 'מדבר יהודה';
 
-                let q1 = supabaseClient
+                let { data: routesList } = await supabaseClient
                     .from('routes')
                     .select('*')
                     .neq('id', item.id)
                     .eq('route_type', 'מסלול טיול')
-                    .order('id', { ascending: false });
+                    .eq('region', region)
+                    .order('id', { ascending: false })
+                    .limit(2);
 
-                if (item.region) q1 = q1.eq('region', item.region);
-                q1 = q1.limit(3);
+                if (!routesList) routesList = [];
 
-                const { data: d1 } = await q1;
-                if (d1 && d1.length > 0) {
-                    d1.forEach(r => {
-                        relatedList.push(r);
-                        seenIds.add(r.id);
-                    });
-                }
-
-                if (relatedList.length < 3) {
-                    const needed = 3 - relatedList.length;
-                    const { data: d2 } = await supabaseClient
+                if (routesList.length < 2) {
+                    const seenIds = new Set([item.id, ...routesList.map(r => r.id)]);
+                    const { data: extraRoutes } = await supabaseClient
                         .from('routes')
                         .select('*')
                         .neq('id', item.id)
                         .eq('route_type', 'מסלול טיול')
                         .not('id', 'in', `(${Array.from(seenIds).join(',')})`)
                         .order('id', { ascending: false })
-                        .limit(needed);
+                        .limit(2 - routesList.length);
 
-                    if (d2 && d2.length > 0) {
-                        d2.forEach(r => {
-                            relatedList.push(r);
-                            seenIds.add(r.id);
-                        });
-                    }
+                    if (extraRoutes) routesList = routesList.concat(extraRoutes);
                 }
 
-                if (relatedList.length === 0) {
-                    document.getElementById('relatedSection').classList.add('hidden');
+                const routesGrid = document.getElementById('relatedRoutesGrid');
+                routesGrid.innerHTML = '';
+
+                if (routesList.length > 0) {
+                    routesList.forEach(rel => {
+                        const card = document.createElement('a');
+                        card.href = `item.html?id=${rel.id}`;
+                        card.className = 'bg-white rounded-3xl border border-slate-200/80 p-4 shadow-xs hover:shadow-lg hover:border-indigo-400 transition cursor-pointer flex flex-col justify-between overflow-hidden group';
+
+                        const imageUrl = rel.main_image || 'access-banner.jpg';
+
+                        card.innerHTML = `
+                            <div>
+                                <div class="relative mb-3 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
+                                    <img src="${imageUrl}" alt="${cleanDashes(rel.title)}" loading="lazy" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
+                                </div>
+                                <div class="flex justify-end mb-1.5">
+                                    <span class="bg-purple-50 text-purple-900 text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-purple-200/60">${rel.region || 'מדבר יהודה'}</span>
+                                </div>
+                                <h4 class="font-bold text-slate-900 text-base mb-1 group-hover:text-indigo-600 transition tracking-tight">${cleanDashes(rel.title)}</h4>
+                                <p class="text-xs text-slate-600 mb-3 line-clamp-2 leading-relaxed font-medium">${cleanDashes(rel.short_description || '')}</p>
+                            </div>
+                            <div class="w-full border border-indigo-800 text-indigo-900 group-hover:bg-indigo-900 group-hover:text-white font-bold py-2.5 px-3 rounded-xl text-center text-xs transition flex items-center justify-center gap-1.5">
+                                <span>לפרטי המסלול</span>
+                                <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                            </div>
+                        `;
+                        routesGrid.appendChild(card);
+                    });
+                } else {
+                    document.getElementById('relatedRoutesSection').classList.add('hidden');
+                }
+
+            } catch (err) {
+                console.error('Error fetching related routes:', err);
+                document.getElementById('relatedRoutesSection').classList.add('hidden');
+            }
+
+            // טעינה מבודדת לחלוטין עבור החאן המומלץ
+            loadRelatedKhanForItem(item);
+        }
+
+        async function loadRelatedKhanForItem(item) {
+            const khanSection = document.getElementById('relatedKhanSection');
+            const khanContainer = document.getElementById('relatedKhanCardContainer');
+
+            if (!khanSection || !khanContainer) return;
+
+            if (!item || !item.region || typeof item.region !== 'string' || item.region.trim() === '') {
+                khanSection.classList.add('hidden');
+                return;
+            }
+
+            const region = item.region.trim();
+
+            try {
+                const { data: khanData, error } = await supabaseClient
+                    .from('khans')
+                    .select('*')
+                    .eq('region', region)
+                    .order('id', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (error || !khanData) {
+                    khanSection.classList.add('hidden');
                     return;
                 }
 
-                const grid = document.getElementById('relatedGrid');
-                grid.innerHTML = '';
+                khanSection.classList.remove('hidden');
+                const seeAllKhansLink = document.getElementById('seeAllKhansLink');
+                if (seeAllKhansLink) {
+                    seeAllKhansLink.href = `khan-catalog.html?region=${encodeURIComponent(khanData.region || region)}`;
+                }
 
-                relatedList.forEach(rel => {
-                    const card = document.createElement('a');
-                    card.href = `item.html?id=${rel.id}`;
-                    card.className = 'flex-[0_0_88%] max-w-[88%] md:flex-initial md:max-w-none snap-start bg-white rounded-3xl border border-slate-200/80 p-4 shadow-xs hover:shadow-lg hover:border-indigo-400 transition cursor-pointer flex flex-col justify-between overflow-hidden group';
+                const khanImg = khanData.main_image || 'access-banner.jpg';
+                const locName = khanData.location_name || 'ישוב במדבר';
 
-                    const imageUrl = rel.main_image || 'access-banner.jpg';
-
-                    card.innerHTML = `
+                khanContainer.innerHTML = `
+                    <a href="khan.html?id=${khanData.id}" class="bg-white rounded-3xl border border-emerald-200/90 p-4 sm:p-5 shadow-xs hover:shadow-lg hover:border-emerald-500 transition cursor-pointer flex flex-col justify-between overflow-hidden group w-full">
                         <div>
                             <div class="relative mb-3 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
-                                <img src="${imageUrl}" alt="${cleanDashes(rel.title)}" loading="lazy" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
+                                <img src="${khanImg}" alt="${cleanDashes(khanData.title)}" loading="lazy" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
+                                <div class="absolute top-2.5 right-2.5 bg-emerald-600 text-white font-black text-[11px] px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1">
+                                    <i class="fa-solid fa-campground text-[10px]"></i>
+                                    <span>חאן מומלץ באזור</span>
+                                </div>
                             </div>
-                            <div class="flex justify-end mb-1.5">
-                                <span class="bg-purple-50 text-purple-900 text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-purple-200/60">${rel.region || 'מדבר יהודה'}</span>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="bg-purple-50 text-purple-900 text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-purple-200/60">${khanData.region || region}</span>
+                                <span class="text-xs font-bold text-amber-600">${khanData.rating || '4.5 ⭐'}</span>
                             </div>
-                            <h4 class="font-bold text-slate-900 text-base mb-1 group-hover:text-indigo-600 transition tracking-tight">${cleanDashes(rel.title)}</h4>
-                            <p class="text-xs text-slate-600 mb-3 line-clamp-2 leading-relaxed font-medium">${cleanDashes(rel.short_description || '')}</p>
+                            <h4 class="font-bold text-slate-900 text-base mb-1 group-hover:text-emerald-700 transition tracking-tight">${cleanDashes(khanData.title)}</h4>
+                            <p class="text-xs text-slate-500 mb-1 font-medium truncate">📍 ${locName}</p>
+                            <p class="text-xs text-slate-600 mb-3 line-clamp-2 leading-relaxed font-medium">${cleanDashes(khanData.short_description || '')}</p>
                         </div>
-                        <div class="w-full border border-indigo-800 text-indigo-900 group-hover:bg-indigo-900 group-hover:text-white font-bold py-2.5 px-3 rounded-xl text-center text-xs transition flex items-center justify-center gap-1.5">
-                            <span>לפרטי המסלול</span>
+
+                        <div class="w-full border border-emerald-600 text-emerald-800 group-hover:bg-emerald-600 group-hover:text-white font-bold py-2.5 px-3 rounded-xl text-center text-xs transition flex items-center justify-center gap-1.5">
+                            <span>לפרטים נוספים</span>
                             <i class="fa-solid fa-arrow-left text-[10px]"></i>
                         </div>
-                    `;
-                    grid.appendChild(card);
-                });
+                    </a>
+                `;
 
             } catch (err) {
-                console.error('Error fetching related items:', err);
-                document.getElementById('relatedSection').classList.add('hidden');
+                console.error('Error fetching related khan for item:', err);
+                khanSection.classList.add('hidden');
             }
         }
 
@@ -1435,7 +1532,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         initItemPage();
     </script>
 
-    <!-- 🍪 ניהול אישור עוגיות עצמאי -->
+    <!-- 🍪 ניהול אישור עוגיות -->
     <script>
         function checkCookieConsent() {
             try {

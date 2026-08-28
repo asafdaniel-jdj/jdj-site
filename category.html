@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
 <!-- Google Tag Manager -->
@@ -490,6 +490,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <i id="footerArr2" class="fa-solid fa-chevron-down text-xs md:hidden transition-transform duration-200"></i>
                 </button>
                 <ul id="footerSec2" class="hidden md:block space-y-2 text-slate-400 font-semibold pb-2 md:pb-0 transition-all duration-200">
+                    <li><a href="khan-catalog.html" class="hover:text-indigo-400 transition block py-1 md:py-0">⛺ חאנים ומתחמי לינה</a></li>
                     <li><a href="stories.html" class="hover:text-indigo-400 transition block py-1 md:py-0">📖 סיפורי מדבר ומורשת</a></li>
                     <li><a href="access.html" class="hover:text-indigo-400 transition block py-1 md:py-0">🚗 דרכי גישה ומסלולים</a></li>
                     <li><a href="mview.html" class="hover:text-indigo-400 transition block py-1 md:py-0">🔭 נקודות תצפית במצוק ההעתקים</a></li>
@@ -685,67 +686,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 if (currentSearchQuery.trim() !== '') {
                     if (isAiActive) {
                         try {
-                            const { data: filters } = await supabaseClient.functions.invoke('ai-search', {
-                                body: { query: currentSearchQuery }
+                            const { data: filters, error } = await supabaseClient.functions.invoke('ai-search', {
+                                body: { query: currentSearchQuery, categoryType: currentCategoryType }
                             });
-                            if (filters) {
-                                baseSearchItems = rawCategoryItems.filter(item => {
-                                    if (filters.region && item.region !== filters.region) return false;
-                                    if (filters.suitable_for_kids !== null && filters.suitable_for_kids !== undefined && isTrueValue(item.suitable_for_kids) !== filters.suitable_for_kids) return false;
-                                    if (filters.water_dip !== null && filters.water_dip !== undefined && isTrueValue(item.water_dip) !== filters.water_dip) return false;
-                                    if (filters.firing_zone_no && item.firing_zone && !item.firing_zone.includes('לא')) return false;
-
-                                    const routeKm = parseFloat(item.length_km) || 0;
-                                    if (filters.min_length_km && routeKm < filters.min_length_km) return false;
-                                    if (filters.max_length_km && routeKm > filters.max_length_km) return false;
-
-                                    let routeHours = 0;
-                                    if (item.duration_hours) {
-                                        const parts = item.duration_hours.split(':');
-                                        routeHours = parseFloat(parts[0]) + (parseFloat(parts[1] || 0) / 60);
-                                    }
-                                    if (filters.min_duration_hours && routeHours < filters.min_duration_hours) return false;
-                                    if (filters.max_duration_hours && routeHours > filters.max_duration_hours) return false;
-
-                                    if (filters.difficulty && item.difficulty && !item.difficulty.includes(filters.difficulty)) return false;
-                                    if (filters.is_technical !== null && filters.is_technical !== undefined && isTrueValue(item.is_technical) !== filters.is_technical) return false;
-
-                                    if (filters.keywords && filters.keywords.length > 0) {
-                                        const fullTextNormalized = normalizeString(
-                                            `${item.title || ''} ${item.short_description || ''} ${item.waypoint_highlights || ''} ${item.route_story || ''} ${item.region || ''}`
-                                        );
-
-                                        const matchesAny = filters.keywords.some(kw => {
-                                            const cleanKw = normalizeString(kw);
-                                            if (cleanKw && fullTextNormalized.includes(cleanKw)) return true;
-
-                                            const words = kw.split(/[\s\-–—־]+/).map(normalizeString).filter(w => w.length > 2);
-                                            return words.some(w => fullTextNormalized.includes(w));
-                                        });
-
-                                        if (!matchesAny) return false;
-                                    }
-
-                                    return true;
-                                });
-                            }
+                            if (error) throw error;
+                            baseSearchItems = filters
+                                ? rawCategoryItems.filter(item => itemMatchesAiFilters(item, filters))
+                                : getFallbackSearchItems(currentSearchQuery);
                         } catch (err) {
-                            const qNormalized = normalizeString(currentSearchQuery);
-                            baseSearchItems = rawCategoryItems.filter(item => {
-                                const fullTextNormalized = normalizeString(
-                                    `${item.title || ''} ${item.short_description || ''} ${item.region || ''} ${item.waypoint_highlights || ''} ${item.route_story || ''}`
-                                );
-                                return fullTextNormalized.includes(qNormalized);
-                            });
+                            console.error('שגיאה בשחזור חיפוש AI, מעבר לסינון טקסטואלי:', err);
+                            baseSearchItems = getFallbackSearchItems(currentSearchQuery);
                         }
                     } else {
-                        const qNormalized = normalizeString(currentSearchQuery);
-                        baseSearchItems = rawCategoryItems.filter(item => {
-                            const fullTextNormalized = normalizeString(
-                                `${item.title || ''} ${item.short_description || ''} ${item.region || ''} ${item.waypoint_highlights || ''} ${item.route_story || ''}`
-                            );
-                            return fullTextNormalized.includes(qNormalized);
-                        });
+                        baseSearchItems = getFallbackSearchItems(currentSearchQuery);
                     }
                 } else {
                     baseSearchItems = [...rawCategoryItems];
@@ -865,6 +818,261 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 .toLowerCase()
                 .replace(/['"׳״`\-–—־\s]/g, '')
                 .trim();
+        }
+
+
+        // ==========================================================
+        // AI SEARCH V3 - matching rules shared by search + state restore
+        // ==========================================================
+
+        const SEARCH_DOMAIN_STOPWORDS = new Set([
+            'מסלול', 'מסלולים', 'טיול', 'טיולים', 'נסיעה', 'מסע',
+            'רכב', 'רכבים', 'גיפ', 'גיפים', 'שטח'
+        ]);
+
+        const SEARCH_ENTITY_HEADS = new Set([
+            'נחל', 'מעלה', 'מדרגת', 'מצפה', 'מצפור', 'עין', 'גב', 'גבי', 'הר', 'מכתש',
+            'ביר', 'בור', 'בריכת', 'ברכת', 'מאגורת', 'מאגורות', 'דרך', 'כביש', 'ואדי',
+            'ראס', 'רוגום', 'מעבר', 'חניון', 'שמורת', 'חוות', 'מצד', 'בקעת', 'קניון',
+            'בסיס', 'מטווח', 'מפל', 'ציר'
+        ]);
+
+        const SEARCH_HEBREW_PREFIXES = new Set(['ו', 'ב', 'ל', 'מ', 'כ', 'ש', 'ה']);
+        const SEARCH_NATURE_FEATURES = new Set(['שפצ', 'דרדרת', 'מדרגות', 'הצלבות', 'תלול']);
+
+        function normalizeSearchText(str) {
+            return (str || '')
+                .toLowerCase()
+                .normalize('NFKD')
+                .replace(/[\u0591-\u05C7]/g, '')
+                .replace(/[׳’‘`']/g, '')
+                .replace(/[״"]/g, '')
+                .replace(/[‐‑‒–—―־-]/g, ' ')
+                .replace(/[^\p{L}\p{N}]+/gu, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function tokenizeSearchText(str) {
+            const normalized = normalizeSearchText(str);
+            return normalized ? normalized.split(' ') : [];
+        }
+
+        function sanitizeClientSearchTerm(term) {
+            const tokens = tokenizeSearchText(term).filter(token => !SEARCH_DOMAIN_STOPWORDS.has(token));
+            return tokens.join(' ').trim();
+        }
+
+        function sanitizeClientTermArray(value) {
+            if (!Array.isArray(value)) return [];
+
+            const seen = new Set();
+            const result = [];
+
+            value.forEach(term => {
+                const clean = sanitizeClientSearchTerm(term);
+                if (!clean || seen.has(clean)) return;
+                seen.add(clean);
+                result.push(clean);
+            });
+
+            return result;
+        }
+
+        function normalizeAiFilters(rawFilters) {
+            const raw = rawFilters || {};
+            let mustMatch = sanitizeClientTermArray(raw.must_match);
+            let anyOf = sanitizeClientTermArray(raw.any_of);
+
+            // תאימות לאחור: אם פונקציית AI ישנה עדיין פעילה בזמן פריסה,
+            // keywords הישנים הופכים לדרישות AND במקום לחזור להתנהגות OR הבאגית.
+            if (mustMatch.length === 0 && anyOf.length === 0 && Array.isArray(raw.keywords)) {
+                mustMatch = sanitizeClientTermArray(raw.keywords);
+            }
+
+            const mustSet = new Set(mustMatch);
+            anyOf = anyOf.filter(term => !mustSet.has(term));
+
+            return {
+                ...raw,
+                must_match: mustMatch,
+                any_of: anyOf,
+                nature_features: Array.isArray(raw.nature_features)
+                    ? [...new Set(raw.nature_features.map(normalizeSearchText).filter(v => SEARCH_NATURE_FEATURES.has(v)))]
+                    : []
+            };
+        }
+
+        function canStripHebrewPrefix(actualToken, expectedToken, maxPrefixLength = 2) {
+            if (!actualToken || !expectedToken || expectedToken.length < 2) return false;
+
+            for (let prefixLength = 1; prefixLength <= maxPrefixLength; prefixLength++) {
+                if (actualToken.length !== expectedToken.length + prefixLength) continue;
+
+                const prefix = actualToken.slice(0, prefixLength);
+                const rest = actualToken.slice(prefixLength);
+                if (rest !== expectedToken) continue;
+
+                if ([...prefix].every(ch => SEARCH_HEBREW_PREFIXES.has(ch))) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        function searchTokenMatches(actualToken, expectedToken, allowHebrewPrefix) {
+            if (actualToken === expectedToken) return true;
+            return allowHebrewPrefix && canStripHebrewPrefix(actualToken, expectedToken);
+        }
+
+        function phraseMatchesTokens(textTokens, phrase) {
+            const expectedTokens = tokenizeSearchText(phrase);
+            if (expectedTokens.length === 0 || textTokens.length < expectedTokens.length) return false;
+
+            const singleEntityHead = expectedTokens.length === 1 && SEARCH_ENTITY_HEADS.has(expectedTokens[0]);
+
+            for (let start = 0; start <= textTokens.length - expectedTokens.length; start++) {
+                let matches = true;
+
+                for (let i = 0; i < expectedTokens.length; i++) {
+                    // מאפשר למשל "בנחל דרגה" מול "נחל דרגה" או "במרסבא" מול "מרסבא".
+                    // אבל ראש ישות בודד כמו "מעלה" נשאר התאמה קשיחה כדי לא להתאים בטעות ל"למעלה".
+                    const allowPrefix = i === 0 && !singleEntityHead;
+                    if (!searchTokenMatches(textTokens[start + i], expectedTokens[i], allowPrefix)) {
+                        matches = false;
+                        break;
+                    }
+                }
+
+                if (matches) return true;
+            }
+
+            return false;
+        }
+
+        function buildTitleAliases(title) {
+            const normalizedTitle = normalizeSearchText(title);
+            const match = (title || '').match(/^\s*([^\s()]+)\s+[^()]+\(([^)]+)\)/);
+            if (!match) return normalizedTitle;
+
+            const head = normalizeSearchText(match[1]);
+            const alias = normalizeSearchText(match[2]);
+            return `${normalizedTitle} ${head} ${alias}`.trim();
+        }
+
+        function getItemSearchText(item) {
+            return [
+                buildTitleAliases(item.title || ''),
+                item.short_description || '',
+                item.waypoint_highlights || '',
+                item.route_story || '',
+                item.region || '',
+                item.nature || '',
+                item.route_type || ''
+            ].join(' ');
+        }
+
+        function getRouteHours(duration) {
+            if (!duration) return 0;
+            const parts = String(duration).split(':');
+            const hours = parseFloat(parts[0]) || 0;
+            const minutes = parseFloat(parts[1]) || 0;
+            return hours + (minutes / 60);
+        }
+
+        function matchesDifficulty(itemDifficulty, requestedDifficulty) {
+            if (!requestedDifficulty) return true;
+            const itemValue = normalizeSearchText(itemDifficulty);
+            const requestedValue = normalizeSearchText(requestedDifficulty);
+            if (!itemValue) return false;
+
+            // "קשה" כולל גם "קשה מאוד", בדומה להתנהגות הפילטר הידני הקיים.
+            return itemValue === requestedValue || itemValue.startsWith(`${requestedValue} `);
+        }
+
+        function itemMatchesAiFilters(item, rawFilters) {
+            const filters = normalizeAiFilters(rawFilters);
+
+            if (filters.region && item.region !== filters.region) return false;
+
+            if (filters.suitable_for_kids !== null && filters.suitable_for_kids !== undefined &&
+                isTrueValue(item.suitable_for_kids) !== filters.suitable_for_kids) return false;
+
+            if (filters.water_dip !== null && filters.water_dip !== undefined &&
+                isTrueValue(item.water_dip) !== filters.water_dip) return false;
+
+            // true פירושו שהמשתמש ביקש במפורש "ללא שטחי אש".
+            // null בדאטה אינו נחשב "ללא".
+            if (filters.firing_zone_no === true && normalizeSearchText(item.firing_zone) !== 'לא') return false;
+
+            const routeKm = parseFloat(item.length_km) || 0;
+            if (filters.length_bucket) {
+                if (routeKm <= 0) return false;
+                if (filters.length_bucket === 'short' && routeKm > 25) return false;
+                if (filters.length_bucket === 'medium' && (routeKm <= 25 || routeKm > 50)) return false;
+                if (filters.length_bucket === 'long' && routeKm <= 50) return false;
+            }
+
+            if (filters.min_length_km !== null && filters.min_length_km !== undefined) {
+                if (routeKm <= 0 || routeKm < Number(filters.min_length_km)) return false;
+            }
+            if (filters.max_length_km !== null && filters.max_length_km !== undefined) {
+                if (routeKm <= 0 || routeKm > Number(filters.max_length_km)) return false;
+            }
+
+            const routeHours = getRouteHours(item.duration_hours);
+            if (filters.min_duration_hours !== null && filters.min_duration_hours !== undefined) {
+                if (routeHours <= 0 || routeHours < Number(filters.min_duration_hours)) return false;
+            }
+            if (filters.max_duration_hours !== null && filters.max_duration_hours !== undefined) {
+                if (routeHours <= 0 || routeHours > Number(filters.max_duration_hours)) return false;
+            }
+
+            if (!matchesDifficulty(item.difficulty, filters.difficulty)) return false;
+
+            if (filters.is_technical !== null && filters.is_technical !== undefined &&
+                isTrueValue(item.is_technical) !== filters.is_technical) return false;
+
+            if (filters.is_recommended !== null && filters.is_recommended !== undefined &&
+                isTrueValue(item.is_recommended) !== filters.is_recommended) return false;
+
+            if (filters.has_bypass !== null && filters.has_bypass !== undefined &&
+                isTrueValue(item.has_bypass) !== filters.has_bypass) return false;
+
+            const itemSearchTokens = tokenizeSearchText(getItemSearchText(item));
+
+            if (filters.nature_features.length > 0) {
+                const natureTokens = tokenizeSearchText(item.nature || '');
+                const allNatureFeaturesMatch = filters.nature_features.every(feature =>
+                    phraseMatchesTokens(natureTokens, feature) || phraseMatchesTokens(itemSearchTokens, feature)
+                );
+                if (!allNatureFeaturesMatch) return false;
+            }
+
+            // AND: כל דרישה עצמאית חייבת להופיע.
+            if (filters.must_match.length > 0) {
+                const allRequiredMatch = filters.must_match.every(term => phraseMatchesTokens(itemSearchTokens, term));
+                if (!allRequiredMatch) return false;
+            }
+
+            // OR מפורש: אם קיימת קבוצת חלופות, לפחות אחת מהן חייבת להופיע.
+            if (filters.any_of.length > 0) {
+                const oneAlternativeMatches = filters.any_of.some(term => phraseMatchesTokens(itemSearchTokens, term));
+                if (!oneAlternativeMatches) return false;
+            }
+
+            return true;
+        }
+
+        function getFallbackSearchItems(rawQuery) {
+            const cleanQuery = sanitizeClientSearchTerm(rawQuery);
+            if (!cleanQuery) return [...rawCategoryItems];
+
+            return rawCategoryItems.filter(item => {
+                const itemTokens = tokenizeSearchText(getItemSearchText(item));
+                return phraseMatchesTokens(itemTokens, cleanQuery);
+            });
         }
 
         async function initCategoryPage() {
@@ -1092,65 +1300,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             try {
                 const { data: filters, error } = await supabaseClient.functions.invoke('ai-search', {
-                    body: { query: rawQuery }
+                    body: { query: rawQuery, categoryType: currentCategoryType }
                 });
 
                 if (error) throw error;
+                if (!filters) throw new Error('AI search returned no filters');
 
                 isAiActive = true;
-
-                baseSearchItems = rawCategoryItems.filter(item => {
-                    if (filters.region && item.region !== filters.region) return false;
-                    if (filters.suitable_for_kids !== null && filters.suitable_for_kids !== undefined && isTrueValue(item.suitable_for_kids) !== filters.suitable_for_kids) return false;
-                    if (filters.water_dip !== null && filters.water_dip !== undefined && isTrueValue(item.water_dip) !== filters.water_dip) return false;
-                    if (filters.firing_zone_no && item.firing_zone && !item.firing_zone.includes('לא')) return false;
-
-                    const routeKm = parseFloat(item.length_km) || 0;
-                    if (filters.min_length_km && routeKm < filters.min_length_km) return false;
-                    if (filters.max_length_km && routeKm > filters.max_length_km) return false;
-
-                    let routeHours = 0;
-                    if (item.duration_hours) {
-                        const parts = item.duration_hours.split(':');
-                        routeHours = parseFloat(parts[0]) + (parseFloat(parts[1] || 0) / 60);
-                    }
-                    if (filters.min_duration_hours && routeHours < filters.min_duration_hours) return false;
-                    if (filters.max_duration_hours && routeHours > filters.max_duration_hours) return false;
-
-                    if (filters.difficulty && item.difficulty && !item.difficulty.includes(filters.difficulty)) return false;
-                    if (filters.is_technical !== null && filters.is_technical !== undefined && isTrueValue(item.is_technical) !== filters.is_technical) return false;
-
-                    if (filters.keywords && filters.keywords.length > 0) {
-                        const fullTextNormalized = normalizeString(
-                            `${item.title || ''} ${item.short_description || ''} ${item.waypoint_highlights || ''} ${item.route_story || ''} ${item.region || ''}`
-                        );
-
-                        const matchesAny = filters.keywords.some(kw => {
-                            const cleanKw = normalizeString(kw);
-                            if (cleanKw && fullTextNormalized.includes(cleanKw)) return true;
-
-                            const words = kw.split(/[\s\-–—־]+/).map(normalizeString).filter(w => w.length > 2);
-                            return words.some(w => fullTextNormalized.includes(w));
-                        });
-
-                        if (!matchesAny) return false;
-                    }
-
-                    return true;
-                });
-
+                baseSearchItems = rawCategoryItems.filter(item => itemMatchesAiFilters(item, filters));
                 applyAllCategoryFilters();
 
             } catch (err) {
                 console.error('שגיאה בחיפוש AI, מעבר לסינון טקסטואלי:', err);
                 isAiActive = false;
-                const qNormalized = normalizeString(rawQuery);
-                baseSearchItems = rawCategoryItems.filter(item => {
-                    const fullTextNormalized = normalizeString(
-                        `${item.title || ''} ${item.short_description || ''} ${item.region || ''} ${item.waypoint_highlights || ''} ${item.route_story || ''}`
-                    );
-                    return fullTextNormalized.includes(qNormalized);
-                });
+                baseSearchItems = getFallbackSearchItems(rawQuery);
                 applyAllCategoryFilters();
             }
         }

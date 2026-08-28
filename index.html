@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 
 <head>
@@ -53,7 +53,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- Schema Structured Data: WebSite & Organization (Knowledge Graph) -->
+    <!-- Schema Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -106,43 +106,36 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NS38C48X"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
 
     <!-- 🌐 Hero Wrapper -->
     <div class="relative w-full border-b border-slate-200 h-[450px] min-h-[450px] md:h-auto md:min-h-[580px] flex flex-col justify-between">
         
-        <!-- 🖼️ תמונת הרקע הרספונסיבית -->
         <div class="absolute inset-0 w-full h-full z-0 overflow-hidden">
             <picture class="w-full h-full block">
                 <source media="(max-width: 768px)" srcset="access-banner-mobile.jpg">
                 <img src="access-banner.jpg" alt="מסלולי הג'יפים של מדבר יהודה" class="w-full h-full object-cover object-center" fetchpriority="high">
             </picture>
             
-            <!-- 🌫️ גרדיאנט לבן עדין בחלק העליון -->
             <div class="absolute inset-x-0 top-0 h-28 md:h-36 bg-gradient-to-b from-white/80 via-white/35 to-transparent pointer-events-none"></div>
         </div>
 
-        <!-- 🌐 תפריט עליון היברידי (Master Header) -->
         <header class="w-full relative z-20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="relative flex items-center justify-between h-24 md:h-28">
                     
-                    <!-- 1. ימין: לוגו האתר -->
                     <div class="flex items-center z-10">
                         <a href="index.html" class="flex items-center group py-2">
                             <img src="Newlogo.png" alt="מסלולי הג'יפים של מדבר יהודה" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
                         </a>
                     </div>
 
-                    <!-- 2. מרכז: 4 קטגוריות גלויות על ציר 50% בדיוק עם gap של 20px -->
                     <nav class="hidden lg:flex items-center justify-center text-lg md:text-xl font-bold text-slate-900 tracking-tight absolute left-1/2 -translate-x-1/2" style="gap: 20px;">
                         <a href="category.html?type=routes" class="hover:text-indigo-600 transition whitespace-nowrap">מסלולי טיול</a>
                         <a href="category.html?type=technical" class="hover:text-indigo-600 transition whitespace-nowrap">מקטעים טכניים</a>
-                        <a href="category.html?type=viewpoints" class="hover:text-indigo-600 transition whitespace-nowrap">נקודות תצפית</a>
+                        <a href="khan-catalog.html" class="hover:text-indigo-600 transition whitespace-nowrap">חאנים ולינה</a>
                         <a href="category.html?type=water" class="hover:text-indigo-600 transition whitespace-nowrap">מעיינות וגבים</a>
                     </nav>
 
-                    <!-- 3. שמאל: אייקון המבורגר שחור ונקי -->
                     <div class="flex items-center z-10">
                         <button onclick="toggleSideMenu()" aria-label="פתח תפריט" class="w-11 h-11 flex items-center justify-center text-slate-900 hover:text-indigo-600 transition cursor-pointer">
                             <i class="fa-solid fa-bars text-2xl md:text-3xl"></i>
@@ -153,7 +146,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
         </header>
 
-        <!-- 🔍 קומפוננטה: כותרת H1, מנוע חיפוש ואזורים -->
         <div class="relative z-10 w-full max-w-4xl mx-auto px-4 pb-6 md:pb-12 text-center space-y-3 md:space-y-4 transform -translate-y-[10px] lg:-translate-y-[45px] transition-transform duration-200">
             <div class="space-y-0.5 md:space-y-1 md:bg-slate-950/19 md:backdrop-blur-[1px] md:px-5 md:py-2 md:rounded-2xl md:w-fit md:mx-auto">
                 <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight [text-shadow:_0_1px_8px_rgba(0,0,0,0.85),_0_2px_18px_rgba(0,0,0,0.6)] md:[text-shadow:_0_2px_8px_rgba(0,0,0,0.72),_0_4px_18px_rgba(0,0,0,0.42)]">מסלולי ג'יפים נבחרים</h1>
@@ -174,70 +166,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </form>
 
             <div class="grid grid-cols-2 gap-2.5 w-[calc(100%-48px)] max-w-[390px] mx-auto md:w-auto md:max-w-none md:flex md:flex-wrap md:items-center md:justify-center md:gap-3 md:pt-1">
-
-
                 <a href="category.html?type=routes&region=מדבר יהודה" class="w-full md:w-auto text-center bg-white/95 hover:bg-white text-slate-900 font-extrabold px-3 py-2 md:px-7 md:py-2.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-400 hover:text-indigo-600 hover:shadow transition text-xs md:text-base tracking-tight">
-
-
                     מדבר יהודה
-
-
                 </a>
-
-
                 <a href="category.html?type=routes&region=בקעת הירדן" class="w-full md:w-auto text-center bg-white/95 hover:bg-white text-slate-900 font-extrabold px-3 py-2 md:px-7 md:py-2.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-400 hover:text-indigo-600 hover:shadow transition text-xs md:text-base tracking-tight">
-
-
                     בקעת הירדן
-
-
                 </a>
-
-
                 <a href="category.html?type=routes&region=השומרון" class="w-full md:w-auto text-center bg-white/95 hover:bg-white text-slate-900 font-extrabold px-3 py-2 md:px-7 md:py-2.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-400 hover:text-indigo-600 hover:shadow transition text-xs md:text-base tracking-tight">
-
-
                     השומרון
-
-
                 </a>
-
-
                 <a href="category.html?type=routes&region=הנגב והערבה" class="w-full md:w-auto text-center bg-white/95 hover:bg-white text-slate-900 font-extrabold px-3 py-2 md:px-7 md:py-2.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-400 hover:text-indigo-600 hover:shadow transition text-xs md:text-base tracking-tight">
-
-
                     הנגב והערבה
-
-
                 </a>
-
-
             </div>
 
         </div>
 
     </div>
 
-    <!-- 🚪 תפריט צד מלא (Side Drawer) - נפתח משמאל בלבד -->
+    <!-- 🚪 תפריט צד מלא -->
     <div id="sideMenuDrawer" class="fixed inset-0 z-50 pointer-events-none transition-all duration-300">
-        <!-- רקע כהה שקוף -->
         <div id="sideMenuBackdrop" onclick="toggleSideMenu()" class="absolute inset-0 bg-slate-950/60 opacity-0 transition-opacity duration-300"></div>
 
-        <!-- פאנל התפריט הנשלף משמאל בלבד (רוחב אלגנטי 350-360px) -->
         <div id="sideMenuPanel" class="absolute top-0 left-0 w-full max-w-[360px] h-full bg-white shadow-2xl px-5 sm:px-6 pt-2.5 pb-5 sm:pt-3 sm:pb-6 flex flex-col justify-between overflow-y-auto transform -translate-x-full transition-transform duration-300 ease-out text-right">
             
             <div class="space-y-2">
-                <!-- כפתור סגירה בלבד בחלק העליון -->
                 <div class="flex items-center justify-start border-b border-slate-100 pb-1">
                     <button onclick="toggleSideMenu()" aria-label="סגור תפריט" class="w-9 h-9 -mr-1.5 text-slate-900 hover:text-indigo-600 flex items-center justify-center transition cursor-pointer">
                         <i class="fa-solid fa-xmark text-2xl"></i>
                     </button>
                 </div>
 
-                <!-- רשימת ניווט מלאה - טיפוגרפיה מוקטנת ועקבית ללא כותרות -->
                 <nav class="flex flex-col text-slate-900 font-bold text-base tracking-tight">
-                    
-                    <!-- קבוצה 1: מוצרי ליבה -->
                     <div class="space-y-0.5">
                         <a href="category.html?type=routes" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">מסלולי טיול</a>
                         <a href="category.html?type=technical" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">מקטעים טכניים</a>
@@ -246,41 +206,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <a href="category.html?type=poi" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">נקודות עניין</a>
                     </div>
                     
-                    <!-- מפריד עדין -->
                     <div class="py-2"><div class="border-t border-slate-100"></div></div>
 
-                    <!-- קבוצה 2: תוכן ומידע שימושי -->
                     <div class="space-y-0.5">
+                        <a href="khan-catalog.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">חאנים ומתחמי לינה</a>
                         <a href="stories.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">סיפורי מדבר ומורשת</a>
                         <a href="access.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">דרכי גישה למסלולים</a>
                         <a href="camp.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">חניוני לילה חינמיים</a>
                         <a href="mview.html" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">תצפיות מצוק ההעתקים</a>
                     </div>
 
-                    <!-- מפריד עדין -->
                     <div class="py-2"><div class="border-t border-slate-100"></div></div>
 
-                    <!-- קבוצה 3: מידע משני -->
                     <div class="space-y-0.5 text-slate-600 text-sm">
                         <a href="about.html" class="block py-1.5 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">אודות המיזם</a>
                         <a href="disclaimer.html" class="block py-1.5 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">הגבלת אחריות ותנאים</a>
                     </div>
-
                 </nav>
             </div>
 
-            <!-- סגירה תחתונה נקייה -->
             <div class="pt-4 border-t border-slate-100 text-xs text-slate-400 text-center font-medium">
                 מסלולי הג'יפים של מדבר יהודה
             </div>
-
         </div>
     </div>
 
     <!-- 📄 תוכן העמוד הראשי -->
     <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 md:py-10 space-y-10 md:space-y-16 flex-grow">
 
-        <!-- 💎 סרגל קטגוריות ראשי -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 md:gap-5">
             <a href="category.html?type=routes" class="bg-white py-4 px-3 md:p-5 rounded-2xl border border-slate-200 shadow-md hover:shadow-xl hover:border-indigo-500 transition text-center space-y-2.5 md:space-y-3 group md:hover:-translate-y-1 block">
                 <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-slate-900 text-indigo-400 flex items-center justify-center text-lg md:text-xl mx-auto shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition">
@@ -318,7 +271,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </a>
         </div>
 
-        <!-- 🌟 המסלולים המומלצים שלנו -->
         <div class="space-y-4 md:space-y-6">
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-2.5 tracking-tight">
@@ -340,32 +292,56 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
         </div>
 
-        <!-- 📖 בלוק סיפורי מדבר ומורשת -->
-        <div class="space-y-4 md:space-y-6 pt-2">
-            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-                <div>
-                    <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-2.5 tracking-tight">
-                        <div class="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center text-sm shadow">
-                            <i class="fa-solid fa-book-open"></i>
-                        </div>
-                        <span>סיפורי מדבר ומורשת</span>
-                    </h2>
-                    <p class="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-                        ההיסטוריה, האנשים, פריצת הדרכים וסיפורי הסיירות שעיצבו את המדבר
-                    </p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 pt-2">
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-2.5 tracking-tight">
+                            <div class="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center text-sm shadow">
+                                <i class="fa-solid fa-book-open"></i>
+                            </div>
+                            <span>סיפורי מדבר ומורשת</span>
+                        </h2>
+                    </div>
+                    <a href="stories.html" class="text-xs sm:text-sm font-bold text-amber-700 hover:text-amber-900 transition tracking-tight shrink-0">
+                        לכל הסיפורים ←
+                    </a>
                 </div>
-                <a href="stories.html" class="text-xs sm:text-sm font-bold text-amber-700 hover:text-amber-900 transition tracking-tight shrink-0 self-start sm:self-auto">
-                    לכל הסיפורים ←
-                </a>
+
+                <div id="homeStoriesContainer" class="space-y-3">
+                    <div class="text-center py-8 text-slate-400 font-bold text-xs">
+                        <i class="fa-solid fa-spinner fa-spin mr-1.5"></i> טוען סיפורים...
+                    </div>
+                </div>
             </div>
 
-            <div id="homeStoriesGrid" class="flex overflow-x-auto snap-x snap-mandatory gap-3 no-scrollbar pb-2 pt-1 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:pb-0 md:snap-none"></div>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-2.5 tracking-tight">
+                            <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shadow">
+                                <i class="fa-solid fa-campground"></i>
+                            </div>
+                            <span>חאנים ומתחמי לינה מומלצים</span>
+                        </h2>
+                    </div>
+                    <a href="khan-catalog.html" class="text-xs sm:text-sm font-bold text-emerald-700 hover:text-emerald-900 transition tracking-tight shrink-0">
+                        לכל החאנים ←
+                    </a>
+                </div>
+
+                <div id="homeKhansContainer" class="space-y-3">
+                    <div class="text-center py-8 text-slate-400 font-bold text-xs">
+                        <i class="fa-solid fa-spinner fa-spin mr-1.5"></i> טוען חאנים...
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- 🟩🟦 סרגל שני מלבנים מעוצבים -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-stretch">
             
-            <!-- 🟩 מלבן 1: קבוצת הוואטסאפ השקטה -->
             <div class="bg-white rounded-3xl p-5 md:p-8 shadow-sm border-2 border-emerald-600/90 flex flex-col justify-between space-y-4 md:space-y-6 transition hover:shadow-md group">
                 <div class="space-y-2 md:space-y-3">
                     <div class="flex items-center justify-between">
@@ -391,7 +367,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </a>
             </div>
 
-            <!-- 🟦 מלבן 2: צור קשר ודיווח מהשטח -->
             <div id="contactSection" class="bg-white rounded-3xl p-5 md:p-8 shadow-sm border-2 border-indigo-900 flex flex-col justify-between space-y-4 md:space-y-5 transition hover:shadow-md">
                 <div class="space-y-1.5 md:space-y-2">
                     <div class="flex items-center justify-between">
@@ -426,7 +401,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         </div>
 
-        <!-- ❓ שאלות נפוצות (FAQ) -->
         <div id="faqSection" class="bg-white rounded-3xl p-5 sm:p-7 md:p-8 border border-slate-200 shadow-sm space-y-4">
             <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3 tracking-tight">
                 <i class="fa-solid fa-circle-question text-indigo-600"></i>
@@ -440,7 +414,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
         </div>
 
-        <!-- 🗺️ פורטל מדריכים ומידע למטייל -->
         <div class="bg-gradient-to-br from-white to-indigo-50/40 rounded-3xl border border-slate-200 p-5 sm:p-7 md:p-8 shadow-sm space-y-4">
             <h3 class="text-lg sm:text-xl font-black text-slate-900 text-center flex items-center justify-center gap-2 tracking-tight">
                 <i class="fa-solid fa-compass text-indigo-600"></i>
@@ -448,8 +421,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </h3>
             
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 pt-1">
-                
-                <!-- כרטיס 1: דרכי גישה -->
                 <a href="access.html" class="flex items-center gap-3.5 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition group">
                     <div class="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0 text-lg group-hover:bg-indigo-600 group-hover:text-white transition">
                         <i class="fa-solid fa-route"></i>
@@ -460,7 +431,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </div>
                 </a>
 
-                <!-- כרטיס 2: חניוני לילה -->
                 <a href="camp.html" class="flex items-center gap-3.5 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition group">
                     <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 text-lg group-hover:bg-emerald-600 group-hover:text-white transition">
                         <i class="fa-solid fa-campground"></i>
@@ -471,7 +441,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </div>
                 </a>
 
-                <!-- כרטיס 3: נקודות תצפית -->
                 <a href="mview.html" class="flex items-center gap-3.5 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition group">
                     <div class="w-11 h-11 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 text-lg group-hover:bg-teal-600 group-hover:text-white transition">
                         <i class="fa-solid fa-binoculars"></i>
@@ -481,13 +450,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <div class="text-xs text-slate-500 font-medium">במצוק ההעתקים</div>
                     </div>
                 </a>
-
             </div>
         </div>
 
     </main>
 
-    <!-- 🔻 פוטר האתר האחיד -->
+    <!-- 🔻 פוטר האתר -->
     <footer class="w-full bg-slate-900 text-slate-300 border-t-4 border-indigo-600 mt-8 md:mt-16">
         <div class="bg-slate-950/90 py-5 md:py-6 px-4 border-b border-slate-800">
             <div class="max-w-7xl mx-auto text-center md:text-right space-y-2">
@@ -501,7 +469,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
 
         <div class="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-8 text-xs md:text-sm font-bold tracking-tight">
-            
             <div class="border-b border-slate-800 md:border-b-0 pb-2 md:pb-0 space-y-3">
                 <button onclick="toggleFooterAccordion('footerSec1', 'footerArr1')" class="w-full flex items-center justify-between py-2 md:py-0 text-white font-black text-sm md:text-base md:border-b md:border-slate-800 md:pb-2 cursor-pointer md:cursor-default">
                     <span>סוגי תוכן באתר</span>
@@ -522,6 +489,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <i id="footerArr2" class="fa-solid fa-chevron-down text-xs md:hidden transition-transform duration-200"></i>
                 </button>
                 <ul id="footerSec2" class="hidden md:block space-y-2 text-slate-400 font-semibold pb-2 md:pb-0 transition-all duration-200">
+                    <li><a href="khan-catalog.html" class="hover:text-indigo-400 transition block py-1 md:py-0">⛺ חאנים ומתחמי לינה</a></li>
                     <li><a href="stories.html" class="hover:text-indigo-400 transition block py-1 md:py-0">📖 סיפורי מדבר ומורשת</a></li>
                     <li><a href="access.html" class="hover:text-indigo-400 transition block py-1 md:py-0">🚗 דרכי גישה ומסלולים</a></li>
                     <li><a href="mview.html" class="hover:text-indigo-400 transition block py-1 md:py-0">🔭 נקודות תצפית במצוק ההעתקים</a></li>
@@ -570,7 +538,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </footer>
 
-    <!-- 🍪 באנר אישור עוגיות (Cookie Consent) -->
+    <!-- 🍪 באנר אישור עוגיות -->
     <div id="cookieConsentBanner" style="display: none;" class="fixed bottom-3 inset-x-3 sm:bottom-5 sm:right-5 sm:left-auto sm:max-w-md z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
         <div class="bg-slate-900/95 backdrop-blur-md text-white p-4 sm:p-5 rounded-2xl shadow-2xl border border-slate-700/80 flex flex-col gap-3.5">
             <div class="flex items-start gap-3">
@@ -596,7 +564,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </div>
 
-    <!-- 📜 JS שליפה מ-Supabase וניהול תפריט צד נשלף משמאל -->
+    <!-- 📜 JS שליפה מ-Supabase -->
     <script>
         const SUPABASE_URL = 'https://edjmwcnxsqnsxqrcsjxp.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i';
@@ -604,34 +572,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         let allHomeItems = [];
 
-        const DEFAULT_STORIES = [
-            {
-                id: 'yair-peled',
-                title: "האיש שחצב במצוק: יאיר פלד ופריצת מעלה יאיר",
-                excerpt: "במהלך ניווט בדד נרצח אחד המפקדים והסיירים הגדולים בצה\"ל – האיש שפרץ את מעלה יאיר מעל ים המלח והכניס אופניים וגמלים לסיירת.",
-                author: "יואב עציון",
-                read_time: "5 דק' קריאה",
-                cover_image: "access.jpg"
-            },
-            {
-                id: 'unit-101',
-                title: "רוח המדבר ופעולות התגמול: סיפורה של יחידה 101",
-                excerpt: "כיצד עיצבה יחידת הקומנדו הקטנה את תורת הלחימה, הניווט הלילי והתנועה בשטחים הפראיים של מדבר יהודה והנגב.",
-                author: "יואב עציון",
-                read_time: "4 דק' קריאה",
-                cover_image: "camping-banner.jpg"
-            },
-            {
-                id: 'dead-sea-canyon',
-                title: "סודות מצוק ההעתקים: עין גדי, דרגות וים המלח",
-                excerpt: "מנקבי השיירות העתיקים ועד לצירי השטח המאתגרים ביותר בישראל – מסע לאורך קו השבר הגיאולוגי המרשים בארץ.",
-                author: "צוות האתר",
-                read_time: "6 דק' קריאה",
-                cover_image: "mview-banner.jpg"
-            }
-        ];
-
-        // 🚪 פונקציית פתיחה וסגירה - החלקה מצד שמאל של המסך
         function toggleSideMenu() {
             const drawer = document.getElementById('sideMenuDrawer');
             const backdrop = document.getElementById('sideMenuBackdrop');
@@ -642,7 +582,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const isClosed = drawer.classList.contains('pointer-events-none');
 
             if (isClosed) {
-                // פתיחה מצד שמאל
                 drawer.classList.remove('pointer-events-none');
                 document.body.classList.add('overflow-hidden');
                 setTimeout(() => {
@@ -650,7 +589,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     panel.classList.remove('-translate-x-full');
                 }, 10);
             } else {
-                // סגירה חזרה שמאלה
                 backdrop.classList.add('opacity-0');
                 panel.classList.add('-translate-x-full');
                 document.body.classList.remove('overflow-hidden');
@@ -660,7 +598,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         }
 
-        // סגירה בלחיצה על מקש ESC
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 const drawer = document.getElementById('sideMenuDrawer');
@@ -689,6 +626,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         async function initHomePage() {
             await loadFeaturedRoutes();
             await loadDesertStories();
+            await loadFeaturedKhans();
             await loadFaqData();
         }
 
@@ -838,52 +776,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             });
         }
 
-        function renderDesertStories(storiesList) {
-            const grid = document.getElementById('homeStoriesGrid');
-            grid.innerHTML = '';
-            
-            storiesList.forEach(story => {
-                const card = document.createElement('a');
-                card.href = `article.html?id=${story.id}`;
-                card.className = 'flex-[0_0_88%] max-w-[88%] md:flex-initial md:max-w-none snap-start bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 shadow-sm hover:shadow-xl hover:border-amber-400 transition cursor-pointer flex flex-col justify-between overflow-hidden group';
-
-                const imageSrc = story.cover_image || story.main_image || 'access.jpg';
-                const authorName = story.author || story.author_name || 'יואב עציון';
-                const readTime = story.read_time || '5 דק\' קריאה';
-
-                card.innerHTML = `
-                    <div>
-                        <div class="relative mb-3.5 overflow-hidden rounded-2xl border border-slate-100 bg-slate-900 h-44 sm:h-48">
-                            <img src="${imageSrc}" alt="${cleanDashes(story.title)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                        </div>
-
-                        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 mb-2">
-                            <span class="text-amber-800"><i class="fa-solid fa-feather-pointed mr-1"></i> מאת ${authorName}</span>
-                            <span>•</span>
-                            <span>${readTime}</span>
-                        </div>
-
-                        <h3 class="font-extrabold text-slate-900 text-lg sm:text-xl mb-2 group-hover:text-amber-700 transition tracking-tight leading-snug">
-                            ${cleanDashes(story.title)}
-                        </h3>
-
-                        <p class="text-xs md:text-sm text-slate-600 mb-4 line-clamp-2 leading-relaxed font-medium">
-                            ${cleanDashes(story.excerpt || story.subtitle || '')}
-                        </p>
-                    </div>
-
-                    <div class="w-full border-2 border-amber-500 text-amber-900 group-hover:bg-amber-500 group-hover:text-slate-950 font-extrabold py-2.5 sm:py-3 px-4 rounded-2xl text-center text-xs sm:text-sm transition flex items-center justify-center gap-2 tracking-tight">
-                        <i class="fa-solid fa-book-open text-xs"></i>
-                        <span>לקריאת הסיפור המלא</span>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
         async function loadDesertStories() {
-            let storiesList = DEFAULT_STORIES;
-
             try {
                 const { data, error } = await supabaseClient
                     .from('articles')
@@ -892,13 +785,104 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     .limit(3);
 
                 if (!error && data && data.length > 0) {
-                    storiesList = data;
+                    renderDesertStories(data);
+                } else {
+                    document.getElementById('homeStoriesContainer').innerHTML = '<p class="text-xs font-bold text-slate-400 text-center py-4">לא נמצאו סיפורים להצגה</p>';
                 }
             } catch (err) {
-                console.log('טוען סיפורי ברירת מחדל.');
+                console.error('Error loading stories:', err);
+                document.getElementById('homeStoriesContainer').innerHTML = '<p class="text-xs font-bold text-slate-400 text-center py-4">לא נמצאו סיפורים להצגה</p>';
             }
+        }
 
-            renderDesertStories(storiesList);
+        function renderDesertStories(storiesList) {
+            const container = document.getElementById('homeStoriesContainer');
+            container.innerHTML = '';
+            
+            storiesList.slice(0, 3).forEach(story => {
+                const card = document.createElement('a');
+                card.href = `article.html?id=${story.id}`;
+                card.className = 'bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs hover:shadow-md hover:border-amber-400 transition cursor-pointer flex items-center gap-3.5 group';
+
+                const imageSrc = story.cover_image || story.main_image || 'access.jpg';
+                const authorName = story.author || story.author_name || 'צוות האתר';
+
+                card.innerHTML = `
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-slate-900 shrink-0 border border-slate-100">
+                        <img src="${imageSrc}" alt="${cleanDashes(story.title)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-[11px] font-bold text-amber-800 mb-0.5">
+                            <span>מאת ${authorName}</span>
+                        </div>
+                        <h3 class="font-extrabold text-slate-900 text-sm sm:text-base group-hover:text-amber-700 transition tracking-tight truncate">
+                            ${cleanDashes(story.title)}
+                        </h3>
+                        <p class="text-xs text-slate-500 line-clamp-1 font-medium mt-0.5">
+                            ${cleanDashes(story.excerpt || story.subtitle || '')}
+                        </p>
+                        <div class="text-[11px] font-bold text-indigo-600 group-hover:underline mt-1">
+                            לקריאת הסיפור ←
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function loadFeaturedKhans() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('khans')
+                    .select('*')
+                    .order('id', { ascending: false })
+                    .limit(3);
+
+                if (!error && data && data.length > 0) {
+                    renderFeaturedKhans(data);
+                } else {
+                    document.getElementById('homeKhansContainer').innerHTML = '<p class="text-xs font-bold text-slate-400 text-center py-4">לא נמצאו חאנים להצגה</p>';
+                }
+            } catch (err) {
+                console.error('Error loading khans:', err);
+                document.getElementById('homeKhansContainer').innerHTML = '<p class="text-xs font-bold text-slate-400 text-center py-4">לא נמצאו חאנים להצגה</p>';
+            }
+        }
+
+        function renderFeaturedKhans(khansList) {
+            const container = document.getElementById('homeKhansContainer');
+            container.innerHTML = '';
+
+            khansList.slice(0, 3).forEach(khan => {
+                const card = document.createElement('a');
+                card.href = `khan.html?id=${khan.id}`;
+                card.className = 'bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs hover:shadow-md hover:border-emerald-500 transition cursor-pointer flex items-center gap-3.5 group';
+
+                const imageSrc = khan.main_image || 'access-banner.jpg';
+                const locName = khan.location_name || 'ישוב במדבר';
+
+                card.innerHTML = `
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-100 relative">
+                        <img src="${imageSrc}" alt="${cleanDashes(khan.title)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-1 mb-0.5">
+                            <span class="text-[11px] font-extrabold text-purple-900 bg-purple-50 px-2 py-0.5 rounded border border-purple-200/60">${khan.region || 'מדבר יהודה'}</span>
+                            <span class="text-[11px] font-bold text-amber-600">${khan.rating || '4.5 ⭐'}</span>
+                        </div>
+                        <h3 class="font-extrabold text-slate-900 text-sm sm:text-base group-hover:text-emerald-700 transition tracking-tight truncate">
+                            ${cleanDashes(khan.title)}
+                        </h3>
+                        <p class="text-xs text-slate-500 font-medium truncate mt-0.5">
+                            📍 ${locName}
+                        </p>
+                        <div class="text-[11px] font-bold text-emerald-700 group-hover:underline mt-1">
+                            לפרטים נוספים ←
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
 
         async function loadFaqData() {
@@ -1001,7 +985,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         initHomePage();
     </script>
 
-    <!-- 🍪 ניהול אישור עוגיות עצמאי -->
+    <!-- 🍪 ניהול אישור עוגיות -->
     <script>
         function checkCookieConsent() {
             try {
@@ -1041,3 +1025,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <script src="accessibility.js"></script>
 </body>
 </html>
+
+
