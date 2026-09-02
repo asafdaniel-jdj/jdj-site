@@ -2,3 +2,20 @@ https://routes.jdj.co.il/*    https://jdj.co.il   301!
 https://mview.jdj.co.il/*     https://jdj.co.il/mview     301!
 https://access.jdj.co.il/*    https://jdj.co.il/access    301!
 https://camp.jdj.co.il/*      https://jdj.co.il/camp      301!
+
+/index.html          /               301!
+/about.html          /about          301!
+/access.html         /access         301!
+/accessibility.html  /accessibility  301!
+/article.html        /article        301!
+/camp.html           /camp           301!
+/category.html       /category       301!
+/disclaimer.html     /disclaimer     301!
+/item.html           /item           301!
+/khan-catalog.html   /khan-catalog   301!
+/khan.html           /khan           301!
+/mview.html          /mview          301!
+/point.html          /point          301!
+/stories.html        /stories        301!
+
+/sitemap.xml    /.netlify/functions/sitemap    200!
