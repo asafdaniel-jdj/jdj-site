@@ -21,23 +21,23 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מסלולי הג'יפים של מדבר יהודה | הבית למטיילי שטח 4x4</title>
-    <meta name="description" content="מאגר מסלולי ג'יפים נבחרים במדבר יהודה, הנגב, בקעת הירדן והשומרון. כולל מפות שטח אינטראקטיביות, קובצי GPX להורדה, סיפורי מדבר ומורשת, חאנים ומדריכי שטח.">
+    <title>מסלולי ג'יפים 4x4 במדבר יהודה והדרום</title>
+    <meta name="description" content="מסלולי ג'יפים 4x4 נבחרים במדבר יהודה, הנגב, הערבה, בקעת הירדן והשומרון. מפות, קבצי GPX, נקודות עניין, חאנים ותוכן שטח במקום אחד.">
     <link rel="canonical" href="https://jdj.co.il/">
 
     <!-- Open Graph / WhatsApp / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://jdj.co.il/">
-    <meta property="og:title" content="מסלולי הג'יפים של מדבר יהודה | הבית למטיילי שטח 4x4">
-    <meta property="og:description" content="מאגר מסלולי ג'יפים נבחרים במדבר יהודה, הנגב, בקעת הירדן והשומרון כולל מפות ניווט וקבצי GPX להורדה.">
+    <meta property="og:title" content="מסלולי ג'יפים 4x4 במדבר יהודה והדרום">
+    <meta property="og:description" content="מסלולי ג'יפים 4x4 נבחרים במדבר יהודה, הנגב, הערבה, בקעת הירדן והשומרון. מפות, קבצי GPX, נקודות עניין, חאנים ותוכן שטח במקום אחד.">
     <meta property="og:image" content="https://jdj.co.il/og-image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="מסלולי הג'יפים של מדבר יהודה | הבית למטיילי שטח 4x4">
-    <meta name="twitter:description" content="מאגר מסלולי ג'יפים נבחרים במדבר יהודה, הנגב, בקעת הירדן והשומרון כולל מפות ניווט וקבצי GPX להורדה.">
+    <meta name="twitter:title" content="מסלולי ג'יפים 4x4 במדבר יהודה והדרום">
+    <meta name="twitter:description" content="מסלולי ג'יפים 4x4 נבחרים במדבר יהודה, הנגב, הערבה, בקעת הירדן והשומרון. מפות, קבצי GPX, נקודות עניין, חאנים ותוכן שטח במקום אחד.">
     <meta name="twitter:image" content="https://jdj.co.il/og-image.jpg">
 
     <link rel="icon" type="image/png" href="favicon.png">
@@ -52,6 +52,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="seo-db.js"></script>
 
     <!-- Schema Structured Data -->
     <script type="application/ld+json">
@@ -79,7 +80,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           "url": "https://jdj.co.il/",
           "logo": {
             "@type": "ImageObject",
-            "url": "https://jdj.co.il/Newlogo.png"
+            "url": "https://jdj.co.il/newlogo.png"
           },
           "sameAs": [
             "https://bit.ly/4v9TpFw",
@@ -570,6 +571,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const SUPABASE_URL = 'https://edjmwcnxsqnsxqrcsjxp.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadHomeSeoFromDB() {
+            const seo = await JDJSeoDB.resolve(supabaseClient, {
+                templateKey: 'home', seoKey: 'HOME', vars: {},
+                fallback: {
+                    title: "מסלולי ג'יפים 4x4 במדבר יהודה והדרום",
+                    description: "מסלולי ג'יפים 4x4 נבחרים במדבר יהודה, הנגב, הערבה, בקעת הירדן והשומרון. מפות, קבצי GPX, נקודות עניין, חאנים ותוכן שטח במקום אחד.",
+                    canonical: 'https://jdj.co.il/', ogTitle: "מסלולי ג'יפים 4x4 במדבר יהודה והדרום",
+                    ogDescription: "מסלולי ג'יפים 4x4 נבחרים במדבר יהודה, הנגב, הערבה, בקעת הירדן והשומרון. מפות, קבצי GPX, נקודות עניין, חאנים ותוכן שטח במקום אחד.",
+                    ogImage: 'https://jdj.co.il/og-image.jpg', schemaType: 'WebSite+Organization', robots: 'index,follow'
+                }
+            });
+            JDJSeoDB.applyHead(seo);
+        }
+
+        loadHomeSeoFromDB();
 
         let allHomeItems = [];
 

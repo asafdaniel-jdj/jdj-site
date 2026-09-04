@@ -52,6 +52,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="seo-db.js"></script>
 
     <!-- Schema Structured Data -->
     <script type="application/ld+json">
@@ -64,7 +65,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         "@type": "Organization",
         "name": "מסלולי הג'יפים של מדבר יהודה",
         "url": "https://jdj.co.il/",
-        "logo": "https://jdj.co.il/Newlogo.png"
+        "logo": "https://jdj.co.il/newlogo.png"
       }
     }
     </script>
@@ -394,6 +395,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const SUPABASE_URL = 'https://edjmwcnxsqnsxqrcsjxp.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadAboutSeoFromDB() {
+            const seo = await JDJSeoDB.resolve(supabaseClient, {
+                templateKey: 'about', seoKey: 'STATIC:about', vars: {},
+                fallback: {
+                    title: "אודות המיזם | מסלולי הג'יפים של מדבר יהודה",
+                    description: "הכירו את הסיפור, החזון ורשת המדריכים של מסלולי הג'יפים של מדבר יהודה - הבית של מטיילי השטח ונהגי 4x4 בישראל.",
+                    canonical: 'https://jdj.co.il/about', ogTitle: "אודות המיזם | מסלולי הג'יפים של מדבר יהודה",
+                    ogDescription: "הכירו את הסיפור, החזון ורשת המדריכים של מסלולי הג'יפים של מדבר יהודה - הבית של מטיילי השטח ונהגי 4x4 בישראל.",
+                    ogImage: 'https://jdj.co.il/og-image.jpg', schemaType: 'AboutPage', robots: 'index,follow'
+                }
+            });
+            JDJSeoDB.applyHead(seo);
+        }
+
+        loadAboutSeoFromDB();
 
         // 🚪 פונקציית פתיחה וסגירה של תפריט הצד משמאל
         function toggleSideMenu() {

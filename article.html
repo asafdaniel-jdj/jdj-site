@@ -55,6 +55,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="seo-db.js"></script>
 
     <!-- Schema.org JSON-LD דינמי לגוגל -->
     <script type="application/ld+json" id="articleSchemaJson">
@@ -73,7 +74,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           "name": "מסלולי הג'יפים של מדבר יהודה",
           "logo": {
             "@type": "ImageObject",
-            "url": "https://jdj.co.il/favicon.png"
+            "url": "https://jdj.co.il/newlogo.png"
           }
       }
     }
@@ -545,9 +546,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const breadcrumb = document.getElementById('breadcrumbArticleTitle');
             if (breadcrumb) breadcrumb.innerText = title;
 
-            document.title = `${title} | מסלולי הג'יפים של מדבר יהודה`;
+            const fullTitle = `${title} | מסלולי הג'יפים של מדבר יהודה`;
+            document.title = fullTitle;
             const pageMetaTitle = document.getElementById('pageMetaTitle');
-            if (pageMetaTitle) pageMetaTitle.innerText = `${title} | מסלולי הג'יפים`;
+            if (pageMetaTitle) pageMetaTitle.innerText = fullTitle;
             const metaDescription = document.getElementById('metaDescription');
             if (metaDescription) metaDescription.setAttribute('content', message);
 
@@ -624,7 +626,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     return;
                 }
 
-                renderArticle(data);
+                await renderArticle(data);
                 findMatchingFullRoutes(data.related_route_query || data.title);
             } catch (err) {
                 console.error('Error loading article:', err);
@@ -632,7 +634,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         }
 
-        function renderArticle(item) {
+        async function renderArticle(item) {
             const cleanTitle = cleanDashes(item.title || DEFAULT_ARTICLE.title);
             const excerpt = cleanDashes(item.excerpt || item.subtitle || DEFAULT_ARTICLE.excerpt);
             const author = item.author || item.author_name || DEFAULT_ARTICLE.author;
@@ -641,27 +643,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const itemUrl = `https://jdj.co.il/article?id=${item.id || 'yair-peled'}`;
             const shareImg = item.cover_image || 'https://jdj.co.il/og-image.jpg';
 
-            document.title = `${cleanTitle} | מסלולי הג'יפים של מדבר יהודה`;
-            document.getElementById('pageMetaTitle').innerText = `${cleanTitle} | מסלולי הג'יפים`;
-            document.getElementById('metaDescription').setAttribute('content', excerpt);
-            document.getElementById('canonicalUrl').setAttribute('href', itemUrl);
+            const fallbackTitle = `${cleanTitle} | מסלולי הג'יפים של מדבר יהודה`;
+            const fallbackMetaDesc = `${cleanTitle} – סיפור מדבר ומורשת שטח עם רקע, היסטוריה, אנשים ומקומות שעיצבו את המדבר ואת עולם טיולי הג'יפים.`;
+            const fallbackShareImg = shareImg;
+            const seo = await JDJSeoDB.resolve(supabaseClient, {
+                templateKey: 'article', seoKey: `ARTICLE:${item.id}`,
+                vars: { id: item.id, title: cleanTitle },
+                fallback: { title: fallbackTitle, description: fallbackMetaDesc, h1: cleanTitle, h2: null, canonical: itemUrl, ogTitle: cleanTitle, ogDescription: fallbackMetaDesc, ogImage: fallbackShareImg, schemaType: 'Article+BreadcrumbList', robots: 'index,follow' }
+            });
+            const fullTitle = seo.title || fallbackTitle;
+            const metaDesc = seo.description || fallbackMetaDesc;
+            const resolvedItemUrl = seo.canonical || itemUrl;
+            const resolvedShareImg = seo.ogImage || fallbackShareImg;
+            const h1 = seo.h1 || cleanTitle;
 
-            document.getElementById('ogUrl').content = itemUrl;
-            document.getElementById('ogTitle').content = cleanTitle;
-            document.getElementById('ogDesc').content = excerpt;
-            document.getElementById('ogImage').content = shareImg;
+            JDJSeoDB.applyHead(seo);
+            document.getElementById('pageMetaTitle').innerText = fullTitle;
 
-            document.getElementById('twTitle').content = cleanTitle;
-            document.getElementById('twDesc').content = excerpt;
-            document.getElementById('twImage').content = shareImg;
-
-            const schemaData = {
-                "@context": "https://schema.org",
+            const articleEntity = {
                 "@type": "Article",
+                "@id": `${resolvedItemUrl}#article`,
+                "url": resolvedItemUrl,
+                "mainEntityOfPage": resolvedItemUrl,
                 "headline": cleanTitle,
-                "description": excerpt,
-                "image": [shareImg],
+                "description": metaDesc,
+                "image": [resolvedShareImg],
+                "inLanguage": "he-IL",
                 "datePublished": item.created_at || "2026-08-19T00:00:00+03:00",
+                ...(item.updated_at ? { "dateModified": item.updated_at } : {}),
                 "author": [{
                     "@type": "Person",
                     "name": author
@@ -669,16 +678,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 "publisher": {
                     "@type": "Organization",
                     "name": "מסלולי הג'יפים של מדבר יהודה",
+                    "url": "https://jdj.co.il/",
                     "logo": {
                         "@type": "ImageObject",
-                        "url": "https://jdj.co.il/favicon.png"
+                        "url": "https://jdj.co.il/newlogo.png"
                     }
                 }
+            };
+
+            const schemaData = {
+                "@context": "https://schema.org",
+                "@graph": [
+                    articleEntity,
+                    {
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                            { "@type": "ListItem", "position": 1, "name": "דף הבית", "item": "https://jdj.co.il/" },
+                            { "@type": "ListItem", "position": 2, "name": "סיפורי מדבר ומורשת", "item": "https://jdj.co.il/stories" },
+                            { "@type": "ListItem", "position": 3, "name": cleanTitle, "item": resolvedItemUrl }
+                        ]
+                    }
+                ]
             };
             document.getElementById('articleSchemaJson').textContent = JSON.stringify(schemaData);
 
             document.getElementById('breadcrumbArticleTitle').innerText = cleanTitle;
-            document.getElementById('articleTitle').innerText = cleanTitle;
+            document.getElementById('articleTitle').innerText = h1;
             document.getElementById('articleExcerpt').innerText = excerpt;
             document.getElementById('articleAuthor').innerText = `מאת ${author}`;
             document.getElementById('articleDate').innerText = dateStr;
@@ -860,8 +885,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 <span class="text-[10px] font-extrabold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
                                     ${route.region || 'מדבר יהודה'} • ${route.route_type || 'מקטע שטח'}
                                 </span>
-                                <h4 class="font-bold text-slate-900 text-sm mt-1 leading-snug group-hover:text-indigo-600 transition">
-                                    ${routeTitle}
+                                <h4 class="font-bold text-slate-900 text-sm mt-1 leading-snug">
+                                    <a href="${targetPage}?id=${route.id}" class="hover:text-indigo-600 transition">${routeTitle}</a>
                                 </h4>
                                 <p class="text-slate-500 text-xs line-clamp-1 mt-0.5">${cleanDashes(route.short_description || '')}</p>
                             </div>

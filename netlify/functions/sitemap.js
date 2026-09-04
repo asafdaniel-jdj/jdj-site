@@ -5,6 +5,10 @@ const SITE_URL = 'https://jdj.co.il';
 const STATIC_URLS = [
   '/',
   '/category?type=routes',
+  '/category?type=routes&region=%D7%9E%D7%93%D7%91%D7%A8%20%D7%99%D7%94%D7%95%D7%93%D7%94',
+  '/category?type=routes&region=%D7%91%D7%A7%D7%A2%D7%AA%20%D7%94%D7%99%D7%A8%D7%93%D7%9F',
+  '/category?type=routes&region=%D7%94%D7%A9%D7%95%D7%9E%D7%A8%D7%95%D7%9F',
+  '/category?type=routes&region=%D7%94%D7%A0%D7%92%D7%91%20%D7%95%D7%94%D7%A2%D7%A8%D7%91%D7%94',
   '/category?type=technical',
   '/category?type=viewpoints',
   '/category?type=water',

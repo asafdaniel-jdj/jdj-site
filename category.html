@@ -20,23 +20,23 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageMetaTitle">מסלולי טיול ונקודות שטח | מסלולי הג'יפים של מדבר יהודה</title>
-    <meta id="pageMetaDesc" name="description" content="מאגר מסלולי טיול 4x4, מקטעים ומעלות טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה, הנגב, בקעת הירדן והשומרון עם מפות וסינונים.">
+    <title id="pageMetaTitle">מסלולי טיול לג'יפים | מסלולי הג'יפים של מדבר יהודה</title>
+    <meta id="pageMetaDesc" name="description" content="מאגר מסלולי טיול לג'יפים במדבר יהודה, הנגב, הערבה, בקעת הירדן והשומרון עם מפות, קבצי GPX, דרגות קושי ומידע מהשטח.">
     <link id="canonicalTag" rel="canonical" href="https://jdj.co.il/category">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta id="ogUrlTag" property="og:url" content="https://jdj.co.il/category">
-    <meta id="ogTitleTag" property="og:title" content="מסלולי טיול ונקודות שטח | מסלולי הג'יפים של מדבר יהודה">
-    <meta id="ogDescTag" property="og:description" content="מאגר מסלולי טיול 4x4, מקטעים ומעלות טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה, הנגב, בקעת הירדן והשומרון.">
+    <meta id="ogTitleTag" property="og:title" content="מסלולי טיול לג'יפים | מסלולי הג'יפים של מדבר יהודה">
+    <meta id="ogDescTag" property="og:description" content="מאגר מסלולי טיול לג'יפים במדבר יהודה, הנגב, הערבה, בקעת הירדן והשומרון עם מפות, קבצי GPX, דרגות קושי ומידע מהשטח.">
     <meta property="og:image" content="https://jdj.co.il/og-image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="מסלולי טיול ונקודות שטח | מסלולי הג'יפים של מדבר יהודה" id="twitterTitleTag">
-    <meta name="twitter:description" content="מאגר מסלולי טיול 4x4, מקטעים ומעלות טכניים, מעיינות וגבים, נקודות תצפית ועניין במדבר יהודה, הנגב, בקעת הירדן והשומרון." id="twitterDescTag">
+    <meta name="twitter:title" content="מסלולי טיול לג'יפים | מסלולי הג'יפים של מדבר יהודה" id="twitterTitleTag">
+    <meta name="twitter:description" content="מאגר מסלולי טיול לג'יפים במדבר יהודה, הנגב, הערבה, בקעת הירדן והשומרון עם מפות, קבצי GPX, דרגות קושי ומידע מהשטח." id="twitterDescTag">
     <meta name="twitter:image" content="https://jdj.co.il/og-image.jpg">
 
     <link rel="icon" type="image/png" href="favicon.png">
@@ -51,6 +51,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="seo-db.js"></script>
 
     <style>
         body { font-family: 'Heebo', sans-serif; }
@@ -401,6 +402,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <!-- אזור תוצאות ראשי -->
             <div id="resultsAnchor" class="lg:col-span-3 space-y-6">
                 
+                <h2 id="categoryContentHeading" class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight"></h2>
+
                 <!-- סרגל כמויות ומיון בדסקטופ -->
                 <div class="hidden lg:flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="text-sm font-bold text-slate-600">
@@ -577,34 +580,160 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             'routes': { 
                 dbValues: ['מסלול טיול'], 
                 title: 'מסלולי טיול',
-                description: 'מאגר מסלולי טיול 4x4 וג\'יפים במדבר יהודה, הנגב, בקעת הירדן והשומרון עם מפות אינטראקטיביות, קבצי GPX וסינונים חכמים.',
+                contentHeading: 'מסלולי טיול נבחרים',
+                seoTitle: 'מסלולי טיול לג\'יפים',
+                description: 'מאגר מסלולי טיול לג\'יפים במדבר יהודה, הנגב, הערבה, בקעת הירדן והשומרון עם מפות, קבצי GPX, דרגות קושי ומידע מהשטח.',
                 btnText: 'הצג עוד מסלולים'
             },
             'technical': { 
                 dbValues: ['מקטע טכני'], 
                 title: 'מקטעים טכניים',
-                description: 'מעלות שטח, מדרגות סלע ומקטעים אתגריים לרכבי 4x4 עם הילוך כוח (Low) במדבר יהודה ובנגב כולל דירוג קושי ומעקפים.',
+                contentHeading: 'מקטעים טכניים ומעלות',
+                seoTitle: 'מעלות ומקטעים טכניים לג\'יפים',
+                description: 'מעלות, מדרגות סלע ומקטעים טכניים לג\'יפים במדבר יהודה והנגב, כולל דרגות קושי, מעקפים, תמונות ומידע מהשטח.',
                 btnText: 'הצג עוד מקטעים'
             },
             'viewpoints': { 
                 dbValues: ['נקודת תצפית', 'נקודות תצפית'], 
                 title: 'נקודות תצפית',
-                description: 'תצפיות הנוף המרשימות ביותר במצוק ההעתקים, ים המלח, מדבר יהודה ובקעת הירדן. דרכי הגעה ונקודות ציון לרכבי שטח.',
+                contentHeading: 'נקודות תצפית מומלצות',
+                seoTitle: 'נקודות תצפית',
+                description: 'נקודות תצפית נבחרות במדבר יהודה, ים המלח, הנגב ובקעת הירדן עם מיקום, דרכי גישה, תמונות ומידע מהשטח.',
                 btnText: 'הצג עוד תצפיות'
             },
             'water': { 
                 dbValues: ['מעין', 'מעיין', 'גב מים', 'מעיין/גב', 'מעיינות וגבים'], 
                 title: 'מעיינות וגבים',
-                description: 'גבי מים עמוקים, מעיינות חיים ומקורות מים לשכשוך וטבילה במדבר יהודה, ים המלח והנגב עם דרכי גישה לרכב שטח.',
+                contentHeading: 'מעיינות וגבים בשטח',
+                seoTitle: 'מעיינות וגבים',
+                description: 'מעיינות, גבים ומקורות מים במדבר יהודה, ים המלח והנגב עם מיקום, דרכי גישה, תמונות ועדכונים מהשטח.',
                 btnText: 'הצג עוד מעיינות'
             },
             'poi': { 
                 dbValues: ['נקודת עניין', 'נקודות עניין', 'מקום היסטורי'], 
                 title: 'נקודות עניין',
-                description: 'אתרים היסטוריים, שרידים ארכאולוגיים, מערות ומקומות מיוחדים במדבר יהודה והבקעה עם מידע מלא ומיקום מדויק.',
+                contentHeading: 'נקודות עניין שכדאי להכיר',
+                seoTitle: 'נקודות עניין',
+                description: 'נקודות עניין, אתרים היסטוריים, מערות ומקומות מיוחדים במדבר יהודה, בקעת הירדן והנגב עם מיקום, תמונות ומידע מהשטח.',
                 btnText: 'הצג עוד נקודות עניין'
             }
         };
+
+        const ROUTE_REGION_SEO = {
+            'מדבר יהודה': {
+                h1: 'מסלולי ג׳יפים במדבר יהודה',
+                h2: 'מסלולי טיול 4x4 נבחרים במדבר יהודה',
+                seoTitle: 'מסלולי ג׳יפים במדבר יהודה',
+                description: 'מסלולי ג׳יפים במדבר יהודה עם מפות, קבצי GPX, דרגות קושי, נקודות עניין ומידע עדכני מהשטח למטיילי 4x4.'
+            },
+            'הנגב והערבה': {
+                h1: 'מסלולי ג׳יפים בנגב והערבה',
+                h2: 'מסלולי טיול 4x4 נבחרים בנגב והערבה',
+                seoTitle: 'מסלולי ג׳יפים בנגב והערבה',
+                description: 'מסלולי ג׳יפים בנגב והערבה עם מפות, קבצי GPX, דרגות קושי, נקודות עניין ומידע עדכני מהשטח למטיילי 4x4.'
+            },
+            'בקעת הירדן': {
+                h1: 'מסלולי ג׳יפים בבקעת הירדן',
+                h2: 'מסלולי טיול 4x4 נבחרים בבקעת הירדן',
+                seoTitle: 'מסלולי ג׳יפים בבקעת הירדן',
+                description: 'מסלולי ג׳יפים בבקעת הירדן עם מפות, קבצי GPX, דרגות קושי, נקודות עניין ומידע עדכני מהשטח למטיילי 4x4.'
+            },
+            'השומרון': {
+                h1: 'מסלולי ג׳יפים בשומרון',
+                h2: 'מסלולי טיול 4x4 נבחרים בשומרון',
+                seoTitle: 'מסלולי ג׳יפים בשומרון',
+                description: 'מסלולי ג׳יפים בשומרון עם מפות, קבצי GPX, דרגות קושי, נקודות עניין ומידע עדכני מהשטח למטיילי 4x4.'
+            }
+        };
+
+        function getCategorySeoState() {
+            const config = CATEGORY_MAP[currentCategoryType] || CATEGORY_MAP.routes;
+            const regionSeo = currentCategoryType === 'routes' ? ROUTE_REGION_SEO[currentRegionFilter] : null;
+            const isRegionLanding = !!regionSeo;
+            const canonical = isRegionLanding
+                ? `https://jdj.co.il/category?type=routes&region=${encodeURIComponent(currentRegionFilter)}`
+                : `https://jdj.co.il/category?type=${currentCategoryType}`;
+            const seoTitle = regionSeo?.seoTitle || config.seoTitle;
+
+            return {
+                config,
+                isRegionLanding,
+                canonical,
+                h1: regionSeo?.h1 || config.title,
+                h2: regionSeo?.h2 || config.contentHeading,
+                fullTitle: `${seoTitle} | מסלולי הג'יפים של מדבר יהודה`,
+                description: regionSeo?.description || config.description
+            };
+        }
+
+        let categorySeoRequestId = 0;
+
+        function applyCategorySeoValues(seo, itemsForSchema = rawCategoryItems) {
+            document.getElementById('categoryPageTitle').innerText = seo.h1;
+            document.getElementById('categoryContentHeading').innerText = seo.h2;
+            document.getElementById('loadMoreBtnText').innerText = seo.config.btnText;
+            document.title = seo.fullTitle;
+
+            const metaTitleEl = document.getElementById('pageMetaTitle');
+            if (metaTitleEl) metaTitleEl.innerText = seo.fullTitle;
+            const canonicalEl = document.getElementById('canonicalTag');
+            if (canonicalEl) canonicalEl.setAttribute('href', seo.canonical);
+            const metaDescEl = document.getElementById('pageMetaDesc');
+            if (metaDescEl) metaDescEl.setAttribute('content', seo.description);
+            const ogUrlEl = document.getElementById('ogUrlTag');
+            if (ogUrlEl) ogUrlEl.setAttribute('content', seo.canonical);
+            const ogTitleEl = document.getElementById('ogTitleTag');
+            if (ogTitleEl) ogTitleEl.setAttribute('content', seo.fullTitle);
+            const ogDescEl = document.getElementById('ogDescTag');
+            if (ogDescEl) ogDescEl.setAttribute('content', seo.description);
+            const twTitleEl = document.getElementById('twitterTitleTag');
+            if (twTitleEl) twTitleEl.setAttribute('content', seo.fullTitle);
+            const twDescEl = document.getElementById('twitterDescTag');
+            if (twDescEl) twDescEl.setAttribute('content', seo.description);
+            injectCategorySchema(seo, itemsForSchema);
+        }
+
+        function updateCategorySeoState(itemsForSchema = rawCategoryItems) {
+            const fallbackSeo = getCategorySeoState();
+            applyCategorySeoValues(fallbackSeo, itemsForSchema);
+
+            const requestId = ++categorySeoRequestId;
+            const templateKey = fallbackSeo.isRegionLanding ? 'routes_region' : `category_${currentCategoryType}`;
+            const seoKey = fallbackSeo.isRegionLanding ? `ROUTES_REGION:${currentRegionFilter}` : null;
+            const regionName = fallbackSeo.isRegionLanding ? currentRegionFilter : '';
+
+            JDJSeoDB.resolve(supabaseClient, {
+                templateKey, seoKey,
+                vars: { region: regionName, region_bet: formatRegionWithBet(regionName), region_url: encodeURIComponent(regionName) },
+                fallback: {
+                    title: fallbackSeo.fullTitle, description: fallbackSeo.description, h1: fallbackSeo.h1, h2: fallbackSeo.h2,
+                    canonical: fallbackSeo.canonical, ogTitle: fallbackSeo.fullTitle, ogDescription: fallbackSeo.description,
+                    ogImage: 'https://jdj.co.il/og-image.jpg', schemaType: 'CollectionPage+ItemList+BreadcrumbList', robots: 'index,follow'
+                }
+            }).then(dbSeo => {
+                if (requestId !== categorySeoRequestId) return;
+                const resolved = {
+                    ...fallbackSeo,
+                    fullTitle: dbSeo.title || fallbackSeo.fullTitle,
+                    description: dbSeo.description || fallbackSeo.description,
+                    h1: dbSeo.h1 || fallbackSeo.h1,
+                    h2: dbSeo.h2 || fallbackSeo.h2,
+                    canonical: dbSeo.canonical || fallbackSeo.canonical
+                };
+                applyCategorySeoValues(resolved, itemsForSchema);
+            });
+        }
+
+        function syncCategoryUrl() {
+            let newUrl = `${window.location.pathname}?type=${encodeURIComponent(currentCategoryType)}`;
+            if (currentCategoryType === 'routes' && ROUTE_REGION_SEO[currentRegionFilter]) {
+                newUrl += `&region=${encodeURIComponent(currentRegionFilter)}`;
+            }
+            if (currentSearchQuery.trim()) {
+                newUrl += `&q=${encodeURIComponent(currentSearchQuery.trim())}`;
+            }
+            window.history.replaceState({}, '', newUrl);
+        }
 
         let rawCategoryItems = [];
         let baseSearchItems = [];
@@ -1085,36 +1214,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const initialRegion = urlParams.get('region') || 'הכל';
 
             const config = CATEGORY_MAP[currentCategoryType];
-            const fullTitle = `${config.title} | מסלולי הג'יפים של מדבר יהודה`;
-            const categoryUrl = `https://jdj.co.il/category?type=${currentCategoryType}`;
-
-            document.getElementById('categoryPageTitle').innerText = config.title;
-            document.getElementById('loadMoreBtnText').innerText = config.btnText;
-
-            document.title = fullTitle;
-            const metaTitleEl = document.getElementById('pageMetaTitle');
-            if (metaTitleEl) metaTitleEl.innerText = fullTitle;
-
-            const canonicalEl = document.getElementById('canonicalTag');
-            if (canonicalEl) canonicalEl.setAttribute('href', categoryUrl);
-
-            const metaDescEl = document.getElementById('pageMetaDesc');
-            if (metaDescEl) metaDescEl.setAttribute('content', config.description);
-
-            const ogUrlEl = document.getElementById('ogUrlTag');
-            if (ogUrlEl) ogUrlEl.setAttribute('content', categoryUrl);
-
-            const ogTitleEl = document.getElementById('ogTitleTag');
-            if (ogTitleEl) ogTitleEl.setAttribute('content', fullTitle);
-
-            const ogDescEl = document.getElementById('ogDescTag');
-            if (ogDescEl) ogDescEl.setAttribute('content', config.description);
-
-            const twTitleEl = document.getElementById('twitterTitleTag');
-            if (twTitleEl) twTitleEl.setAttribute('content', fullTitle);
-
-            const twDescEl = document.getElementById('twitterDescTag');
-            if (twDescEl) twDescEl.setAttribute('content', config.description);
 
             // הדגשת קטגוריה פעילה ב-Header
             const activeNav = document.getElementById(`nav-${currentCategoryType}`);
@@ -1128,17 +1227,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 activeDrawerNav.classList.add('text-indigo-600', 'bg-indigo-50/60');
             }
 
-            if (initialRegion !== 'הכל') {
+            const validRegionValues = new Set(['הכל', ...Array.from(document.querySelectorAll('input[name="regionFilter"]')).map(el => el.value)]);
+            if (initialRegion !== 'הכל' && validRegionValues.has(initialRegion)) {
                 currentRegionFilter = initialRegion;
                 const radios = document.querySelectorAll('input[name="regionFilter"]');
                 radios.forEach(radio => {
-                    if (radio.value === initialRegion) radio.checked = true;
+                    radio.checked = (radio.value === initialRegion);
                 });
             }
 
+            updateCategorySeoState([]);
             await fetchCategoryItems();
 
             const isRestored = await restoreCategoryState();
+            if (isRestored) {
+                updateCategorySeoState(rawCategoryItems);
+                syncCategoryUrl();
+            }
 
             if (!isRestored && currentSearchQuery) {
                 document.getElementById('categorySearchInput').value = currentSearchQuery;
@@ -1165,6 +1270,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                 rawCategoryItems = data || [];
                 baseSearchItems = [...rawCategoryItems];
+                updateCategorySeoState(rawCategoryItems);
                 updateDynamicFilterVisibility();
                 if (!currentSearchQuery) {
                     applyAllCategoryFilters();
@@ -1174,6 +1280,55 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 console.error('Error fetching data:', err);
                 document.getElementById('categoryGrid').innerHTML = '<p class="col-span-full text-center text-rose-500 font-bold py-12">שגיאה בטעינת הנתונים</p>';
             }
+        }
+
+
+        function injectCategorySchema(seo, items) {
+            const existingSchema = document.getElementById('dynamicCategorySchema');
+            if (existingSchema) existingSchema.remove();
+
+            const categoryUrl = seo.canonical;
+            const schemaItems = seo.isRegionLanding
+                ? (items || []).filter(item => item.region === currentRegionFilter)
+                : (items || []);
+            const listItems = schemaItems.map((item, idx) => ({
+                "@type": "ListItem",
+                "position": idx + 1,
+                "name": cleanDashes(item.title || ''),
+                "url": `https://jdj.co.il/${item.route_type === 'מסלול טיול' ? 'item' : 'point'}?id=${item.id}`
+            }));
+
+            const schemaObj = {
+                "@context": "https://schema.org",
+                "@graph": [
+                    {
+                        "@type": "CollectionPage",
+                        "@id": `${categoryUrl}#webpage`,
+                        "url": categoryUrl,
+                        "name": seo.h1,
+                        "description": seo.description,
+                        "inLanguage": "he-IL",
+                        "mainEntity": {
+                            "@type": "ItemList",
+                            "numberOfItems": listItems.length,
+                            "itemListElement": listItems
+                        }
+                    },
+                    {
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                            { "@type": "ListItem", "position": 1, "name": "דף הבית", "item": "https://jdj.co.il/" },
+                            { "@type": "ListItem", "position": 2, "name": seo.h1, "item": categoryUrl }
+                        ]
+                    }
+                ]
+            };
+
+            const script = document.createElement('script');
+            script.id = 'dynamicCategorySchema';
+            script.type = 'application/ld+json';
+            script.textContent = JSON.stringify(schemaObj);
+            document.head.appendChild(script);
         }
 
         function updateDynamicFilterVisibility() {
@@ -1535,8 +1690,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 currentSearchQuery = '';
                 isAiActive = false;
                 baseSearchItems = [...rawCategoryItems];
-                const newUrl = window.location.pathname + `?type=${currentCategoryType}` + (currentRegionFilter !== 'הכל' ? `&region=${encodeURIComponent(currentRegionFilter)}` : '');
-                window.history.replaceState({}, '', newUrl);
+                syncCategoryUrl();
             }
 
             applyAllCategoryFilters();
@@ -1658,8 +1812,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             currentRegionFilter = region;
             const radios = document.querySelectorAll('input[name="regionFilter"]');
             radios.forEach(radio => {
-                if (radio.value === region) radio.checked = true;
+                radio.checked = (radio.value === region);
             });
+            syncCategoryUrl();
+            updateCategorySeoState(rawCategoryItems);
             updateDynamicFilterVisibility();
             applyAllCategoryFilters();
         }
@@ -1689,8 +1845,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             document.getElementById('mobileSortSelect').value = 'recommended';
             setRegionFilter('הכל');
 
-            const newUrl = window.location.pathname + `?type=${currentCategoryType}`;
-            window.history.replaceState({}, '', newUrl);
         }
 
         initCategoryPage();
