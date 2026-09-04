@@ -1052,7 +1052,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             document.getElementById('breadcrumbTitle').innerText = cleanTitle;
             document.getElementById('topPageHeading').innerText = h1;
 
-            injectItemSchema(item, cleanTitle, itemUrl, metaDesc, shareImg, parseWaypoints(item.waypoint_highlights));
+            injectItemSchema(item, cleanTitle, itemUrl, metaDesc, shareImg, parseWaypoints(item.waypoint_highlights), JDJSeoDB.primarySchemaType(seo.schemaType, 'TouristTrip'));
 
             renderGallery(item);
 
@@ -1183,7 +1183,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         }
 
-        function injectItemSchema(item, cleanTitle, itemUrl, shortDesc, shareImg, waypoints) {
+        function injectItemSchema(item, cleanTitle, itemUrl, shortDesc, shareImg, waypoints, entitySchemaType = 'TouristTrip') {
             const existingSchema = document.getElementById('dynamicItemSchema');
             if (existingSchema) existingSchema.remove();
 
@@ -1202,7 +1202,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         ]
                     },
                     {
-                        "@type": "TouristTrip",
+                        "@type": entitySchemaType,
                         "@id": itemUrl,
                         "name": cleanTitle,
                         "description": shortDesc,

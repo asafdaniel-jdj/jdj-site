@@ -704,7 +704,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             JDJSeoDB.resolve(supabaseClient, {
                 templateKey, seoKey,
-                vars: { region: regionName, region_bet: formatRegionWithBet(regionName), region_url: encodeURIComponent(regionName) },
+                vars: { region: regionName, region_bet: JDJSeoDB.formatRegionWithBet(regionName), region_url: encodeURIComponent(regionName) },
                 fallback: {
                     title: fallbackSeo.fullTitle, description: fallbackSeo.description, h1: fallbackSeo.h1, h2: fallbackSeo.h2,
                     canonical: fallbackSeo.canonical, ogTitle: fallbackSeo.fullTitle, ogDescription: fallbackSeo.description,
@@ -718,7 +718,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     description: dbSeo.description || fallbackSeo.description,
                     h1: dbSeo.h1 || fallbackSeo.h1,
                     h2: dbSeo.h2 || fallbackSeo.h2,
-                    canonical: dbSeo.canonical || fallbackSeo.canonical
+                    canonical: dbSeo.canonical || fallbackSeo.canonical,
+                    schemaType: dbSeo.schemaType || 'CollectionPage+ItemList+BreadcrumbList'
                 };
                 applyCategorySeoValues(resolved, itemsForSchema);
             });
@@ -1302,7 +1303,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 "@context": "https://schema.org",
                 "@graph": [
                     {
-                        "@type": "CollectionPage",
+                        "@type": JDJSeoDB.primarySchemaType(seo.schemaType, "CollectionPage"),
                         "@id": `${categoryUrl}#webpage`,
                         "url": categoryUrl,
                         "name": seo.h1,

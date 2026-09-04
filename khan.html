@@ -790,7 +790,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
 
-        function injectKhanSchema(khan, cleanTitle, khanUrl, description, shareImg) {
+        function injectKhanSchema(khan, cleanTitle, khanUrl, description, shareImg, entitySchemaType = 'LodgingBusiness') {
             const existingSchema = document.getElementById('dynamicKhanSchema');
             if (existingSchema) existingSchema.remove();
 
@@ -804,7 +804,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 .filter(Boolean);
 
             const lodging = {
-                "@type": "LodgingBusiness",
+                "@type": entitySchemaType,
                 "@id": khanUrl,
                 "url": khanUrl,
                 "name": cleanTitle,
@@ -878,7 +878,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             document.getElementById('pageTitle').innerText = pageCleanTitle;
             document.getElementById('breadcrumbTitle').innerText = cleanTitle;
 
-            injectKhanSchema(khan, cleanTitle, khanUrl, metaDesc, shareImg);
+            injectKhanSchema(khan, cleanTitle, khanUrl, metaDesc, shareImg, JDJSeoDB.primarySchemaType(seo.schemaType, 'LodgingBusiness'));
             renderGallery(khan);
 
             document.getElementById('itemTitle').innerText = h1;

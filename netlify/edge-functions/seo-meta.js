@@ -86,8 +86,36 @@ function formatRegionWithBet(region) {
 }
 
 
+function primarySchemaType(schemaType, fallback = 'Thing') {
+  const first = String(schemaType || '')
+    .split('+')
+    .map(value => value.trim())
+    .find(Boolean);
+  return first || fallback;
+}
+
+
+
 const SEO_TEMPLATE_CACHE = new Map();
 const SEO_OVERRIDE_CACHE = new Map();
+const SEO_CACHE_TTL_MS = 60_000;
+
+function getFreshCache(cache, key) {
+  const entry = cache.get(key);
+  if (!entry) return undefined;
+  if (entry.expiresAt <= Date.now()) {
+    cache.delete(key);
+    return undefined;
+  }
+  return entry.value;
+}
+
+function setFreshCache(cache, key, value) {
+  cache.set(key, {
+    value,
+    expiresAt: Date.now() + SEO_CACHE_TTL_MS
+  });
+}
 
 function renderSeoTemplate(value, vars = {}) {
   if (value === null || value === undefined) return null;
@@ -100,7 +128,8 @@ function renderSeoTemplate(value, vars = {}) {
 
 async function getSeoTemplate(templateKey) {
   if (!templateKey) return null;
-  if (SEO_TEMPLATE_CACHE.has(templateKey)) return SEO_TEMPLATE_CACHE.get(templateKey);
+  const cached = getFreshCache(SEO_TEMPLATE_CACHE, templateKey);
+  if (cached !== undefined) return cached;
   const params = new URLSearchParams({
     select: '*',
     template_key: `eq.${templateKey}`,
@@ -113,13 +142,14 @@ async function getSeoTemplate(templateKey) {
   if (!response.ok) throw new Error(`Supabase seo_templates request failed with ${response.status}`);
   const rows = await response.json();
   const row = Array.isArray(rows) && rows.length ? rows[0] : null;
-  SEO_TEMPLATE_CACHE.set(templateKey, row);
+  setFreshCache(SEO_TEMPLATE_CACHE, templateKey, row);
   return row;
 }
 
 async function getSeoOverride(seoKey) {
   if (!seoKey) return null;
-  if (SEO_OVERRIDE_CACHE.has(seoKey)) return SEO_OVERRIDE_CACHE.get(seoKey);
+  const cached = getFreshCache(SEO_OVERRIDE_CACHE, seoKey);
+  if (cached !== undefined) return cached;
   const params = new URLSearchParams({
     select: '*',
     seo_key: `eq.${seoKey}`,
@@ -132,7 +162,7 @@ async function getSeoOverride(seoKey) {
   if (!response.ok) throw new Error(`Supabase seo_overrides request failed with ${response.status}`);
   const rows = await response.json();
   const row = Array.isArray(rows) && rows.length ? rows[0] : null;
-  SEO_OVERRIDE_CACHE.set(seoKey, row);
+  setFreshCache(SEO_OVERRIDE_CACHE, seoKey, row);
   return row;
 }
 
@@ -258,7 +288,7 @@ function replaceJsonLdById(html, id, data) {
 function articleSchema(row, seo) {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': primarySchemaType(seo.schemaType, 'Article'),
     headline: cleanDashes(row.title || ''),
     description: seo.description,
     image: [seo.image],

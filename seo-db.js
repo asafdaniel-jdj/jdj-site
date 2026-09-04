@@ -25,6 +25,14 @@
     return known[value] || (value ? `ב${value}` : '');
   }
 
+  function primarySchemaType(schemaType, fallback = 'Thing') {
+    const first = String(schemaType || '')
+      .split('+')
+      .map(value => value.trim())
+      .find(Boolean);
+    return first || fallback;
+  }
+
   function renderTemplate(value, vars = {}) {
     if (value === null || value === undefined) return null;
     return String(value).replace(/\{([a-zA-Z0-9_]+)\}/g, (_, key) => {
@@ -159,6 +167,7 @@
     SITE_URL,
     cleanDashes,
     formatRegionWithBet,
+    primarySchemaType,
     renderTemplate,
     resolve,
     applyHead,
