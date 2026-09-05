@@ -945,6 +945,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             return (val === true || val === 'true' || val === 'כן' || val === 'מתאים' || val === 1 || val === '1');
         }
 
+        function getEarlyAccessUntilMs(item) {
+            if (!item || !item.early_access_until) return null;
+            const timestamp = Date.parse(item.early_access_until);
+            return Number.isFinite(timestamp) ? timestamp : null;
+        }
+
+        function isEarlyAccessActive(item) {
+            const until = getEarlyAccessUntilMs(item);
+            return until !== null && until > Date.now();
+        }
+
+        function isPubliclyVisible(item) {
+            return !isEarlyAccessActive(item);
+        }
+
         function normalizeString(str) {
             return (str || '')
                 .toLowerCase()
@@ -1325,7 +1340,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 const { data, error } = await query;
                 if (error) throw error;
 
-                rawCategoryItems = data || [];
+                rawCategoryItems = (data || []).filter(isPubliclyVisible);
                 baseSearchItems = [...rawCategoryItems];
                 updateCategorySeoState(rawCategoryItems);
                 updateDynamicFilterVisibility();

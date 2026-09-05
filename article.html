@@ -277,6 +277,45 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             </header>
 
+            <!-- 💜 Early Access Banner Component (Deep Purple) -->
+            <section id="earlyAccessBanner" class="hidden relative w-full bg-gradient-to-r from-purple-950 via-slate-950 to-purple-950 border border-purple-500/40 rounded-2xl p-3.5 sm:px-6 sm:py-4 shadow-lg overflow-hidden transition-all duration-300" aria-label="גישה מוקדמת לחברי קבוצת הוואטסאפ">
+
+                <!-- 🗺️ קווי טופוגרפיה מוזהבים ברקע -->
+                <div class="absolute inset-0 opacity-35 pointer-events-none overflow-hidden">
+                    <svg class="w-full h-full text-amber-300/80" viewBox="0 0 500 150" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M-50 160 C100 70, 200 180, 350 60 C450 -10, 520 80, 600 -10" stroke="currentColor" stroke-width="2.2"/>
+                        <path d="M-50 120 C110 40, 190 140, 360 30 C430 -30, 530 50, 600 -30" stroke="currentColor" stroke-width="2.2"/>
+                        <path d="M-50 80 C120 10, 200 100, 370 10 C440 -50, 540 20, 600 -50" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </div>
+
+                <div class="relative z-10 flex items-center justify-between gap-2 sm:gap-4">
+
+                    <div class="space-y-0.5 min-w-0 flex-1">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 bg-purple-900/90 border border-purple-400/50 text-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full tracking-wider uppercase shadow-xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                                EARLY ACCESS
+                            </span>
+                            <span class="text-[11px] font-bold text-slate-300/80 hidden sm:inline">• לחברי הקבוצה בלבד</span>
+                        </div>
+
+                        <div class="text-sm sm:text-xl font-black text-white tracking-tight leading-snug whitespace-nowrap">
+                            עוד לא באתר. <span class="bg-gradient-to-r from-amber-200 via-amber-300 to-amber-100 bg-clip-text text-transparent">כבר אצלכם.</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 sm:gap-2.5 bg-black/70 border border-amber-500/40 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl shrink-0 shadow-inner">
+                        <i class="fa-regular fa-clock text-amber-400 text-xs"></i>
+                        <div class="flex flex-col text-right">
+                            <span class="text-[9px] font-bold text-slate-400 leading-none">נפתח לכולם בעוד</span>
+                            <span id="earlyAccessCountdown" class="text-[11px] sm:text-sm font-black text-amber-300 font-mono tracking-wide pt-0.5">--:--:--</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
             <!-- 🖼️ גלריית תמונות עליונה (1200x500) -->
             <div id="articleGalleryWrapper" class="w-full"></div>
 
@@ -458,6 +497,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         let currentLightboxImages = [];
         let currentLightboxIndex = 0;
+        let earlyAccessTimerInterval = null;
+        let earlyAccessOriginalRobots = undefined;
 
         const DEFAULT_ARTICLE = {
             id: 'yair-peled',
@@ -530,6 +571,92 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         function cleanDashes(text) {
             return text ? text.replace(/\s*[–—־-]\s*/g, ' ').trim() : '';
+        }
+
+        function getEarlyAccessUntilMs(item) {
+            if (!item || !item.early_access_until) return null;
+            const timestamp = Date.parse(item.early_access_until);
+            return Number.isFinite(timestamp) ? timestamp : null;
+        }
+
+        function isEarlyAccessActive(item) {
+            const until = getEarlyAccessUntilMs(item);
+            return until !== null && until > Date.now();
+        }
+
+        function isPubliclyVisible(item) {
+            return !isEarlyAccessActive(item);
+        }
+
+        function setClientNoindex() {
+            let robots = document.querySelector('meta[name="robots"]');
+            if (earlyAccessOriginalRobots === undefined) {
+                earlyAccessOriginalRobots = robots ? robots.getAttribute('content') : null;
+            }
+            if (!robots) {
+                robots = document.createElement('meta');
+                robots.setAttribute('name', 'robots');
+                document.head.appendChild(robots);
+            }
+            robots.setAttribute('content', 'noindex,follow');
+        }
+
+        function restoreClientRobots() {
+            if (earlyAccessOriginalRobots === undefined) return;
+            let robots = document.querySelector('meta[name="robots"]');
+            if (earlyAccessOriginalRobots === null) {
+                if (robots) robots.remove();
+            } else {
+                if (!robots) {
+                    robots = document.createElement('meta');
+                    robots.setAttribute('name', 'robots');
+                    document.head.appendChild(robots);
+                }
+                robots.setAttribute('content', earlyAccessOriginalRobots);
+            }
+            earlyAccessOriginalRobots = undefined;
+        }
+
+        function applyEarlyAccessState(item) {
+            const banner = document.getElementById('earlyAccessBanner');
+            if (!banner || !isEarlyAccessActive(item)) {
+                if (banner) banner.classList.add('hidden');
+                if (earlyAccessTimerInterval) {
+                    clearInterval(earlyAccessTimerInterval);
+                    earlyAccessTimerInterval = null;
+                }
+                restoreClientRobots();
+                return;
+            }
+
+            banner.classList.remove('hidden');
+            setClientNoindex();
+
+            const targetTime = getEarlyAccessUntilMs(item);
+
+            function updateTimer() {
+                const diff = targetTime - Date.now();
+                if (diff <= 0) {
+                    banner.classList.add('hidden');
+                    if (earlyAccessTimerInterval) {
+                        clearInterval(earlyAccessTimerInterval);
+                        earlyAccessTimerInterval = null;
+                    }
+                    restoreClientRobots();
+                    return;
+                }
+
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                const pad = (num) => String(num).padStart(2, '0');
+                const countdownEl = document.getElementById('earlyAccessCountdown');
+                if (countdownEl) countdownEl.innerText = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            }
+
+            updateTimer();
+            if (earlyAccessTimerInterval) clearInterval(earlyAccessTimerInterval);
+            earlyAccessTimerInterval = setInterval(updateTimer, 1000);
         }
 
         function parseGalleryImages(item) {
@@ -627,6 +754,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 }
 
                 await renderArticle(data);
+                applyEarlyAccessState(data);
                 findMatchingFullRoutes(data.related_route_query || data.title);
             } catch (err) {
                 console.error('Error loading article:', err);
@@ -858,17 +986,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                 const { data, error } = await supabaseClient
                     .from('routes')
-                    .select('id, title, short_description, main_image, region, length_km, duration_hours, route_type')
-                    .or(orConditions.join(','))
-                    .limit(4);
+                    .select('id, title, short_description, main_image, region, length_km, duration_hours, route_type, early_access_until')
+                    .or(orConditions.join(','));
 
-                if (error || !data || data.length === 0) return;
+                const visibleRoutes = (data || []).filter(isPubliclyVisible).slice(0, 4);
+                if (error || visibleRoutes.length === 0) return;
 
                 const container = document.getElementById('includedInRoutesSection');
                 const grid = document.getElementById('includedRoutesGrid');
                 grid.innerHTML = '';
 
-                data.forEach(route => {
+                visibleRoutes.forEach(route => {
                     const card = document.createElement('div');
                     card.className = 'flex flex-col sm:flex-row items-center gap-4 p-3.5 rounded-2xl bg-white border border-slate-200/90 hover:border-indigo-300 transition group shadow-xs';
                     

@@ -409,6 +409,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             return text ? text.replace(/\s*[–—־-]\s*/g, ' ').trim() : '';
         }
 
+        function getEarlyAccessUntilMs(item) {
+            if (!item || !item.early_access_until) return null;
+            const timestamp = Date.parse(item.early_access_until);
+            return Number.isFinite(timestamp) ? timestamp : null;
+        }
+
+        function isEarlyAccessActive(item) {
+            const until = getEarlyAccessUntilMs(item);
+            return until !== null && until > Date.now();
+        }
+
+        function isPubliclyVisible(item) {
+            return !isEarlyAccessActive(item);
+        }
+
         async function initStoriesPage() {
             try {
                 const { data, error } = await supabaseClient
@@ -418,7 +433,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                 if (error) throw error;
 
-                rawArticles = data || [];
+                rawArticles = (data || []).filter(isPubliclyVisible);
                 filteredArticles = [...rawArticles];
                 sortAndRender();
 
