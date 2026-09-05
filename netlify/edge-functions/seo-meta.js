@@ -446,10 +446,13 @@ function khanSchema(row, seo) {
 }
 
 function articleSchema(row, seo) {
-  return {
-    '@context': 'https://schema.org',
+  const title = cleanDashes(row.title || '');
+
+  const article = {
     '@type': primarySchemaType(seo.schemaType, 'Article'),
-    headline: cleanDashes(row.title || ''),
+    '@id': `${seo.canonical}#article`,
+    url: seo.canonical,
+    headline: title,
     description: seo.description,
     image: [seo.image],
     datePublished: row.created_at || undefined,
@@ -469,6 +472,21 @@ function articleSchema(row, seo) {
       '@type': 'WebPage',
       '@id': seo.canonical
     }
+  };
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      article,
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'דף הבית', item: `${SITE_URL}/` },
+          { '@type': 'ListItem', position: 2, name: 'סיפורי מדבר ומורשת', item: `${SITE_URL}/stories` },
+          { '@type': 'ListItem', position: 3, name: title, item: seo.canonical }
+        ]
+      }
+    ]
   };
 }
 
