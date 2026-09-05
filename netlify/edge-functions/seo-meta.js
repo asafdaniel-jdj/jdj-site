@@ -5,30 +5,35 @@ const SUPABASE_KEY = 'sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i';
 
 const CATEGORY_MAP = {
   routes: {
+    dbValues: ['מסלול טיול'],
     h1: 'מסלולי טיול',
     h2: 'מסלולי טיול נבחרים',
     seoTitle: "מסלולי טיול לג'יפים",
     description: "מאגר מסלולי טיול לג'יפים במדבר יהודה, הנגב, הערבה, בקעת הירדן והשומרון עם מפות, קבצי GPX, דרגות קושי ומידע מהשטח."
   },
   technical: {
+    dbValues: ['מקטע טכני'],
     h1: 'מקטעים טכניים',
     h2: 'מקטעים טכניים ומעלות',
     seoTitle: "מעלות ומקטעים טכניים לג'יפים",
     description: "מעלות, מדרגות סלע ומקטעים טכניים לג'יפים במדבר יהודה והנגב, כולל דרגות קושי, מעקפים, תמונות ומידע מהשטח."
   },
   viewpoints: {
+    dbValues: ['נקודת תצפית', 'נקודות תצפית'],
     h1: 'נקודות תצפית',
     h2: 'נקודות תצפית מומלצות',
     seoTitle: 'נקודות תצפית',
     description: 'נקודות תצפית נבחרות במדבר יהודה, ים המלח, הנגב ובקעת הירדן עם מיקום, דרכי גישה, תמונות ומידע מהשטח.'
   },
   water: {
+    dbValues: ['מעין', 'מעיין', 'גב מים', 'מעיין/גב', 'מעיינות וגבים'],
     h1: 'מעיינות וגבים',
     h2: 'מעיינות וגבים בשטח',
     seoTitle: 'מעיינות וגבים',
     description: 'מעיינות, גבים ומקורות מים במדבר יהודה, ים המלח והנגב עם מיקום, דרכי גישה, תמונות ועדכונים מהשטח.'
   },
   poi: {
+    dbValues: ['נקודת עניין', 'נקודות עניין', 'מקום היסטורי'],
     h1: 'נקודות עניין',
     h2: 'נקודות עניין שכדאי להכיר',
     seoTitle: 'נקודות עניין',
@@ -285,6 +290,161 @@ function replaceJsonLdById(html, id, data) {
   return html.replace(re, `$1${json}$2`);
 }
 
+function upsertJsonLdById(html, id, data) {
+  const json = JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+  const re = new RegExp(`(<script\\b[^>]*\\bid=["']${id}["'][^>]*>)[\\s\\S]*?(<\\/script>)`, 'i');
+  if (re.test(html)) return html.replace(re, `$1${json}$2`);
+  const tag = `    <script type="application/ld+json" id="${id}">${json}</script>\n`;
+  return html.replace(/<\/head>/i, `${tag}</head>`);
+}
+
+function parseWaypointsForSchema(value = '') {
+  if (!value) return [];
+  const clean = String(value)
+    .replace(/<br\s*\/?\s*>/gi, '\n')
+    .replace(/<\/?(p|li|div)[^>]*>/gi, '\n');
+  return clean
+    .split(/[,;\n\r•*|/–—־>◦▪▸➢]+/)
+    .map(part => cleanDashes(part))
+    .map(part => part.replace(/^(\d+[\.\)]\s*|[-•*]\s*)/, '').trim())
+    .filter(Boolean);
+}
+
+function parseGalleryImagesForSchema(row, fallbackImage) {
+  const gallery = String(row?.gallery_images || '')
+    .split(/[\n,;]+/)
+    .map(value => value.trim())
+    .filter(Boolean)
+    .map(absoluteImage);
+  return gallery.length ? gallery : [absoluteImage(fallbackImage)];
+}
+
+function categorySchema(seo, rows = []) {
+  const listItems = rows.map((row, index) => ({
+    '@type': 'ListItem', position: index + 1,
+    name: cleanDashes(row.title || ''),
+    url: `${SITE_URL}/${row.route_type === 'מסלול טיול' ? 'item' : 'point'}?id=${encodeURIComponent(row.id)}`
+  }));
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': primarySchemaType(seo.schemaType, 'CollectionPage'),
+        '@id': `${seo.canonical}#webpage`, url: seo.canonical,
+        name: seo.h1 || seo.title, description: seo.description, inLanguage: 'he-IL',
+        mainEntity: { '@type': 'ItemList', numberOfItems: listItems.length, itemListElement: listItems }
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'דף הבית', item: `${SITE_URL}/` },
+          { '@type': 'ListItem', position: 2, name: seo.h1 || seo.title, item: seo.canonical }
+        ]
+      }
+    ]
+  };
+}
+
+function itemSchema(row, seo) {
+  const title = cleanDashes(row.title || '');
+  const waypoints = parseWaypointsForSchema(row.waypoint_highlights || '');
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'דף הבית', item: `${SITE_URL}/` },
+          { '@type': 'ListItem', position: 2, name: 'מסלולי טיול', item: `${SITE_URL}/category?type=routes` },
+          { '@type': 'ListItem', position: 3, name: title, item: seo.canonical }
+        ]
+      },
+      {
+        '@type': primarySchemaType(seo.schemaType, 'TouristTrip'), '@id': seo.canonical,
+        name: title, description: seo.description,
+        image: parseGalleryImagesForSchema(row, seo.image), touristType: '4x4 / רכבי שטח',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'ILS' },
+        itinerary: {
+          '@type': 'ItemList', numberOfItems: waypoints.length || 1,
+          itemListElement: waypoints.map((point, index) => ({ '@type': 'ListItem', position: index + 1, name: point }))
+        }
+      }
+    ]
+  };
+}
+
+const POINT_CATEGORY_MAP = {
+  'מקטע טכני': { key: 'technical', label: 'מקטעים טכניים' },
+  'נקודת תצפית': { key: 'viewpoints', label: 'נקודות תצפית' },
+  'נקודות תצפית': { key: 'viewpoints', label: 'נקודות תצפית' },
+  'מעין': { key: 'water', label: 'מעיינות וגבים' },
+  'מעיין': { key: 'water', label: 'מעיינות וגבים' },
+  'גב מים': { key: 'water', label: 'מעיינות וגבים' },
+  'מעיין/גב': { key: 'water', label: 'מעיינות וגבים' },
+  'מעיינות וגבים': { key: 'water', label: 'מעיינות וגבים' },
+  'נקודת עניין': { key: 'poi', label: 'נקודות עניין' },
+  'נקודות עניין': { key: 'poi', label: 'נקודות עניין' },
+  'מקום היסטורי': { key: 'poi', label: 'נקודות עניין' }
+};
+
+function pointSchema(row, seo) {
+  const title = cleanDashes(row.title || '');
+  const category = POINT_CATEGORY_MAP[row.route_type] || { key: 'poi', label: 'נקודות עניין' };
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'דף הבית', item: `${SITE_URL}/` },
+          { '@type': 'ListItem', position: 2, name: category.label, item: `${SITE_URL}/category?type=${category.key}` },
+          { '@type': 'ListItem', position: 3, name: title, item: seo.canonical }
+        ]
+      },
+      {
+        '@type': primarySchemaType(seo.schemaType, 'TouristAttraction'), '@id': seo.canonical,
+        name: title, description: seo.description, image: seo.image,
+        touristType: '4x4 / רכבי שטח', areaServed: row.region || ''
+      }
+    ]
+  };
+}
+
+function khanSchema(row, seo) {
+  const title = cleanDashes(row.title || '');
+  const regionName = row.region || 'הנגב והערבה';
+  const locationName = cleanDashes(row.location_name || '');
+  const phone = String(row.phone || '').trim();
+  const website = String(row.website_url || '').trim();
+  const facilities = String(row.facilities || '').split(',').map(value => cleanDashes(value.trim())).filter(Boolean);
+  const lodging = {
+    '@type': primarySchemaType(seo.schemaType, 'LodgingBusiness'), '@id': seo.canonical, url: seo.canonical,
+    name: title, description: seo.description, image: seo.image, areaServed: regionName,
+    ...(phone ? { telephone: phone } : {}),
+    ...(row.price_range ? { priceRange: row.price_range } : {}),
+    ...(website ? { sameAs: [website] } : {}),
+    ...(locationName ? { address: `${locationName}, ${regionName}, ישראל` } : {}),
+    ...(facilities.length ? { amenityFeature: facilities.map(name => ({ '@type': 'LocationFeatureSpecification', name, value: true })) } : {})
+  };
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'דף הבית', item: `${SITE_URL}/` },
+          { '@type': 'ListItem', position: 2, name: 'חאנים ומתחמי לינה', item: `${SITE_URL}/khan-catalog` },
+          { '@type': 'ListItem', position: 3, name: title, item: seo.canonical }
+        ]
+      },
+      lodging
+    ]
+  };
+}
+
 function articleSchema(row, seo) {
   return {
     '@context': 'https://schema.org',
@@ -365,12 +525,12 @@ function seoForRoute(row, kind) {
   if (kind === 'item') {
     const fullTitle = `${title} | מסלולי ג'יפים ${regionPhrase}`;
     const description = `${title} הוא מסלול ג'יפים ${regionPhrase}, כולל דרגת קושי, תיאור הדרך, נקודות חשובות, מפה וקובץ GPX להורדה.`;
-    return { title: fullTitle, ogTitle: fullTitle, description, canonical, image: absoluteImage(row.main_image) };
+    return { title: fullTitle, ogTitle: fullTitle, description, canonical, image: absoluteImage(row.main_image), schemaType: 'TouristTrip+BreadcrumbList' };
   }
 
   const fullTitle = `${title} | ${routeType} ${regionPhrase}`;
   const description = `${title} היא ${routeType} ${regionPhrase}, עם מידע מהשטח, דרכי גישה, מיקום, תמונות ופרטים חשובים למטיילי ג'יפים.`;
-  return { title: fullTitle, ogTitle: fullTitle, description, canonical, image: absoluteImage(row.main_image) };
+  return { title: fullTitle, ogTitle: fullTitle, description, canonical, image: absoluteImage(row.main_image), schemaType: 'TouristAttraction+BreadcrumbList' };
 }
 
 function seoForKhan(row) {
@@ -382,7 +542,8 @@ function seoForKhan(row) {
     ogTitle: fullTitle,
     description: `${title} הוא חאן ${regionPhrase}, עם מידע על סוגי הלינה, מתקנים, מיקום, דרכי הגעה והתרשמות למטיילי שטח וג'יפים.`,
     canonical: `${SITE_URL}/khan?id=${encodeURIComponent(row.id)}`,
-    image: absoluteImage(row.main_image)
+    image: absoluteImage(row.main_image),
+    schemaType: 'LodgingBusiness+BreadcrumbList'
   };
 }
 
@@ -416,7 +577,8 @@ function seoForCategory(url) {
       : `${SITE_URL}/category?type=${type}`,
     image: `${SITE_URL}/og-image.jpg`,
     h1: regionSeo?.h1 || config.h1,
-    h2: regionSeo?.h2 || config.h2
+    h2: regionSeo?.h2 || config.h2,
+    schemaType: 'CollectionPage+ItemList+BreadcrumbList'
   };
 }
 
@@ -436,6 +598,24 @@ async function seoForCategoryFromDb(url) {
     seoKey: isRegionLanding ? `ROUTES_REGION:${region}` : null,
     vars: { region: isRegionLanding ? region : '', region_bet: isRegionLanding ? formatRegionWithBet(region) : '', region_url: isRegionLanding ? encodeURIComponent(region) : '' },
     fallback
+  });
+}
+
+async function getCategorySchemaRows(url) {
+  const rawType = url.searchParams.get('type');
+  if (!Object.prototype.hasOwnProperty.call(CATEGORY_MAP, rawType)) return [];
+  const params = new URLSearchParams({ select: 'id,title,route_type,region,status', status: 'eq.פורסם', order: 'id.desc' });
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/routes?${params.toString()}`, {
+    headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
+  });
+  if (!response.ok) throw new Error(`Supabase category schema request failed with ${response.status}`);
+  const allRows = await response.json();
+  const allowedTypes = new Set(CATEGORY_MAP[rawType].dbValues || []);
+  const region = url.searchParams.get('region');
+  return (Array.isArray(allRows) ? allRows : []).filter(row => {
+    if (!allowedTypes.has(row.route_type)) return false;
+    if (rawType === 'routes' && ROUTE_REGION_SEO[region] && row.region !== region) return false;
+    return true;
   });
 }
 
@@ -475,10 +655,16 @@ export default async function handler(request, context) {
       });
       html = applySeo(html, seo);
     } else if (pagePath === '/category') {
+      const rawType = url.searchParams.get('type');
+      const isValidCategory = Object.prototype.hasOwnProperty.call(CATEGORY_MAP, rawType);
       const seo = await seoForCategoryFromDb(url);
       html = applySeo(html, seo);
       if (seo.h1) html = replaceElementTextById(html, 'categoryPageTitle', seo.h1);
       if (seo.h2) html = replaceElementTextById(html, 'categoryContentHeading', seo.h2);
+      if (isValidCategory) {
+        const rows = await getCategorySchemaRows(url);
+        html = upsertJsonLdById(html, 'dynamicCategorySchema', categorySchema(seo, rows));
+      }
     } else if (['/item', '/point', '/khan', '/article'].includes(pagePath)) {
       const id = url.searchParams.get('id');
 
@@ -529,7 +715,13 @@ export default async function handler(request, context) {
           if (seo.h1 && cfg.h1Id) html = replaceElementTextById(html, cfg.h1Id, seo.h1);
           if (seo.h1 && pagePath === '/item') html = replaceElementTextById(html, 'topPageHeading', seo.h1);
           if (seo.h2 && cfg.h2Id) html = replaceElementTextById(html, cfg.h2Id, seo.h2);
-          if (pagePath === '/article') {
+          if (pagePath === '/item') {
+            html = upsertJsonLdById(html, 'dynamicItemSchema', itemSchema(row, seo));
+          } else if (pagePath === '/point') {
+            html = upsertJsonLdById(html, 'breadcrumbSchema', pointSchema(row, seo));
+          } else if (pagePath === '/khan') {
+            html = upsertJsonLdById(html, 'dynamicKhanSchema', khanSchema(row, seo));
+          } else if (pagePath === '/article') {
             html = replaceJsonLdById(html, 'articleSchemaJson', articleSchema(row, seo));
           }
         } else {
