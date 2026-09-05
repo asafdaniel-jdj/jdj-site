@@ -1207,10 +1207,66 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             });
         }
 
+        function showCategoryNotFound() {
+            const main = document.querySelector('main');
+            if (!main) return;
+
+            document.title = "הקטגוריה לא נמצאה | מסלולי הג'יפים של מדבר יהודה";
+
+            let robots = document.querySelector('meta[name="robots"]');
+            if (!robots) {
+                robots = document.createElement('meta');
+                robots.setAttribute('name', 'robots');
+                document.head.appendChild(robots);
+            }
+            robots.setAttribute('content', 'noindex,follow');
+
+            const canonicalEl = document.getElementById('canonicalTag');
+            if (canonicalEl) canonicalEl.remove();
+            const existingSchema = document.getElementById('dynamicCategorySchema');
+            if (existingSchema) existingSchema.remove();
+
+            main.className = 'w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-6 flex-grow space-y-5';
+            main.innerHTML = `
+                <nav aria-label="Breadcrumb" class="flex items-center justify-between text-xs sm:text-sm">
+                    <div class="flex items-center gap-1.5 sm:gap-2 text-slate-500 font-medium">
+                        <a href="/" class="hover:text-indigo-600 transition">בית</a>
+                        <i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i>
+                        <span class="text-slate-800 font-bold">הקטגוריה לא נמצאה</span>
+                    </div>
+                    <a href="/" class="bg-white hover:bg-slate-100 text-slate-700 font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-slate-200 shadow-xs transition text-xs flex items-center gap-1.5 shrink-0">
+                        <i class="fa-solid fa-arrow-right"></i>
+                        <span>חזרה לדף הבית</span>
+                    </a>
+                </nav>
+                <div class="bg-white rounded-3xl p-5 sm:p-8 md:p-10 border border-slate-200/90 shadow-md">
+                    <div class="py-12 sm:py-16 text-center space-y-5">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center text-2xl mx-auto border border-slate-200">
+                            <i class="fa-solid fa-folder-open"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <h1 class="text-2xl sm:text-3xl font-black text-slate-900">הקטגוריה לא נמצאה</h1>
+                            <p class="text-sm sm:text-base text-slate-600 font-medium max-w-xl mx-auto leading-relaxed">ייתכן שהקישור שגוי או שהקטגוריה אינה קיימת.</p>
+                        </div>
+                        <a href="/" class="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-indigo-900 text-white font-black py-3 px-6 rounded-xl text-sm transition shadow-md">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            <span>חזרה לדף הבית</span>
+                        </a>
+                    </div>
+                </div>`;
+        }
+
         async function initCategoryPage() {
             const urlParams = new URLSearchParams(window.location.search);
             const rawType = urlParams.get('type');
-            currentCategoryType = CATEGORY_MAP[rawType] ? rawType : 'routes';
+
+            // /category ללא type נשאר דף המסלולים. type לא מוכר הוא URL לא חוקי.
+            if (rawType && !CATEGORY_MAP[rawType]) {
+                showCategoryNotFound();
+                return;
+            }
+
+            currentCategoryType = rawType || 'routes';
             currentSearchQuery = urlParams.get('q') || '';
             const initialRegion = urlParams.get('region') || 'הכל';
 
