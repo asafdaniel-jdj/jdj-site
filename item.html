@@ -53,6 +53,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="seo-db.js"></script>
 
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -203,7 +204,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="border-b border-slate-100 pb-5 space-y-3">
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <div class="flex flex-wrap items-center gap-2" id="badgeContainer">
-                                <span id="itemRegion" class="bg-purple-50 text-purple-900 font-bold text-xs px-3.5 py-1 rounded-full border border-purple-200/80 tracking-wide"></span>
+                                <a id="itemRegion" href="/category?type=routes" class="bg-purple-50 text-purple-900 font-bold text-xs px-3.5 py-1 rounded-full border border-purple-200/80 tracking-wide hover:bg-purple-100 hover:border-purple-300 transition" title="למסלולי ג׳יפים באזור"></a>
                                 <div id="extraBadges" class="flex flex-wrap items-center gap-1.5"></div>
                             </div>
                         </div>
@@ -289,10 +290,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </div>
 
                     <div id="itemRouteStorySection" class="hidden space-y-2.5 pt-1">
-                        <h3 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+                        <h2 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
                             <i class="fa-solid fa-book-open text-indigo-600 text-xs"></i>
-                            <span>סיפור המסלול והתוואי</span>
-                        </h3>
+                            <span id="itemSeoH2"></span>
+                        </h2>
                         <div class="bg-slate-50/70 p-4 sm:p-6 rounded-2xl border border-slate-100">
                             <div id="itemRouteStoryContent" class="text-sm md:text-[16.5px] text-slate-800 leading-relaxed md:leading-[1.8] whitespace-pre-line font-normal line-clamp-5 transition-all duration-300"></div>
                             
@@ -306,10 +307,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </div>
 
                     <div class="space-y-3 pt-1">
-                        <h3 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+                        <h2 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
                             <i class="fa-solid fa-location-dot text-indigo-600 text-xs"></i>
                             <span>נקודות עיקריות במסלול</span>
-                        </h3>
+                        </h2>
                         <ul id="itemWaypointsList" class="grid grid-cols-2 md:grid-cols-3 gap-y-2.5 gap-x-4 text-xs sm:text-sm text-slate-800 font-semibold"></ul>
                         
                         <div id="waypointsToggleWrapper" class="hidden pt-1">
@@ -363,10 +364,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                 <div id="relatedRoutesSection" class="space-y-4 pt-2">
                     <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
-                        <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
+                        <h2 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
                             <i class="fa-solid fa-compass text-indigo-600"></i>
                             <span>מסלולים נוספים באזור</span>
-                        </h3>
+                        </h2>
                         <a href="/category?type=routes" id="seeAllRelatedLink" class="text-xs sm:text-sm font-bold text-indigo-600 hover:text-indigo-800 transition tracking-tight">
                             לכל המסלולים ←
                         </a>
@@ -377,10 +378,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                 <div id="relatedKhanSection" class="space-y-4 pt-2 hidden">
                     <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
-                        <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
+                        <h2 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
                             <i class="fa-solid fa-campground text-emerald-600"></i>
                             <span>חאן מומלץ באזור</span>
-                        </h3>
+                        </h2>
                         <a href="/khan-catalog" id="seeAllKhansLink" class="text-xs sm:text-sm font-bold text-emerald-700 hover:text-emerald-900 transition tracking-tight">
                             לכל החאנים באזור ←
                         </a>
@@ -401,7 +402,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <i class="fa-solid fa-map-location-dot text-sm"></i>
             <span>פתח באופרוד</span>
         </button>
-        <button onclick="toggleMobileActionsSheet()" class="flex-[1.2] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-[0.98] text-slate-900 font-extrabold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs sm:text-sm border border-slate-300 shadow-xs shrink-0 transition-all duration-150 cursor-pointer" title="פעולות נוספות">
+        <button onclick="toggleMobileActionsSheet()" aria-label="פעולות נוספות" class="flex-[1.2] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-[0.98] text-slate-900 font-extrabold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs sm:text-sm border border-slate-300 shadow-xs shrink-0 transition-all duration-150 cursor-pointer" title="פעולות נוספות">
             <span class="tracking-tight">פעולות</span>
             <i class="fa-solid fa-bars text-xs text-slate-700"></i>
         </button>
@@ -706,6 +707,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             return text ? text.replace(/\s*[–—־-]\s*/g, ' ').trim() : '';
         }
 
+        function formatRegionWithBet(region) {
+            const value = cleanDashes(region || '').trim();
+            const knownRegions = {
+                'מדבר יהודה': 'במדבר יהודה',
+                'הנגב והערבה': 'בנגב והערבה',
+                'נגב והערבה': 'בנגב והערבה',
+                'הנגב': 'בנגב',
+                'נגב': 'בנגב',
+                'הערבה': 'בערבה',
+                'ערבה': 'בערבה',
+                'בקעת הירדן': 'בבקעת הירדן',
+                'השומרון': 'בשומרון',
+                'שומרון': 'בשומרון',
+                'ים המלח': 'בים המלח'
+            };
+            return knownRegions[value] || (value ? `ב${value}` : 'במדבר יהודה');
+        }
+
         function isTrueValue(val) {
             return (val === true || val === 'true' || val === 'כן' || val === 'מתאים' || val === 1 || val === '1');
         }
@@ -852,7 +871,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 }
 
                 currentProduct = data;
-                renderProductDetails(data);
+                await renderProductDetails(data);
                 loadRelatedItems(data);
 
             } catch (err) {
@@ -996,37 +1015,51 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         }
 
-        function renderProductDetails(item) {
+        async function renderProductDetails(item) {
             document.getElementById('loadingState').classList.add('hidden');
             document.getElementById('itemContainer').classList.remove('hidden');
 
             const cleanTitle = cleanDashes(item.title);
-            const pageCleanTitle = cleanTitle + ' | מסלולי הג\'יפים של מדבר יהודה';
-            const itemUrl = `https://jdj.co.il/item?id=${item.id}`;
-            const shortDesc = cleanDashes(item.short_description || 'צפו במסלול המלא, נקודות ציון, מפת שטח וקובץ GPX להורדה למטיילי שטח 4x4.');
-            const shareImg = item.main_image || 'https://jdj.co.il/og-image.jpg';
-            
-            document.title = pageCleanTitle;
+            const regionName = item.region || 'מדבר יהודה';
+            const regionPhrase = formatRegionWithBet(regionName);
+            const fallbackItemUrl = `https://jdj.co.il/item?id=${item.id}`;
+            const contentShortDesc = cleanDashes(item.short_description || '');
+            const fallbackTitle = `${cleanTitle} | מסלולי ג'יפים ${regionPhrase}`;
+            const fallbackMetaDesc = `${cleanTitle} הוא מסלול ג'יפים ${regionPhrase}, כולל דרגת קושי, תיאור הדרך, נקודות חשובות, מפה וקובץ GPX להורדה.`;
+            const fallbackH2 = `${cleanTitle}: מסלול ג'יפים ${regionPhrase}`;
+            const fallbackShareImg = item.main_image || 'https://jdj.co.il/og-image.jpg';
+
+            const seo = await JDJSeoDB.resolve(supabaseClient, {
+                templateKey: 'item',
+                seoKey: `ITEM:${item.id}`,
+                vars: { id: item.id, title: cleanTitle, region: regionName, region_bet: regionPhrase },
+                fallback: {
+                    title: fallbackTitle, description: fallbackMetaDesc, h1: cleanTitle, h2: fallbackH2,
+                    canonical: fallbackItemUrl, ogTitle: fallbackTitle, ogDescription: fallbackMetaDesc,
+                    ogImage: fallbackShareImg, schemaType: 'TouristTrip+BreadcrumbList', robots: 'index,follow'
+                }
+            });
+
+            const pageCleanTitle = seo.title || fallbackTitle;
+            const itemUrl = seo.canonical || fallbackItemUrl;
+            const metaDesc = seo.description || fallbackMetaDesc;
+            const shareImg = seo.ogImage || fallbackShareImg;
+            const h1 = seo.h1 || cleanTitle;
+            const h2 = seo.h2 || fallbackH2;
+
+            JDJSeoDB.applyHead(seo);
             document.getElementById('pageTitle').innerText = pageCleanTitle;
-            document.getElementById('metaDescription').setAttribute('content', shortDesc);
-            document.getElementById('canonicalUrl').setAttribute('href', itemUrl);
             document.getElementById('breadcrumbTitle').innerText = cleanTitle;
-            document.getElementById('topPageHeading').innerText = cleanTitle;
+            document.getElementById('topPageHeading').innerText = h1;
 
-            document.getElementById('ogUrl').content = itemUrl;
-            document.getElementById('ogTitle').content = pageCleanTitle;
-            document.getElementById('ogDesc').content = shortDesc;
-            document.getElementById('ogImage').content = shareImg;
-
-            document.getElementById('twTitle').content = pageCleanTitle;
-            document.getElementById('twDesc').content = shortDesc;
-            document.getElementById('twImage').content = shareImg;
-
-            injectItemSchema(item, cleanTitle, itemUrl, shortDesc, shareImg, parseWaypoints(item.waypoint_highlights));
+            injectItemSchema(item, cleanTitle, itemUrl, metaDesc, shareImg, parseWaypoints(item.waypoint_highlights), JDJSeoDB.primarySchemaType(seo.schemaType, 'TouristTrip'));
 
             renderGallery(item);
 
-            document.getElementById('itemRegion').innerText = item.region || 'מדבר יהודה';
+            const itemRegionLink = document.getElementById('itemRegion');
+            const itemRegionName = item.region || 'מדבר יהודה';
+            itemRegionLink.innerText = itemRegionName;
+            itemRegionLink.href = `/category?type=routes&region=${encodeURIComponent(itemRegionName)}`;
 
             const extraBadges = document.getElementById('extraBadges');
             extraBadges.innerHTML = '';
@@ -1040,8 +1073,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 extraBadges.innerHTML += `<span class="bg-gradient-to-r from-rose-600 to-rose-700 text-white text-xs font-black px-3 py-1 rounded-full shadow-xs border border-white/30 flex items-center gap-1.5"><i class="fa-solid fa-gear text-rose-200"></i> טכני</span>`;
             }
 
-            document.getElementById('itemTitle').innerText = cleanTitle;
-            document.getElementById('itemShortDesc').innerText = cleanDashes(item.short_description || '');
+            document.getElementById('itemTitle').innerText = h1;
+            document.getElementById('itemSeoH2').innerText = h2;
+            document.getElementById('itemShortDesc').innerText = contentShortDesc;
 
             document.getElementById('itemDifficulty').innerText = item.difficulty || 'רגיל';
             document.getElementById('itemNature').innerText = item.nature || 'מסלול שטח';
@@ -1149,7 +1183,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         }
 
-        function injectItemSchema(item, cleanTitle, itemUrl, shortDesc, shareImg, waypoints) {
+        function injectItemSchema(item, cleanTitle, itemUrl, shortDesc, shareImg, waypoints, entitySchemaType = 'TouristTrip') {
             const existingSchema = document.getElementById('dynamicItemSchema');
             if (existingSchema) existingSchema.remove();
 
@@ -1168,7 +1202,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         ]
                     },
                     {
-                        "@type": "TouristTrip",
+                        "@type": entitySchemaType,
                         "@id": itemUrl,
                         "name": cleanTitle,
                         "description": shortDesc,
