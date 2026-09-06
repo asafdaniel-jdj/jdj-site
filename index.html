@@ -641,6 +641,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             return (val === true || val === 'true' || val === 'כן' || val === 'מתאים' || val === 1 || val === '1');
         }
 
+        function getEarlyAccessUntilMs(item) {
+            if (!item || !item.early_access_until) return null;
+            const timestamp = Date.parse(item.early_access_until);
+            return Number.isFinite(timestamp) ? timestamp : null;
+        }
+
+        function isEarlyAccessActive(item) {
+            const until = getEarlyAccessUntilMs(item);
+            return until !== null && until > Date.now();
+        }
+
+        function isPubliclyVisible(item) {
+            return !isEarlyAccessActive(item);
+        }
+
         async function initHomePage() {
             await loadFeaturedRoutes();
             await loadDesertStories();
@@ -661,7 +676,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 if (recError) throw recError;
 
                 let featuredList = [];
-                const pool = recData || [];
+                const pool = (recData || []).filter(isPubliclyVisible);
 
                 if (pool.length > 0) {
                     const byRegion = {};
@@ -692,16 +707,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         .select('*')
                         .eq('status', 'פורסם')
                         .eq('route_type', 'מסלול טיול')
-                        .order('id', { ascending: false })
-                        .limit(needed);
+                        .order('id', { ascending: false });
 
                     if (seenIds.size > 0) {
                         fallbackQuery = fallbackQuery.not('id', 'in', `(${Array.from(seenIds).join(',')})`);
                     }
 
                     const { data: extraData } = await fallbackQuery;
-                    if (extraData && extraData.length > 0) {
-                        featuredList = featuredList.concat(extraData);
+                    const visibleExtraData = (extraData || []).filter(isPubliclyVisible).slice(0, needed);
+                    if (visibleExtraData.length > 0) {
+                        featuredList = featuredList.concat(visibleExtraData);
                     }
                 }
 
@@ -801,11 +816,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 const { data, error } = await supabaseClient
                     .from('articles')
                     .select('*')
-                    .order('id', { ascending: false })
-                    .limit(3);
+                    .order('id', { ascending: false });
 
-                if (!error && data && data.length > 0) {
-                    renderDesertStories(data);
+                const visibleStories = (data || []).filter(isPubliclyVisible).slice(0, 3);
+
+                if (!error && visibleStories.length > 0) {
+                    renderDesertStories(visibleStories);
                 } else {
                     document.getElementById('homeStoriesContainer').innerHTML = '<p class="text-xs font-bold text-slate-400 text-center py-4">לא נמצאו סיפורים להצגה</p>';
                 }
@@ -855,11 +871,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 const { data, error } = await supabaseClient
                     .from('khans')
                     .select('*')
-                    .order('id', { ascending: false })
-                    .limit(3);
+                    .order('id', { ascending: false });
 
-                if (!error && data && data.length > 0) {
-                    renderFeaturedKhans(data);
+                const visibleKhans = (data || []).filter(isPubliclyVisible).slice(0, 3);
+
+                if (!error && visibleKhans.length > 0) {
+                    renderFeaturedKhans(visibleKhans);
                 } else {
                     document.getElementById('homeKhansContainer').innerHTML = '<p class="text-xs font-bold text-slate-400 text-center py-4">לא נמצאו חאנים להצגה</p>';
                 }

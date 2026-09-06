@@ -518,6 +518,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             return (val === true || val === 'true' || val === 'כן' || val === 'מתאים' || val === 1 || val === '1');
         }
 
+        function getEarlyAccessUntilMs(item) {
+            if (!item || !item.early_access_until) return null;
+            const timestamp = Date.parse(item.early_access_until);
+            return Number.isFinite(timestamp) ? timestamp : null;
+        }
+
+        function isEarlyAccessActive(item) {
+            const until = getEarlyAccessUntilMs(item);
+            return until !== null && until > Date.now();
+        }
+
+        function isPubliclyVisible(item) {
+            return !isEarlyAccessActive(item);
+        }
+
         async function initKhansPage() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlRegion = urlParams.get('region');
@@ -532,7 +547,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     .order('id', { ascending: false });
 
                 if (!error && data) {
-                    rawKhans = data;
+                    rawKhans = (data || []).filter(isPubliclyVisible);
                 } else {
                     rawKhans = [];
                 }

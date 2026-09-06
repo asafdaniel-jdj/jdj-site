@@ -59,22 +59,29 @@ async function supabaseSelect(table, select, filters = []) {
   return data;
 }
 
+function isPubliclyVisible(row, nowMs = Date.now()) {
+  if (!row || !row.early_access_until) return true;
+  const until = Date.parse(row.early_access_until);
+  return !Number.isFinite(until) || until <= nowMs;
+}
+
 function buildSitemap(routes, khans, articles) {
   const urls = new Set(STATIC_URLS.map(path => `${SITE_URL}${path}`));
+  const nowMs = Date.now();
 
   for (const route of routes) {
-    if (route?.id == null) continue;
+    if (route?.id == null || !isPubliclyVisible(route, nowMs)) continue;
     const page = route.route_type === 'מסלול טיול' ? 'item' : 'point';
     urls.add(`${SITE_URL}/${page}?id=${encodeURIComponent(route.id)}`);
   }
 
   for (const khan of khans) {
-    if (khan?.id == null) continue;
+    if (khan?.id == null || !isPubliclyVisible(khan, nowMs)) continue;
     urls.add(`${SITE_URL}/khan?id=${encodeURIComponent(khan.id)}`);
   }
 
   for (const article of articles) {
-    if (article?.id == null) continue;
+    if (article?.id == null || !isPubliclyVisible(article, nowMs)) continue;
     urls.add(`${SITE_URL}/article?id=${encodeURIComponent(article.id)}`);
   }
 
@@ -88,9 +95,9 @@ function buildSitemap(routes, khans, articles) {
 exports.handler = async function handler() {
   try {
     const [routes, khans, articles] = await Promise.all([
-      supabaseSelect('routes', 'id,route_type', [['status', 'eq.פורסם']]),
-      supabaseSelect('khans', 'id'),
-      supabaseSelect('articles', 'id')
+      supabaseSelect('routes', 'id,route_type,early_access_until', [['status', 'eq.פורסם']]),
+      supabaseSelect('khans', 'id,early_access_until'),
+      supabaseSelect('articles', 'id,early_access_until')
     ]);
 
     const xml = buildSitemap(routes, khans, articles);
@@ -117,4 +124,4 @@ exports.handler = async function handler() {
 };
 
 // Exported only to make local validation possible; Netlify uses handler above.
-exports._test = { buildSitemap, xmlEscape };
+exports._test = { buildSitemap, xmlEscape, isPubliclyVisible };

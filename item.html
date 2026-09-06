@@ -193,6 +193,45 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
             </div>
 
+            <!-- 💜 Early Access Banner Component (Deep Purple) -->
+            <section id="earlyAccessBanner" class="hidden relative w-full bg-gradient-to-r from-purple-950 via-slate-950 to-purple-950 border border-purple-500/40 rounded-2xl p-3.5 sm:px-6 sm:py-4 shadow-lg overflow-hidden transition-all duration-300" aria-label="גישה מוקדמת לחברי קבוצת הוואטסאפ">
+
+                <!-- 🗺️ קווי טופוגרפיה מוזהבים ברקע -->
+                <div class="absolute inset-0 opacity-35 pointer-events-none overflow-hidden">
+                    <svg class="w-full h-full text-amber-300/80" viewBox="0 0 500 150" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M-50 160 C100 70, 200 180, 350 60 C450 -10, 520 80, 600 -10" stroke="currentColor" stroke-width="2.2"/>
+                        <path d="M-50 120 C110 40, 190 140, 360 30 C430 -30, 530 50, 600 -30" stroke="currentColor" stroke-width="2.2"/>
+                        <path d="M-50 80 C120 10, 200 100, 370 10 C440 -50, 540 20, 600 -50" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </div>
+
+                <div class="relative z-10 flex items-center justify-between gap-2 sm:gap-4">
+
+                    <div class="space-y-0.5 min-w-0 flex-1">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 bg-purple-900/90 border border-purple-400/50 text-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full tracking-wider uppercase shadow-xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                                EARLY ACCESS
+                            </span>
+                            <span class="text-[11px] font-bold text-slate-300/80 hidden sm:inline">• לחברי הקבוצה בלבד</span>
+                        </div>
+
+                        <div class="text-sm sm:text-xl font-black text-white tracking-tight leading-snug whitespace-nowrap">
+                            עוד לא באתר. <span class="bg-gradient-to-r from-amber-200 via-amber-300 to-amber-100 bg-clip-text text-transparent">כבר אצלכם.</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 sm:gap-2.5 bg-black/70 border border-amber-500/40 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl shrink-0 shadow-inner">
+                        <i class="fa-regular fa-clock text-amber-400 text-xs"></i>
+                        <div class="flex flex-col text-right">
+                            <span class="text-[9px] font-bold text-slate-400 leading-none">נפתח לכולם בעוד</span>
+                            <span id="earlyAccessCountdown" class="text-[11px] sm:text-sm font-black text-amber-300 font-mono tracking-wide pt-0.5">--:--:--</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
             <!-- 🖼️ גלריית תמונות עליונה -->
             <div id="itemGalleryWrapper" class="w-full hidden"></div>
 
@@ -624,6 +663,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         let allCurrentWaypoints = [];
         let isWaypointsExpanded = false;
         let isStoryExpanded = false;
+        let earlyAccessTimerInterval = null;
+        let earlyAccessOriginalRobots = undefined;
 
         function handleGoBack() {
             try {
@@ -727,6 +768,92 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         function isTrueValue(val) {
             return (val === true || val === 'true' || val === 'כן' || val === 'מתאים' || val === 1 || val === '1');
+        }
+
+        function getEarlyAccessUntilMs(item) {
+            if (!item || !item.early_access_until) return null;
+            const timestamp = Date.parse(item.early_access_until);
+            return Number.isFinite(timestamp) ? timestamp : null;
+        }
+
+        function isEarlyAccessActive(item) {
+            const until = getEarlyAccessUntilMs(item);
+            return until !== null && until > Date.now();
+        }
+
+        function isPubliclyVisible(item) {
+            return !isEarlyAccessActive(item);
+        }
+
+        function setClientNoindex() {
+            let robots = document.querySelector('meta[name="robots"]');
+            if (earlyAccessOriginalRobots === undefined) {
+                earlyAccessOriginalRobots = robots ? robots.getAttribute('content') : null;
+            }
+            if (!robots) {
+                robots = document.createElement('meta');
+                robots.setAttribute('name', 'robots');
+                document.head.appendChild(robots);
+            }
+            robots.setAttribute('content', 'noindex,follow');
+        }
+
+        function restoreClientRobots() {
+            if (earlyAccessOriginalRobots === undefined) return;
+            let robots = document.querySelector('meta[name="robots"]');
+            if (earlyAccessOriginalRobots === null) {
+                if (robots) robots.remove();
+            } else {
+                if (!robots) {
+                    robots = document.createElement('meta');
+                    robots.setAttribute('name', 'robots');
+                    document.head.appendChild(robots);
+                }
+                robots.setAttribute('content', earlyAccessOriginalRobots);
+            }
+            earlyAccessOriginalRobots = undefined;
+        }
+
+        function applyEarlyAccessState(item) {
+            const banner = document.getElementById('earlyAccessBanner');
+            if (!banner || !isEarlyAccessActive(item)) {
+                if (banner) banner.classList.add('hidden');
+                if (earlyAccessTimerInterval) {
+                    clearInterval(earlyAccessTimerInterval);
+                    earlyAccessTimerInterval = null;
+                }
+                restoreClientRobots();
+                return;
+            }
+
+            banner.classList.remove('hidden');
+            setClientNoindex();
+
+            const targetTime = getEarlyAccessUntilMs(item);
+
+            function updateTimer() {
+                const diff = targetTime - Date.now();
+                if (diff <= 0) {
+                    banner.classList.add('hidden');
+                    if (earlyAccessTimerInterval) {
+                        clearInterval(earlyAccessTimerInterval);
+                        earlyAccessTimerInterval = null;
+                    }
+                    restoreClientRobots();
+                    return;
+                }
+
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                const pad = (num) => String(num).padStart(2, '0');
+                const countdownEl = document.getElementById('earlyAccessCountdown');
+                if (countdownEl) countdownEl.innerText = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            }
+
+            updateTimer();
+            if (earlyAccessTimerInterval) clearInterval(earlyAccessTimerInterval);
+            earlyAccessTimerInterval = setInterval(updateTimer, 1000);
         }
 
         function parseWaypoints(text) {
@@ -872,6 +999,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                 currentProduct = data;
                 await renderProductDetails(data);
+                applyEarlyAccessState(data);
                 loadRelatedItems(data);
 
             } catch (err) {
@@ -1405,10 +1533,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     .neq('id', item.id)
                     .eq('route_type', 'מסלול טיול')
                     .eq('region', region)
-                    .order('id', { ascending: false })
-                    .limit(2);
+                    .order('id', { ascending: false });
 
-                if (!routesList) routesList = [];
+                routesList = (routesList || []).filter(isPubliclyVisible).slice(0, 2);
 
                 if (routesList.length < 2) {
                     const seenIds = new Set([item.id, ...routesList.map(r => r.id)]);
@@ -1419,10 +1546,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         .neq('id', item.id)
                         .eq('route_type', 'מסלול טיול')
                         .not('id', 'in', `(${Array.from(seenIds).join(',')})`)
-                        .order('id', { ascending: false })
-                        .limit(2 - routesList.length);
+                        .order('id', { ascending: false });
 
-                    if (extraRoutes) routesList = routesList.concat(extraRoutes);
+                    const visibleExtraRoutes = (extraRoutes || []).filter(isPubliclyVisible).slice(0, 2 - routesList.length);
+                    if (visibleExtraRoutes.length > 0) routesList = routesList.concat(visibleExtraRoutes);
                 }
 
                 const routesGrid = document.getElementById('relatedRoutesGrid');
@@ -1481,13 +1608,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const region = item.region.trim();
 
             try {
-                const { data: khanData, error } = await supabaseClient
+                const { data: khanRows, error } = await supabaseClient
                     .from('khans')
                     .select('*')
                     .eq('region', region)
-                    .order('id', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
+                    .order('id', { ascending: false });
+
+                const khanData = (khanRows || []).find(isPubliclyVisible) || null;
 
                 if (error || !khanData) {
                     khanSection.classList.add('hidden');

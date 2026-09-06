@@ -72,6 +72,12 @@ function cleanDashes(value = '') {
   return String(value).replace(/\s*[–—־-]\s*/g, ' ').trim();
 }
 
+function isEarlyAccessActive(row, nowMs = Date.now()) {
+  if (!row || !row.early_access_until) return false;
+  const until = Date.parse(row.early_access_until);
+  return Number.isFinite(until) && until > nowMs;
+}
+
 function formatRegionWithBet(region) {
   const value = cleanDashes(region || '').trim();
   const knownRegions = {
@@ -622,7 +628,7 @@ async function seoForCategoryFromDb(url) {
 async function getCategorySchemaRows(url) {
   const rawType = url.searchParams.get('type');
   if (!Object.prototype.hasOwnProperty.call(CATEGORY_MAP, rawType)) return [];
-  const params = new URLSearchParams({ select: 'id,title,route_type,region,status', status: 'eq.פורסם', order: 'id.desc' });
+  const params = new URLSearchParams({ select: 'id,title,route_type,region,status,early_access_until', status: 'eq.פורסם', order: 'id.desc' });
   const response = await fetch(`${SUPABASE_URL}/rest/v1/routes?${params.toString()}`, {
     headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
   });
@@ -632,6 +638,7 @@ async function getCategorySchemaRows(url) {
   const region = url.searchParams.get('region');
   return (Array.isArray(allRows) ? allRows : []).filter(row => {
     if (!allowedTypes.has(row.route_type)) return false;
+    if (isEarlyAccessActive(row)) return false;
     if (rawType === 'routes' && ROUTE_REGION_SEO[region] && row.region !== region) return false;
     return true;
   });
@@ -730,6 +737,7 @@ export default async function handler(request, context) {
             fallback: { ...seo, h1: cleanTitle }
           });
           html = applySeo(html, seo);
+          if (isEarlyAccessActive(row)) html = setRobotsNoindex(html);
           if (seo.h1 && cfg.h1Id) html = replaceElementTextById(html, cfg.h1Id, seo.h1);
           if (seo.h1 && pagePath === '/item') html = replaceElementTextById(html, 'topPageHeading', seo.h1);
           if (seo.h2 && cfg.h2Id) html = replaceElementTextById(html, cfg.h2Id, seo.h2);
