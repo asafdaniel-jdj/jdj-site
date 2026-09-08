@@ -17,14 +17,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       gtag('js', new Date());
 
       const jdjContentId = new URLSearchParams(window.location.search).get('id');
-      if (jdjContentId && /^\d+$/.test(jdjContentId)) {
-        gtag('set', {
-          content_type: 'ITEM',
-          content_id: jdjContentId
-        });
-      }
+      const jdjContentParams = jdjContentId && /^\d+$/.test(jdjContentId)
+        ? {
+            content_type: 'ITEM',
+            content_id: jdjContentId
+          }
+        : {};
 
-      gtag('config', 'G-8XZHZXFHCY');
+      gtag('config', 'G-8XZHZXFHCY', jdjContentParams);
     </script>
 
     <meta charset="UTF-8">
