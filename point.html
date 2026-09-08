@@ -16,7 +16,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'G-8XZHZXFHCY');
+      const jdjContentId = new URLSearchParams(window.location.search).get('id');
+      const jdjContentParams = jdjContentId && /^\d+$/.test(jdjContentId)
+        ? {
+            content_type: 'POINT',
+            content_id: jdjContentId
+          }
+        : {};
+
+      gtag('config', 'G-8XZHZXFHCY', jdjContentParams);
     </script>
 
     <meta charset="UTF-8">
@@ -98,7 +106,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     
                     <div class="flex items-center z-10">
                         <a href="/" class="flex items-center group py-2">
-                            <img src="Newlogo.png" alt="מסלולי הג'יפים של מדבר יהודה" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
+                            <img src="newlogo.png" alt="JDJ מסלולי ג'יפים נבחרים" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
                         </a>
                     </div>
 
@@ -617,6 +625,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         let pendingActionType = null;
         let currentLightboxImages = [];
         let currentLightboxIndex = 0;
+        let lightboxLoadToken = 0;
         let earlyAccessTimerInterval = null;
         let earlyAccessOriginalRobots = undefined;
         let defaultCategoryKey = 'poi';
@@ -989,7 +998,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 currentProduct = data;
                 await renderPointDetails(data);
                 applyEarlyAccessState(data);
-                findMatchingFullRoutes(data.title);
+                findMatchingFullRoutes(data.id, data.title);
                 loadRelatedPoints(data);
 
             } catch (err) {
@@ -1371,10 +1380,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         // פונקציית עזר ליצירת HTML של משבצת תמונת גלריה
-        function createPhotoTileHtml(imgUrl, galleryIndex, totalRemaining = 0, cleanTitle = '') {
+        function createPhotoTileHtml(imgUrl, galleryIndex, totalRemaining = 0, imageAltBase = '') {
             return `
                 <div class="relative w-full h-full rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/90 bg-slate-100 group cursor-pointer" onclick="openLightbox(${galleryIndex})">
-                    <img src="${imgUrl}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה ${galleryIndex + 1}">
+                    <img src="${imgUrl}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה ${galleryIndex + 1}">
                     ${totalRemaining > 0 ? `
                         <div class="absolute inset-0 bg-slate-900/65 backdrop-blur-[1px] flex flex-col items-center justify-center text-white p-1 text-center font-black z-10">
                             <span class="text-sm sm:text-base leading-none">+${totalRemaining}</span>
@@ -1386,7 +1395,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         // פונקציה לבניית הגריד השמאלי (משני - דסקטופ/מובייל)
-        function renderSecondaryMediaGrid(videoUrl, galleryImages, cleanTitle) {
+        function renderSecondaryMediaGrid(videoUrl, galleryImages, imageAltBase) {
             const hasVideo = !!videoUrl;
             const photoCount = galleryImages.length;
 
@@ -1403,7 +1412,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             if (!hasVideo && photoCount === 1) {
                 return `
                     <div class="w-full h-full min-h-[220px]">
-                        ${createPhotoTileHtml(galleryImages[0], 1, 0, cleanTitle)}
+                        ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
                     </div>
                 `;
             }
@@ -1413,7 +1422,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 return `
                     <div class="grid grid-cols-1 grid-rows-2 gap-1.5 sm:gap-2 h-full min-h-[220px]">
                         ${createVideoTileHtml(videoUrl)}
-                        ${createPhotoTileHtml(galleryImages[0], 1, 0, cleanTitle)}
+                        ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
                     </div>
                 `;
             }
@@ -1422,8 +1431,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             if (!hasVideo && photoCount === 2) {
                 return `
                     <div class="grid grid-cols-1 grid-rows-2 gap-1.5 sm:gap-2 h-full min-h-[220px]">
-                        ${createPhotoTileHtml(galleryImages[0], 1, 0, cleanTitle)}
-                        ${createPhotoTileHtml(galleryImages[1], 2, 0, cleanTitle)}
+                        ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
+                        ${createPhotoTileHtml(galleryImages[1], 2, 0, imageAltBase)}
                     </div>
                 `;
             }
@@ -1436,10 +1445,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             ${createVideoTileHtml(videoUrl)}
                         </div>
                         <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[0], 1, 0, cleanTitle)}
+                            ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
                         </div>
                         <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[1], 2, 0, cleanTitle)}
+                            ${createPhotoTileHtml(galleryImages[1], 2, 0, imageAltBase)}
                         </div>
                     </div>
                 `;
@@ -1450,13 +1459,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 return `
                     <div class="grid grid-cols-2 grid-rows-2 gap-1.5 sm:gap-2 h-full min-h-[220px]">
                         <div class="col-span-2 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[0], 1, 0, cleanTitle)}
+                            ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
                         </div>
                         <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[1], 2, 0, cleanTitle)}
+                            ${createPhotoTileHtml(galleryImages[1], 2, 0, imageAltBase)}
                         </div>
                         <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[2], 3, 0, cleanTitle)}
+                            ${createPhotoTileHtml(galleryImages[2], 3, 0, imageAltBase)}
                         </div>
                     </div>
                 `;
@@ -1471,13 +1480,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             ${createVideoTileHtml(videoUrl)}
                         </div>
                         <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[0], 1, 0, cleanTitle)}
+                            ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
                         </div>
                         <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[1], 2, 0, cleanTitle)}
+                            ${createPhotoTileHtml(galleryImages[1], 2, 0, imageAltBase)}
                         </div>
                         <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[2], 3, remaining, cleanTitle)}
+                            ${createPhotoTileHtml(galleryImages[2], 3, remaining, imageAltBase)}
                         </div>
                     </div>
                 `;
@@ -1489,16 +1498,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 return `
                     <div class="grid grid-cols-2 grid-rows-2 gap-1.5 sm:gap-2 h-full min-h-[220px]">
                         <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[0], 1, 0, cleanTitle)}
+                            ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
                         </div>
                         <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[1], 2, 0, cleanTitle)}
+                            ${createPhotoTileHtml(galleryImages[1], 2, 0, imageAltBase)}
                         </div>
                         <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[2], 3, 0, cleanTitle)}
+                            ${createPhotoTileHtml(galleryImages[2], 3, 0, imageAltBase)}
                         </div>
                         <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[3], 4, remaining, cleanTitle)}
+                            ${createPhotoTileHtml(galleryImages[3], 4, remaining, imageAltBase)}
                         </div>
                     </div>
                 `;
@@ -1581,7 +1590,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </div>
                     <!-- אזור המדיה המשנית משמאל -->
                     <div class="flex-1 min-w-0 relative h-full">
-                        ${renderSecondaryMediaGrid(videoUrl, galleryImages, cleanTitle)}
+                        ${renderSecondaryMediaGrid(videoUrl, galleryImages, altText)}
                     </div>
                 </div>
 
@@ -1591,7 +1600,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <img src="${mainImage || 'access-banner.jpg'}" alt="${altText}" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" fetchpriority="high">
                     </div>
                     <div class="w-full min-h-[180px]">
-                        ${renderSecondaryMediaGrid(videoUrl, galleryImages, cleanTitle)}
+                        ${renderSecondaryMediaGrid(videoUrl, galleryImages, altText)}
                     </div>
                 </div>
             `;
@@ -1655,21 +1664,76 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             modal.classList.remove('flex');
         }
 
-        async function findMatchingFullRoutes(pointTitle) {
-            if (!pointTitle) return;
+        async function fetchRoutesLinkedToPoint(pointId) {
+            const { data: links, error: linksError } = await supabaseClient
+                .from('route_points')
+                .select('route_id')
+                .eq('point_id', pointId)
+                .order('route_id', { ascending: true });
+
+            if (linksError) throw linksError;
+
+            const routeIds = [...new Set((links || []).map(link => link.route_id).filter(Boolean))];
+            if (routeIds.length === 0) {
+                return { hasLinks: false, routes: [] };
+            }
+
+            const { data: routes, error: routesError } = await supabaseClient
+                .from('routes')
+                .select('id, title, short_description, main_image, region, length_km, duration_hours, early_access_until')
+                .eq('status', 'פורסם')
+                .eq('route_type', 'מסלול טיול')
+                .in('id', routeIds);
+
+            if (routesError) throw routesError;
+
+            const routesById = new Map((routes || []).map(route => [route.id, route]));
+            return {
+                hasLinks: true,
+                routes: routeIds.map(id => routesById.get(id)).filter(Boolean)
+            };
+        }
+
+        async function fetchLegacyMatchingFullRoutes(pointTitle) {
+            if (!pointTitle) return [];
+
+            const cleanName = cleanDashes(pointTitle);
+            const { data, error } = await supabaseClient
+                .from('routes')
+                .select('id, title, short_description, main_image, region, length_km, duration_hours, early_access_until')
+                .eq('status', 'פורסם')
+                .eq('route_type', 'מסלול טיול')
+                .or(`waypoint_highlights.ilike.%${cleanName}%,route_story.ilike.%${cleanName}%`);
+
+            if (error) throw error;
+            return data || [];
+        }
+
+        async function findMatchingFullRoutes(pointId, pointTitle) {
+            if (!pointId && !pointTitle) return;
 
             try {
-                const cleanName = cleanDashes(pointTitle);
+                let routes = [];
+                let hasAuthoritativeLinks = false;
 
-                const { data, error } = await supabaseClient
-                    .from('routes')
-                    .select('id, title, short_description, main_image, region, length_km, duration_hours, early_access_until')
-                    .eq('status', 'פורסם')
-                    .eq('route_type', 'מסלול טיול')
-                    .or(`waypoint_highlights.ilike.%${cleanName}%,route_story.ilike.%${cleanName}%`);
+                if (pointId) {
+                    try {
+                        const linkedResult = await fetchRoutesLinkedToPoint(pointId);
+                        hasAuthoritativeLinks = linkedResult.hasLinks;
+                        routes = linkedResult.routes;
+                    } catch (relationErr) {
+                        console.warn('Route-point relation lookup failed, using legacy text fallback:', relationErr);
+                    }
+                }
 
-                const visibleRoutes = (data || []).filter(isPubliclyVisible).slice(0, 4);
-                if (error || visibleRoutes.length === 0) return;
+                // תאימות לאחור לתקופת המעבר: רק נקודה שעדיין אין לה קשרי ID
+                // ממשיכה להשתמש בהתאמת הטקסט הישנה.
+                if (!hasAuthoritativeLinks && pointTitle) {
+                    routes = await fetchLegacyMatchingFullRoutes(pointTitle);
+                }
+
+                const visibleRoutes = routes.filter(isPubliclyVisible).slice(0, 4);
+                if (visibleRoutes.length === 0) return;
 
                 const container = document.getElementById('includedInRoutesSection');
                 const grid = document.getElementById('includedRoutesGrid');
@@ -1684,7 +1748,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                     card.innerHTML = `
                         <div class="w-full sm:w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-slate-200 relative border border-slate-100">
-                            <img src="${imageSrc}" alt="${routeTitle}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                            <img src="${imageSrc}" alt="${routeTitle} ב${route.region || 'מדבר יהודה'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                         </div>
                         <div class="flex-grow flex flex-col justify-between w-full space-y-1.5">
                             <div>
@@ -1859,7 +1923,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <a href="/khan?id=${khanData.id}" class="bg-white rounded-3xl border border-emerald-200/90 p-4 sm:p-5 shadow-xs hover:shadow-lg hover:border-emerald-500 transition cursor-pointer flex flex-col justify-between overflow-hidden group w-full">
                         <div>
                             <div class="relative mb-3 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
-                                <img src="${khanImg}" alt="${cleanDashes(khanData.title)}" loading="lazy" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
+                                <img src="${khanImg}" alt="${cleanDashes(khanData.title)} ב${khanData.region || region}" loading="lazy" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
                                 <div class="absolute top-2.5 right-2.5 bg-emerald-600 text-white font-black text-[11px] px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1">
                                     <i class="fa-solid fa-campground text-[10px]"></i>
                                     <span>חאן מומלץ באזור</span>
@@ -1897,14 +1961,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         function closeLightbox() {
+            lightboxLoadToken++;
             const lb = document.getElementById('lightboxModal');
             lb.classList.add('hidden');
             lb.classList.remove('flex');
+            const lbImage = document.getElementById('lbImage');
+            if (lbImage) lbImage.removeAttribute('src');
         }
 
         function updateLightbox() {
-            document.getElementById('lbImage').src = currentLightboxImages[currentLightboxIndex];
-            document.getElementById('lbCounter').innerText = `${currentLightboxIndex + 1} / ${currentLightboxImages.length}`;
+            const targetIndex = currentLightboxIndex;
+            const targetSrc = currentLightboxImages[targetIndex];
+            if (!targetSrc) return;
+
+            const requestToken = ++lightboxLoadToken;
+            const loader = new Image();
+
+            loader.onload = () => {
+                if (requestToken !== lightboxLoadToken || targetIndex !== currentLightboxIndex) return;
+
+                const lbImage = document.getElementById('lbImage');
+                const title = currentProduct ? cleanDashes(currentProduct.title) : 'תמונת נקודת עניין';
+                const region = currentProduct ? (currentProduct.region || 'מדבר יהודה') : '';
+                lbImage.src = targetSrc;
+                lbImage.alt = region ? `${title} ב${region}, תמונה ${targetIndex + 1}` : `${title}, תמונה ${targetIndex + 1}`;
+                document.getElementById('lbCounter').innerText = `${targetIndex + 1} / ${currentLightboxImages.length}`;
+            };
+
+            loader.onerror = () => {
+                if (requestToken !== lightboxLoadToken || targetIndex !== currentLightboxIndex) return;
+                console.warn('Lightbox image failed to load:', targetSrc);
+            };
+
+            loader.src = targetSrc;
         }
 
         function nextImage() {
@@ -1919,8 +2008,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             updateLightbox();
         }
 
+        function buildTrackedContentUrl(contentType, canonicalPath, source) {
+            const channels = {
+                whatsapp: { source: 'whatsapp', medium: 'messaging' },
+                facebook: { source: 'facebook', medium: 'social' },
+                instagram: { source: 'instagram', medium: 'social' }
+            };
+            const channel = channels[source];
+            if (!channel) throw new Error(`Unsupported UTM source: ${source}`);
+
+            const id = new URLSearchParams(window.location.search).get('id');
+            const trackedUrl = new URL(`https://jdj.co.il/${canonicalPath}`);
+            if (id) trackedUrl.searchParams.set('id', id);
+            trackedUrl.searchParams.set('utm_source', channel.source);
+            trackedUrl.searchParams.set('utm_medium', channel.medium);
+            trackedUrl.searchParams.set('utm_campaign', 'content_share');
+            trackedUrl.searchParams.set('utm_content', `${contentType}_${id || 'unknown'}`);
+            return trackedUrl.toString();
+        }
+
         function shareOnWhatsApp() {
-            const shareUrl = window.location.href;
+            const shareUrl = buildTrackedContentUrl('POINT', 'point', 'whatsapp');
             const title = currentProduct ? cleanDashes(currentProduct.title) : document.title;
             const region = currentProduct ? (currentProduct.region || 'מדבר יהודה') : '';
             const shareText = `היי! תראה את הנקודה הזו: ${title} (${region}) 📍\n${shareUrl}`;

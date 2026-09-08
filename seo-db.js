@@ -71,14 +71,18 @@
   }
 
   function applyRobots(robots) {
-    if (!robots) return;
+    const hostname = window.location.hostname;
+    const isTestSite = hostname === 'jdj-test.netlify.app' || hostname.endsWith('--jdj-test.netlify.app');
+    const effectiveRobots = isTestSite ? 'noindex,follow' : robots;
+
+    if (!effectiveRobots) return;
     let el = document.querySelector('meta[name="robots"]');
     if (!el) {
       el = document.createElement('meta');
       el.setAttribute('name', 'robots');
       document.head.appendChild(el);
     }
-    el.setAttribute('content', robots);
+    el.setAttribute('content', effectiveRobots);
   }
 
 
