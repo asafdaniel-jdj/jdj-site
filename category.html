@@ -84,7 +84,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <!-- 1. ימין: לוגו האתר -->
                     <div class="flex items-center z-10">
                         <a href="/" class="flex items-center group py-2">
-                            <img src="Newlogo.png" alt="מסלולי הג'יפים של מדבר יהודה" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
+                            <img src="newlogo.png" alt="JDJ מסלולי ג'יפים נבחרים" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
                         </a>
                     </div>
 
@@ -1075,9 +1075,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         function phraseMatchesTokens(textTokens, phrase) {
             const expectedTokens = tokenizeSearchText(phrase);
-            if (expectedTokens.length === 0 || textTokens.length < expectedTokens.length) return false;
+            if (expectedTokens.length === 0 || textTokens.length === 0) return false;
 
             const singleEntityHead = expectedTokens.length === 1 && SEARCH_ENTITY_HEADS.has(expectedTokens[0]);
+            const expectedCompact = expectedTokens.join('');
+
+            // מתייחס לרווחים בתוך שם כווריאציה בלבד: "מר סבא" = "מרסבא".
+            // אין כאן fuzzy matching או החלפת אותיות, רק הסרה של גבולות רווח.
+            for (let start = 0; start < textTokens.length; start++) {
+                let compact = '';
+                for (let end = start; end < textTokens.length; end++) {
+                    compact += textTokens[end];
+
+                    if (compact === expectedCompact) return true;
+                    if (!singleEntityHead && compact.length === expectedCompact.length + 1 &&
+                        SEARCH_HEBREW_PREFIXES.has(compact[0]) && compact.slice(1) === expectedCompact) {
+                        return true;
+                    }
+
+                    if (compact.length > expectedCompact.length + 1) break;
+                }
+            }
+
+            if (textTokens.length < expectedTokens.length) return false;
 
             for (let start = 0; start <= textTokens.length - expectedTokens.length; start++) {
                 let matches = true;
@@ -1108,9 +1128,63 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             return `${normalizedTitle} ${head} ${alias}`.trim();
         }
 
+        function getExplicitAliasesText(item) {
+            if (!item || !item.aliases) return '';
+            return Array.isArray(item.aliases) ? item.aliases.join(' ') : String(item.aliases);
+        }
+
+        let searchAliasGroups = [];
+
+        function rebuildSearchAliasGroups(rows) {
+            searchAliasGroups = (rows || [])
+                .filter(row => Array.isArray(row.aliases) && row.aliases.length > 0)
+                .map(row => ({
+                    id: row.id,
+                    terms: [row.title, ...row.aliases].filter(Boolean)
+                }));
+        }
+
+        function findSearchAliasGroup(rawQuery) {
+            const queryKey = normalizeString(rawQuery);
+            if (!queryKey) return null;
+
+            return searchAliasGroups.find(group =>
+                group.terms.some(term => normalizeString(term) === queryKey)
+            ) || null;
+        }
+
+        function getSearchVariants(rawQuery) {
+            const aliasGroup = findSearchAliasGroup(rawQuery);
+            if (aliasGroup) return aliasGroup.terms;
+
+            const cleanQuery = sanitizeClientSearchTerm(rawQuery);
+            return cleanQuery ? [cleanQuery] : [];
+        }
+
+        function searchTextMatchesRawQuery(searchText, rawQuery) {
+            const variants = getSearchVariants(rawQuery);
+            if (variants.length === 0) return true;
+
+            const textTokens = tokenizeSearchText(searchText);
+            const textCompact = normalizeString(searchText);
+
+            return variants.some(variant => {
+                const cleanVariant = sanitizeClientSearchTerm(variant) || normalizeSearchText(variant);
+                if (!cleanVariant) return false;
+
+                return phraseMatchesTokens(textTokens, cleanVariant) ||
+                    textCompact.includes(normalizeString(cleanVariant));
+            });
+        }
+
+        function itemMatchesRawSearchQuery(item, rawQuery) {
+            return searchTextMatchesRawQuery(getItemSearchText(item), rawQuery);
+        }
+
         function getItemSearchText(item) {
             return [
                 buildTitleAliases(item.title || ''),
+                getExplicitAliasesText(item),
                 item.short_description || '',
                 item.waypoint_highlights || '',
                 item.route_story || '',
@@ -1213,13 +1287,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         function getFallbackSearchItems(rawQuery) {
-            const cleanQuery = sanitizeClientSearchTerm(rawQuery);
-            if (!cleanQuery) return [...rawCategoryItems];
+            const variants = getSearchVariants(rawQuery);
+            if (variants.length === 0) return [...rawCategoryItems];
 
-            return rawCategoryItems.filter(item => {
-                const itemTokens = tokenizeSearchText(getItemSearchText(item));
-                return phraseMatchesTokens(itemTokens, cleanQuery);
-            });
+            return rawCategoryItems.filter(item => itemMatchesRawSearchQuery(item, rawQuery));
         }
 
         function showCategoryNotFound() {
@@ -1339,6 +1410,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                 const { data, error } = await query;
                 if (error) throw error;
+
+                // Alias groups are global entities, not category-specific. Fetch the small
+                // alias dictionary separately so any spelling of an entity behaves the same
+                // even when the current category contains routes rather than the point itself.
+                const { data: aliasRows, error: aliasError } = await supabaseClient
+                    .from('routes')
+                    .select('id, title, aliases');
+                if (aliasError) {
+                    console.warn('Alias dictionary lookup failed; continuing without alias expansion:', aliasError);
+                    rebuildSearchAliasGroups([]);
+                } else {
+                    rebuildSearchAliasGroups(aliasRows);
+                }
 
                 rawCategoryItems = (data || []).filter(isPubliclyVisible);
                 baseSearchItems = [...rawCategoryItems];
@@ -1531,6 +1615,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             currentSearchQuery = rawQuery;
 
+            // Exact entity name / alias searches are deterministic. Bypass AI so every
+            // explicit alias of the same entity returns the same result set.
+            if (findSearchAliasGroup(rawQuery)) {
+                isAiActive = false;
+                baseSearchItems = getFallbackSearchItems(rawQuery);
+                applyAllCategoryFilters();
+                return;
+            }
+
             const grid = document.getElementById('categoryGrid');
             grid.innerHTML = `
                 <div class="col-span-full text-center py-16 text-slate-500 font-bold">
@@ -1568,7 +1661,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const filterKids = document.getElementById('filterKids').checked;
             const filterNoFiring = document.getElementById('filterNoFiring').checked;
             const filterDifficulty = document.getElementById('filterDifficulty').value;
-            const filterTitle = normalizeString(document.getElementById('filterTitleInput').value);
+            const filterTitleRaw = document.getElementById('filterTitleInput').value.trim();
             
             const lenShort = document.getElementById('lenShort').checked;
             const lenMed = document.getElementById('lenMed').checked;
@@ -1579,18 +1672,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 if (currentRegionFilter !== 'הכל' && item.region !== currentRegionFilter) return false;
 
                 if (!isAiActive && currentSearchQuery.trim() !== '') {
-                    const qNormalized = normalizeString(currentSearchQuery);
-                    const fullTextNormalized = normalizeString(
-                        `${item.title || ''} ${item.short_description || ''} ${item.region || ''} ${item.waypoint_highlights || ''} ${item.route_story || ''}`
-                    );
-                    if (!fullTextNormalized.includes(qNormalized)) return false;
+                    if (!itemMatchesRawSearchQuery(item, currentSearchQuery)) return false;
                 }
 
-                if (filterTitle !== '') {
-                    const itemTitleNormalized = normalizeString(
-                        `${item.title || ''} ${item.waypoint_highlights || ''}`
-                    );
-                    if (!itemTitleNormalized.includes(filterTitle)) return false;
+                if (filterTitleRaw !== '') {
+                    const scopedSearchText = `${item.title || ''} ${getExplicitAliasesText(item)} ${item.waypoint_highlights || ''}`;
+                    if (!searchTextMatchesRawQuery(scopedSearchText, filterTitleRaw)) return false;
                 }
 
                 if (hasLengthFilter) {
@@ -1803,7 +1890,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div>
                         <div class="relative mb-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
                             <img src="${imageUrl}" 
-                                 alt="${cleanDashes(item.title)}" 
+                                 alt="${cleanDashes(item.title)} ב${item.region || 'מדבר יהודה'}" 
                                  loading="lazy"
                                  onerror="this.onerror=null; this.src='access-banner.jpg';"
                                  class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">

@@ -662,6 +662,7 @@ export default async function handler(request, context) {
   if (!contentType.includes('text/html')) return response;
 
   let html = await response.text();
+  let contentNotFound = false;
 
   try {
     if (pagePath === '/' || pagePath === '/index') {
@@ -693,9 +694,10 @@ export default async function handler(request, context) {
     } else if (['/item', '/point', '/khan', '/article'].includes(pagePath)) {
       const id = url.searchParams.get('id');
 
-      // Template URLs or invalid IDs should not be indexed.
+      // A content URL without a valid numeric ID cannot resolve to a public entity.
       if (!id || !/^\d+$/.test(id)) {
         html = setRobotsNoindex(html);
+        contentNotFound = true;
       } else {
         let row = null;
         let seo = null;
@@ -752,6 +754,7 @@ export default async function handler(request, context) {
           }
         } else {
           html = setRobotsNoindex(html);
+          contentNotFound = true;
         }
       }
     }
@@ -769,13 +772,13 @@ export default async function handler(request, context) {
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.set('x-jdj-seo-edge', '1');
-  if (isTestSite) {
+  if (isTestSite || contentNotFound) {
     headers.set('X-Robots-Tag', 'noindex, follow');
   }
 
   return new Response(html, {
-    status: response.status,
-    statusText: response.statusText,
+    status: contentNotFound ? 404 : response.status,
+    statusText: contentNotFound ? 'Not Found' : response.statusText,
     headers
   });
 }

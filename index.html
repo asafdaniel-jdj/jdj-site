@@ -114,7 +114,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="absolute inset-0 w-full h-full z-0 overflow-hidden">
             <picture class="w-full h-full block">
                 <source media="(max-width: 768px)" srcset="access-banner-mobile.jpg">
-                <img src="access-banner.jpg" alt="מסלולי הג'יפים של מדבר יהודה" class="w-full h-full object-cover object-center" fetchpriority="high">
+                <img src="access-banner.jpg" alt="רכב שטח בשביל מדברי" class="w-full h-full object-cover object-center" fetchpriority="high">
             </picture>
             
             <div class="absolute inset-x-0 top-0 h-28 md:h-36 bg-gradient-to-b from-white/80 via-white/35 to-transparent pointer-events-none"></div>
@@ -126,7 +126,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     
                     <div class="flex items-center z-10">
                         <a href="/" class="flex items-center group py-2">
-                            <img src="Newlogo.png" alt="מסלולי הג'יפים של מדבר יהודה" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
+                            <img src="newlogo.png" alt="JDJ מסלולי ג'יפים נבחרים" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
                         </a>
                     </div>
 
@@ -751,7 +751,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div>
                         <div class="relative mb-3 sm:mb-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
                             <img src="${imageUrl}" 
-                                 alt="${cleanDashes(item.title)}" 
+                                 alt="${cleanDashes(item.title)} ב${item.region || 'מדבר יהודה'}" 
                                  onerror="this.onerror=null; this.src='access-banner.jpg';"
                                  class="w-full h-44 sm:h-48 object-cover group-hover:scale-105 transition duration-300">
                             
@@ -900,7 +900,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                 card.innerHTML = `
                     <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-100 relative">
-                        <img src="${imageSrc}" alt="${cleanDashes(khan.title)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <img src="${imageSrc}" alt="${cleanDashes(khan.title)} ב${khan.region || 'הנגב והערבה'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center justify-between gap-1 mb-0.5">

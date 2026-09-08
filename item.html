@@ -16,6 +16,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
+      const jdjContentId = new URLSearchParams(window.location.search).get('id');
+      if (jdjContentId && /^\d+$/.test(jdjContentId)) {
+        gtag('set', {
+          content_type: 'ITEM',
+          content_id: jdjContentId
+        });
+      }
+
       gtag('config', 'G-8XZHZXFHCY');
     </script>
 
@@ -92,7 +100,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     
                     <div class="flex items-center z-10">
                         <a href="/" class="flex items-center group py-2">
-                            <img src="Newlogo.png" alt="מסלולי הג'יפים של מדבר יהודה" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
+                            <img src="newlogo.png" alt="JDJ מסלולי ג'יפים נבחרים" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
                         </a>
                     </div>
 
@@ -658,6 +666,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         let pendingActionType = null;
         let currentLightboxImages = [];
         let currentLightboxIndex = 0;
+        let lightboxLoadToken = 0;
         let leafletMapInstance = null;
         let mapPolylineGroup = null;
         let allCurrentWaypoints = [];
@@ -1405,6 +1414,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const wrapper = document.getElementById('itemGalleryWrapper');
             const galleryImgs = parseGalleryImages(item);
             const cleanTitle = cleanDashes(item.title);
+            const regionName = item.region || 'מדבר יהודה';
+            const imageAltBase = `${cleanTitle} ב${regionName}`;
 
             let allImages = [];
             if (galleryImgs.length > 0) {
@@ -1426,7 +1437,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             if (allImages.length === 1) {
                 wrapper.innerHTML = `
                     <div class="w-full h-52 sm:h-64 md:h-72 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-sm cursor-pointer group bg-slate-100" onclick="openLightbox(0)">
-                        <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" alt="${cleanTitle}">
+                        <img src="${allImages[0]}" fetchpriority="high" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" alt="${imageAltBase}">
                     </div>
                 `;
                 return;
@@ -1443,10 +1454,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 layoutHtml = `
                     <div class="${gridClass} grid-cols-2 h-48 sm:h-60 md:h-72">
                         <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(0)">
-                            <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
+                            <img src="${allImages[0]}" fetchpriority="high" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 1">
                         </div>
                         <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(1)">
-                            <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 2">
+                            <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 2">
                         </div>
                     </div>
                 `;
@@ -1454,14 +1465,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 layoutHtml = `
                     <div class="${gridClass} grid-cols-3 h-48 sm:h-60 md:h-72">
                         <div class="relative h-full col-span-2 cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(0)">
-                            <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
+                            <img src="${allImages[0]}" fetchpriority="high" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 1">
                         </div>
                         <div class="relative h-full col-span-1 grid grid-rows-2 gap-1.5">
                             <div class="relative h-full cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(1)">
-                                <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 2">
+                                <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 2">
                             </div>
                             <div class="relative h-full cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(2)">
-                                <img src="${allImages[2]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 3">
+                                <img src="${allImages[2]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 3">
                             </div>
                         </div>
                     </div>
@@ -1470,17 +1481,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 layoutHtml = `
                     <div class="${gridClass} grid-cols-2 h-52 sm:h-64 md:h-80">
                         <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(0)">
-                            <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
+                            <img src="${allImages[0]}" fetchpriority="high" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 1">
                         </div>
                         <div class="grid grid-cols-1 grid-rows-3 gap-1.5 h-full">
                             <div class="relative h-full cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(1)">
-                                <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 2">
+                                <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 2">
                             </div>
                             <div class="relative h-full cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(2)">
-                                <img src="${allImages[2]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 3">
+                                <img src="${allImages[2]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 3">
                             </div>
                             <div class="relative h-full cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(3)">
-                                <img src="${allImages[3]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 4">
+                                <img src="${allImages[3]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 4">
                             </div>
                         </div>
                     </div>
@@ -1491,22 +1502,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="${gridClass} grid-cols-2 h-56 sm:h-64 md:h-80">
                         <!-- תמונה 1 גדולה משמאל -->
                         <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(0)">
-                            <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
+                            <img src="${allImages[0]}" fetchpriority="high" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 1">
                         </div>
                         
                         <!-- רשת של 4 תמונות קטנות ממימין -->
                         <div class="grid grid-cols-2 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-1.5 h-full min-h-0">
                             <div class="relative h-full min-h-0 cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(1)">
-                                <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 2">
+                                <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 2">
                             </div>
                             <div class="relative h-full min-h-0 cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(2)">
-                                <img src="${allImages[2]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 3">
+                                <img src="${allImages[2]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 3">
                             </div>
                             <div class="relative h-full min-h-0 cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(3)">
-                                <img src="${allImages[3]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 4">
+                                <img src="${allImages[3]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 4">
                             </div>
                             <div class="relative h-full min-h-0 cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(4)">
-                                <img src="${allImages[4]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 5">
+                                <img src="${allImages[4]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה 5">
                                 ${remainingCount > 0 ? `
                                     <div class="absolute inset-0 bg-slate-900/65 backdrop-blur-[1px] flex flex-col items-center justify-center text-white p-1 text-center font-black">
                                         <span class="text-sm sm:text-base leading-none">+${remainingCount}</span>
@@ -1566,7 +1577,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         card.innerHTML = `
                             <div>
                                 <div class="relative mb-3 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
-                                    <img src="${imageUrl}" alt="${cleanDashes(rel.title)}" loading="lazy" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
+                                    <img src="${imageUrl}" alt="${cleanDashes(rel.title)} ב${rel.region || 'מדבר יהודה'}" loading="lazy" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
                                 </div>
                                 <div class="flex justify-end mb-1.5">
                                     <span class="bg-purple-50 text-purple-900 text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-purple-200/60">${rel.region || 'מדבר יהודה'}</span>
@@ -1634,7 +1645,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <a href="/khan?id=${khanData.id}" class="bg-white rounded-3xl border border-emerald-200/90 p-4 sm:p-5 shadow-xs hover:shadow-lg hover:border-emerald-500 transition cursor-pointer flex flex-col justify-between overflow-hidden group w-full">
                         <div>
                             <div class="relative mb-3 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
-                                <img src="${khanImg}" alt="${cleanDashes(khanData.title)}" loading="lazy" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
+                                <img src="${khanImg}" alt="${cleanDashes(khanData.title)} ב${khanData.region || region}" loading="lazy" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
                                 <div class="absolute top-2.5 right-2.5 bg-emerald-600 text-white font-black text-[11px] px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1">
                                     <i class="fa-solid fa-campground text-[10px]"></i>
                                     <span>חאן מומלץ באזור</span>
@@ -1720,14 +1731,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         function closeLightbox() {
+            lightboxLoadToken++;
             const lb = document.getElementById('lightboxModal');
             lb.classList.add('hidden');
             lb.classList.remove('flex');
+            const lbImage = document.getElementById('lbImage');
+            if (lbImage) lbImage.removeAttribute('src');
         }
 
         function updateLightbox() {
-            document.getElementById('lbImage').src = currentLightboxImages[currentLightboxIndex];
-            document.getElementById('lbCounter').innerText = `${currentLightboxIndex + 1} / ${currentLightboxImages.length}`;
+            const targetIndex = currentLightboxIndex;
+            const targetSrc = currentLightboxImages[targetIndex];
+            if (!targetSrc) return;
+
+            const requestToken = ++lightboxLoadToken;
+            const loader = new Image();
+
+            loader.onload = () => {
+                if (requestToken !== lightboxLoadToken || targetIndex !== currentLightboxIndex) return;
+
+                const lbImage = document.getElementById('lbImage');
+                const title = currentProduct ? cleanDashes(currentProduct.title) : 'תמונת מסלול';
+                const region = currentProduct ? (currentProduct.region || 'מדבר יהודה') : '';
+                lbImage.src = targetSrc;
+                lbImage.alt = region ? `${title} ב${region}, תמונה ${targetIndex + 1}` : `${title}, תמונה ${targetIndex + 1}`;
+                document.getElementById('lbCounter').innerText = `${targetIndex + 1} / ${currentLightboxImages.length}`;
+            };
+
+            loader.onerror = () => {
+                if (requestToken !== lightboxLoadToken || targetIndex !== currentLightboxIndex) return;
+                console.warn('Lightbox image failed to load:', targetSrc);
+            };
+
+            loader.src = targetSrc;
         }
 
         function nextImage() {
@@ -1742,8 +1778,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             updateLightbox();
         }
 
+        function buildTrackedContentUrl(contentType, canonicalPath, source) {
+            const channels = {
+                whatsapp: { source: 'whatsapp', medium: 'messaging' },
+                facebook: { source: 'facebook', medium: 'social' },
+                instagram: { source: 'instagram', medium: 'social' }
+            };
+            const channel = channels[source];
+            if (!channel) throw new Error(`Unsupported UTM source: ${source}`);
+
+            const id = new URLSearchParams(window.location.search).get('id');
+            const trackedUrl = new URL(`https://jdj.co.il/${canonicalPath}`);
+            if (id) trackedUrl.searchParams.set('id', id);
+            trackedUrl.searchParams.set('utm_source', channel.source);
+            trackedUrl.searchParams.set('utm_medium', channel.medium);
+            trackedUrl.searchParams.set('utm_campaign', 'content_share');
+            trackedUrl.searchParams.set('utm_content', `${contentType}_${id || 'unknown'}`);
+            return trackedUrl.toString();
+        }
+
         function shareOnWhatsApp() {
-            const shareUrl = window.location.href;
+            const shareUrl = buildTrackedContentUrl('ITEM', 'item', 'whatsapp');
             const title = currentProduct ? cleanDashes(currentProduct.title) : document.title;
             const region = currentProduct ? (currentProduct.region || 'מדבר יהודה') : '';
             const shareText = `היי! תראה את המסלול הזה: ${title} (${region}) 🚙\n${shareUrl}`;

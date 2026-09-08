@@ -16,6 +16,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
+      const jdjContentId = new URLSearchParams(window.location.search).get('id');
+      if (jdjContentId && /^\d+$/.test(jdjContentId)) {
+        gtag('set', {
+          content_type: 'ARTICLE',
+          content_id: jdjContentId
+        });
+      }
+
       gtag('config', 'G-8XZHZXFHCY');
     </script>
 
@@ -136,7 +144,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <!-- 1. ימין: לוגו האתר -->
                     <div class="flex items-center z-10">
                         <a href="/" class="flex items-center group py-2">
-                            <img src="Newlogo.png" alt="מסלולי הג'יפים של מדבר יהודה" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
+                            <img src="newlogo.png" alt="JDJ מסלולי ג'יפים נבחרים" onerror="this.src='favicon.png'; this.className='h-14 w-auto';" class="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[520px] object-contain transition transform md:scale-95 group-hover:scale-100 duration-200">
                         </a>
                     </div>
 
@@ -497,6 +505,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         let currentLightboxImages = [];
         let currentLightboxIndex = 0;
+        let lightboxLoadToken = 0;
         let earlyAccessTimerInterval = null;
         let earlyAccessOriginalRobots = undefined;
 
@@ -871,7 +880,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             if (allImages.length === 1) {
                 wrapper.innerHTML = `
                     <div class="w-full h-52 sm:h-64 md:h-72 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-sm cursor-pointer group bg-slate-100" onclick="openLightbox(0)">
-                        <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" alt="${cleanTitle}">
+                        <img src="${allImages[0]}" fetchpriority="high" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" alt="${cleanTitle}">
                     </div>
                 `;
                 return;
@@ -888,7 +897,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 layoutHtml = `
                     <div class="${gridClass} grid-cols-2 h-48 sm:h-60 md:h-72">
                         <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(0)">
-                            <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
+                            <img src="${allImages[0]}" fetchpriority="high" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
                         </div>
                         <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(1)">
                             <img src="${allImages[1]}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 2">
@@ -899,7 +908,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 layoutHtml = `
                     <div class="${gridClass} grid-cols-3 h-48 sm:h-60 md:h-72">
                         <div class="relative h-full col-span-2 cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(0)">
-                            <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
+                            <img src="${allImages[0]}" fetchpriority="high" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
                         </div>
                         <div class="relative h-full col-span-1 grid grid-rows-2 gap-1.5">
                             <div class="relative h-full cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(1)">
@@ -915,7 +924,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 layoutHtml = `
                     <div class="${gridClass} grid-cols-2 h-52 sm:h-64 md:h-80">
                         <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(0)">
-                            <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
+                            <img src="${allImages[0]}" fetchpriority="high" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
                         </div>
                         <div class="grid grid-cols-1 grid-rows-3 gap-1.5 h-full">
                             <div class="relative h-full cursor-pointer group overflow-hidden rounded-lg" onclick="openLightbox(1)">
@@ -936,7 +945,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="${gridClass} grid-cols-2 h-56 sm:h-64 md:h-80">
                         <!-- תמונה 1 גדולה משמאל -->
                         <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl" onclick="openLightbox(0)">
-                            <img src="${allImages[0]}" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
+                            <img src="${allImages[0]}" fetchpriority="high" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${cleanTitle} - תמונה 1">
                         </div>
                         
                         <!-- רשת של 4 תמונות קטנות ממימין -->
@@ -1006,7 +1015,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                     card.innerHTML = `
                         <div class="w-full sm:w-28 h-28 shrink-0 rounded-xl overflow-hidden bg-slate-200 relative border border-slate-100">
-                            <img src="${imageSrc}" alt="${routeTitle}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                            <img src="${imageSrc}" alt="${routeTitle} ב${route.region || 'מדבר יהודה'}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                         </div>
                         <div class="flex-grow flex flex-col justify-between w-full space-y-2">
                             <div>
@@ -1044,14 +1053,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         function closeLightbox() {
+            lightboxLoadToken++;
             const lb = document.getElementById('lightboxModal');
             lb.classList.add('hidden');
             lb.classList.remove('flex');
+            const lbImage = document.getElementById('lbImage');
+            if (lbImage) lbImage.removeAttribute('src');
         }
 
         function updateLightbox() {
-            document.getElementById('lbImage').src = currentLightboxImages[currentLightboxIndex];
-            document.getElementById('lbCounter').innerText = `${currentLightboxIndex + 1} / ${currentLightboxImages.length}`;
+            const targetIndex = currentLightboxIndex;
+            const targetSrc = currentLightboxImages[targetIndex];
+            if (!targetSrc) return;
+
+            const requestToken = ++lightboxLoadToken;
+            const loader = new Image();
+
+            loader.onload = () => {
+                if (requestToken !== lightboxLoadToken || targetIndex !== currentLightboxIndex) return;
+
+                const lbImage = document.getElementById('lbImage');
+                const articleTitle = cleanDashes(document.getElementById('articleTitle')?.innerText || 'תמונת מאמר');
+                lbImage.src = targetSrc;
+                lbImage.alt = `${articleTitle}, תמונה ${targetIndex + 1}`;
+                document.getElementById('lbCounter').innerText = `${targetIndex + 1} / ${currentLightboxImages.length}`;
+            };
+
+            loader.onerror = () => {
+                if (requestToken !== lightboxLoadToken || targetIndex !== currentLightboxIndex) return;
+                console.warn('Lightbox image failed to load:', targetSrc);
+            };
+
+            loader.src = targetSrc;
         }
 
         function nextImage() {
@@ -1066,8 +1099,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             updateLightbox();
         }
 
+        function buildTrackedContentUrl(contentType, canonicalPath, source) {
+            const channels = {
+                whatsapp: { source: 'whatsapp', medium: 'messaging' },
+                facebook: { source: 'facebook', medium: 'social' },
+                instagram: { source: 'instagram', medium: 'social' }
+            };
+            const channel = channels[source];
+            if (!channel) throw new Error(`Unsupported UTM source: ${source}`);
+
+            const id = new URLSearchParams(window.location.search).get('id');
+            const trackedUrl = new URL(`https://jdj.co.il/${canonicalPath}`);
+            if (id) trackedUrl.searchParams.set('id', id);
+            trackedUrl.searchParams.set('utm_source', channel.source);
+            trackedUrl.searchParams.set('utm_medium', channel.medium);
+            trackedUrl.searchParams.set('utm_campaign', 'content_share');
+            trackedUrl.searchParams.set('utm_content', `${contentType}_${id || 'unknown'}`);
+            return trackedUrl.toString();
+        }
+
         function shareArticleOnWhatsApp() {
-            const pageUrl = window.location.href;
+            const pageUrl = buildTrackedContentUrl('ARTICLE', 'article', 'whatsapp');
             const title = document.getElementById('articleTitle').innerText;
             const text = `📖 קראתי סיפור שטח מרתק: "${title}"\n${pageUrl}`;
             window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(text), '_blank');
