@@ -20,8 +20,8 @@ https://camp.jdj.co.il/*      https://jdj.co.il/camp      301!
 
 /sitemap.xml    /.netlify/functions/sitemap    200!
 
-/floods/judean-desert/*      /flood-river.html                    200
-/floods/negev-arava/*        /flood-river.html                    200
 /floods/judean-desert        /floods_region_judean_desert.html   200
 /floods/negev-arava          /floods_region_negev_arava.html     200
+/floods/judean-desert/*      /flood-river.html                    200
+/floods/negev-arava/*        /flood-river.html                    200
 /floods                      /floods.html                         200
