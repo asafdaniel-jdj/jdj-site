@@ -215,7 +215,7 @@
       return `/${raw.replace(/^\.?\//, '')}`;
     }
 
-    /* Static fallbacks. Published rivers are loaded from Supabase when available. */
+    /* Published rivers are loaded from Supabase only. */
     const regionPageData = {
       slug: 'negev-arava',
       title: 'שטפונות בנגב ובערבה',
@@ -239,6 +239,7 @@
     const PAGE_SIZE = 6;
     let visibleRiversCount = PAGE_SIZE;
     let currentRiverSearch = '';
+    let riversLoadState = 'loading';
 
     const staticSeo = {
       title: 'שטפונות בנגב ובערבה | מסלולי הג\'יפים של מדבר יהודה',
@@ -278,23 +279,47 @@
     }
 
     function renderRivers() {
+      const grid = document.getElementById('riversGrid');
+      const count = document.getElementById('riverCount');
+      const noResults = document.getElementById('noRiverResults');
+      const loadMoreWrap = document.getElementById('loadMoreWrap');
+      const clearBtn = document.getElementById('clearRiverSearch');
+
+      if (riversLoadState === 'loading') {
+        if (grid) grid.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400 font-bold"><i class="fa-solid fa-spinner fa-spin text-xl mb-2"></i><div>טוען נחלים...</div></div>';
+        if (count) count.textContent = '';
+        noResults?.classList.add('hidden');
+        loadMoreWrap?.classList.add('hidden');
+        clearBtn?.classList.add('hidden');
+        clearBtn?.classList.remove('flex');
+        return;
+      }
+
+      if (riversLoadState === 'error') {
+        if (grid) grid.innerHTML = '<div class="col-span-full text-center py-10 text-rose-600 font-bold">לא ניתן לטעון את רשימת הנחלים כרגע.</div>';
+        if (count) count.textContent = '';
+        noResults?.classList.add('hidden');
+        loadMoreWrap?.classList.add('hidden');
+        clearBtn?.classList.add('hidden');
+        clearBtn?.classList.remove('flex');
+        return;
+      }
+
       const filtered = getFilteredRivers();
       const isSearching = currentRiverSearch.trim().length > 0;
       const shown = isSearching ? filtered : filtered.slice(0, visibleRiversCount);
 
-      document.getElementById('riversGrid').innerHTML = shown.map(riverCard).join('');
-      document.getElementById('riverCount').textContent = isSearching
+      if (grid) grid.innerHTML = shown.map(riverCard).join('');
+      if (count) count.textContent = isSearching
         ? `${filtered.length} נחלים נמצאו`
         : `${filtered.length} נחלים`;
 
-      document.getElementById('noRiverResults').classList.toggle('hidden', filtered.length !== 0);
+      if (noResults) noResults.classList.toggle('hidden', filtered.length !== 0);
 
-      const loadMoreWrap = document.getElementById('loadMoreWrap');
       if (loadMoreWrap) {
         loadMoreWrap.classList.toggle('hidden', isSearching || visibleRiversCount >= filtered.length);
       }
 
-      const clearBtn = document.getElementById('clearRiverSearch');
       if (clearBtn) {
         clearBtn.classList.toggle('hidden', !isSearching);
         clearBtn.classList.toggle('flex', isSearching);
@@ -414,7 +439,11 @@
     }
 
     async function loadRegionRivers() {
-      if (!regionSupabase) return;
+      if (!regionSupabase) {
+        riversLoadState = 'error';
+        renderRivers();
+        return;
+      }
       try {
         const {data,error} = await regionSupabase
           .from('flood_rivers')
@@ -435,8 +464,12 @@
             href:`/floods/${r.region_slug || regionPageData.slug}/${r.slug}`
           }));
           visibleRiversCount = PAGE_SIZE;
+          riversLoadState = 'loaded';
           renderRivers();
           injectRegionSchema();
+        } else {
+          riversLoadState = 'error';
+          renderRivers();
         }
         try {
           const {data:cfg} = await regionSupabase.from('floods_page_config').select('tools,facebook_links,whatsapp_links').eq('id','main').maybeSingle();
@@ -448,7 +481,9 @@
           renderRegionCommunities();
         } catch (_) {}
       } catch (err) {
-        console.warn('Flood rivers table unavailable, using static fallbacks.', err);
+        console.warn('Flood rivers table unavailable.', err);
+        riversLoadState = 'error';
+        renderRivers();
       }
     }
 

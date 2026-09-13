@@ -20,24 +20,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title id="pageMetaTitle">שטפונות בנחל | שטפונות במדבר יהודה | מסלולי הג'יפים של מדבר יהודה</title>
-  <meta id="pageMetaDesc" name="description" content="מידע על שטפונות בנחל, אגן הניקוז, תוואי הנחל, יובלים וערוצים, מפה אינטראקטיבית ונקודות שימושיות לציידי שטפונות.">
+  <title id="pageMetaTitle">ציידי השטפונות | מסלולי הג'יפים של מדבר יהודה</title>
+  <meta id="pageMetaDesc" name="description" content="מידע וכלים לציידי שטפונות בנחלי מדבר יהודה, הנגב והערבה.">
   <meta name="robots" content="index,follow">
   <link id="canonicalTag" rel="canonical" href="https://jdj.co.il/floods">
 
   <!-- Open Graph / WhatsApp / Facebook -->
   <meta property="og:type" content="website">
   <meta id="ogUrlTag" property="og:url" content="https://jdj.co.il/floods">
-  <meta id="ogTitleTag" property="og:title" content="שטפונות בנחל | שטפונות במדבר יהודה | מסלולי הג'יפים של מדבר יהודה">
-  <meta id="ogDescTag" property="og:description" content="מידע על שטפונות בנחל, אגן הניקוז, תוואי הנחל, יובלים וערוצים, מפה אינטראקטיבית ונקודות שימושיות לציידי שטפונות.">
+  <meta id="ogTitleTag" property="og:title" content="ציידי השטפונות | מסלולי הג'יפים של מדבר יהודה">
+  <meta id="ogDescTag" property="og:description" content="מידע וכלים לציידי שטפונות בנחלי מדבר יהודה, הנגב והערבה.">
   <meta property="og:image" content="https://jdj.co.il/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta id="twitterTitleTag" name="twitter:title" content="שטפונות בנחל | שטפונות במדבר יהודה | מסלולי הג'יפים של מדבר יהודה">
-  <meta id="twitterDescTag" name="twitter:description" content="מידע על שטפונות בנחל, אגן הניקוז, תוואי הנחל, יובלים וערוצים, מפה אינטראקטיבית ונקודות שימושיות לציידי שטפונות.">
+  <meta id="twitterTitleTag" name="twitter:title" content="ציידי השטפונות | מסלולי הג'יפים של מדבר יהודה">
+  <meta id="twitterDescTag" name="twitter:description" content="מידע וכלים לציידי שטפונות בנחלי מדבר יהודה, הנגב והערבה.">
   <meta name="twitter:image" content="https://jdj.co.il/og-image.jpg">
 
   <link rel="icon" type="image/png" href="/favicon.png">
@@ -97,9 +97,9 @@
         <i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i>
         <a href="/floods" class="hover:text-indigo-600 transition whitespace-nowrap">שטפונות בנחלי הדרום והמזרח</a>
         <i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i>
-        <a id="breadcrumbRegion" href="/floods/judean-desert" class="hover:text-indigo-600 transition whitespace-nowrap">מדבר יהודה</a>
+        <a id="breadcrumbRegion" href="/floods" class="hover:text-indigo-600 transition whitespace-nowrap">אזור</a>
         <i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i>
-        <span id="breadcrumbRiver" class="text-slate-800 font-bold truncate">נחל חבר</span>
+        <span id="breadcrumbRiver" class="text-slate-800 font-bold truncate">טוען...</span>
       </div>
       <button type="button" onclick="history.back()" class="bg-white hover:bg-slate-100 text-slate-700 font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-slate-200 shadow-xs transition text-xs flex items-center gap-1.5 shrink-0">
         <i class="fa-solid fa-arrow-right"></i>
@@ -111,7 +111,7 @@
     <!-- TITLE + STANDARD GALLERY -->
     <section class="space-y-4">
       <div class="text-right">
-        <h1 id="riverPageTitle" class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-950 leading-tight">שטפונות בנחל חבר</h1>
+        <h1 id="riverPageTitle" class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-950 leading-tight">טוען פרטי נחל...</h1>
       </div>
       <div id="itemGalleryWrapper" class="w-full"></div>
     </section>
@@ -132,7 +132,7 @@
     <!-- RIVER COPY, NO STATS BOX -->
     <section class="bg-white rounded-3xl border border-slate-200/90 shadow-md p-5 sm:p-7 md:p-8">
       <div class="max-w-5xl space-y-3">
-        <h2 id="riverAboutTitle" class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight">על השטפונות בנחל חבר</h2>
+        <h2 id="riverAboutTitle" class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight">פרטי הנחל</h2>
         <div id="riverContent" class="space-y-3 text-sm md:text-base text-slate-600 font-medium leading-relaxed"><p>טוען את פרטי הנחל...</p></div>
       </div>
     </section>
@@ -273,14 +273,14 @@
       return `/${raw.replace(/^\.?\//, '')}`;
     }
     const riverData = {
-      slug: 'hever',
-      regionSlug: 'judean-desert',
-      regionName: 'מדבר יהודה',
-      name: 'נחל חבר',
-      pageTitle: 'שטפונות בנחל חבר',
-      canonical: 'https://jdj.co.il/floods/judean-desert/hever',
-      seoTitle: 'שטפונות בנחל חבר | שטפונות במדבר יהודה | מסלולי הג\'יפים של מדבר יהודה',
-      seoDescription: 'שטפונות בנחל חבר: אגן הניקוז, תוואי הנחל, יובלים וערוצים, מפה אינטראקטיבית, נקודות וקישורים שימושיים לציידי שטפונות.',
+      slug: '',
+      regionSlug: '',
+      regionName: '',
+      name: '',
+      pageTitle: '',
+      canonical: '',
+      seoTitle: '',
+      seoDescription: '',
       mainImage: '',
       mainImageCredit: '',
       mainImageCreditUrl: '',
@@ -289,8 +289,8 @@
       videos: [],
       videoMedia: [],
       media: [],
-      basinSearchTerms: ['חבר'],
-      aliases: ['חבר', 'נחל חבר'],
+      basinSearchTerms: [],
+      aliases: [],
       basinProbePoints: [],
       outlet: [],
       points: [],
@@ -302,7 +302,7 @@
       ],
       basinGeojson: null,
       streamsGeojson: null,
-      contentHtml: '<p>טוען את פרטי הנחל...</p>',
+      contentHtml: '',
       safetyNote: ''
     };
 
@@ -326,7 +326,7 @@
         const last = parts[parts.length - 1] || '';
         if (last && !last.endsWith('.html') && last !== 'floods') return last;
       }
-      return riverData.slug;
+      return '';
     }
 
     function riverContentHtml(value = '') {
@@ -357,9 +357,29 @@
       }
     }
 
+    function showRiverLoadError(message = 'לא ניתן לטעון את פרטי הנחל כרגע.') {
+      const regionLink = document.getElementById('breadcrumbRegion');
+      if (regionLink) {
+        regionLink.textContent = 'שטפונות';
+        regionLink.href = '/floods';
+      }
+      const breadRiver = document.getElementById('breadcrumbRiver');
+      if (breadRiver) breadRiver.textContent = 'לא זמין';
+      const title = document.getElementById('riverPageTitle');
+      if (title) title.textContent = 'לא ניתן לטעון את הנחל';
+      const aboutTitle = document.getElementById('riverAboutTitle');
+      if (aboutTitle) aboutTitle.textContent = 'פרטי הנחל';
+      const content = document.getElementById('riverContent');
+      if (content) content.innerHTML = `<p class="text-rose-600 font-bold">${message}</p>`;
+      const gallery = document.getElementById('itemGalleryWrapper');
+      if (gallery) gallery.innerHTML = '';
+      document.title = "הנחל אינו זמין | מסלולי הג'יפים של מדבר יהודה";
+    }
+
     async function loadRiverFromDb() {
       if (!supabaseClient) return false;
       const slug = requestedRiverSlug();
+      if (!slug) return false;
       try {
         const {data:r,error} = await supabaseClient
           .from('flood_rivers')
@@ -384,8 +404,8 @@
         const gallery = galleryMedia.map(m=>m.url);
         const videos = videoMedia.map(m=>m.url);
         riverData.slug = r.slug;
-        riverData.regionSlug = r.region_slug || riverData.regionSlug;
-        riverData.regionName = r.region || riverData.regionName;
+        riverData.regionSlug = r.region_slug || '';
+        riverData.regionName = r.region || '';
         riverData.name = r.name;
         const riverDisplayName = normalizedRiverDisplayName(r.name);
         riverData.pageTitle = `שטפונות ב${riverDisplayName}`;
@@ -428,7 +448,7 @@
         } catch (_) {}
         return true;
       } catch (err) {
-        console.warn('Flood river DB data unavailable, using local fallback.', err);
+        console.warn('Flood river DB data unavailable.', err);
         return false;
       }
     }
@@ -1221,7 +1241,11 @@ ${riverData.safetyNote.trim()}`;
 
 
     async function bootRiverPage() {
-      await loadRiverFromDb();
+      const loaded = await loadRiverFromDb();
+      if (!loaded) {
+        showRiverLoadError();
+        return;
+      }
       applyRiverDataToDom();
       renderGallery();
       renderTopMapLegend();

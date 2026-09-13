@@ -215,25 +215,12 @@
       return `/${raw.replace(/^\.?\//, '')}`;
     }
 
-    /* Static fallbacks. Published rivers are loaded from Supabase when available. */
+    /* Published rivers are loaded from Supabase only. */
     const regionPageData = {
       slug: 'judean-desert',
       title: 'שטפונות במדבר יהודה',
       intro: 'כל הנחלים במקום אחד. בחרו נחל והמשיכו למידע על אגן הניקוז, נקודות ביקורת, תצפיות ותיעוד שטפונות.',
-      rivers: [
-        { id: 1, slug: 'arugot', name: 'נחל ערוגות', image: '/access-banner.jpg', text: 'אחד מאגני הניקוז הגדולים והמרשימים במדבר יהודה, עם מספר נקודות שבהן ניתן לעקוב אחר התפתחות הזרימה.', href: '/floods/judean-desert/arugot' },
-        { id: 2, slug: 'zeelim', name: 'נחל צאלים', image: '/mview-banner.jpg', text: 'נחל רחב ועוצמתי שמרכז מים מאגן ניקוז גדול, ובאירוע נכון יכול לייצר מראות דרמטיים במיוחד.', href: '/floods/judean-desert/zeelim' },
-        { id: 3, slug: 'darga', name: 'נחל דרגה', image: '/camping-banner.jpg', text: 'נחל קניוני עם אגן ניקוז מורכב, שבו חשוב להבין היטב היכן יורד הגשם ואיך הוא מתקדם אל הערוץ.', href: '/floods/judean-desert/darga' },
-        { id: 4, slug: 'hever', name: 'נחל חבר', image: '/access-banner-mobile.jpg', text: 'נחל מדברי עמוק שמנקז אזור נרחב ממערב למצוק ההעתקים ומגיע אל ים המלח דרך סדרת מפלים.', href: '/floods/judean-desert/hever' },
-        { id: 5, slug: 'kidron', name: 'נחל קדרון', image: '/access-banner.jpg', text: 'אגן ניקוז ארוך שמתחיל באזור ירושלים ויורד מזרחה למדבר יהודה, עם השפעה משמעותית של גשם במעלה האגן.', href: '/floods/judean-desert/kidron' },
-        { id: 6, slug: 'qumran', name: 'נחל קומראן', image: '/mview-banner.jpg', text: 'נחל קצר יחסית אך תלול מאוד, שבו תגובת האגן לגשם עשויה להיות מהירה ומרשימה במיוחד.', href: '/floods/judean-desert/qumran' },
-        { id: 7, slug: 'og', name: 'נחל אוג', image: '/camping-banner.jpg', text: 'מהנחלים הצפוניים במדבר יהודה, עם אגן ניקוז שמושפע מאירועי גשם באזור ירושלים ומעלה אדומים.', href: '/floods/judean-desert/og' },
-        { id: 8, slug: 'david', name: 'נחל דוד', image: '/access-banner-mobile.jpg', text: 'נחל קצר ותלול באזור עין גדי, שבו מפגש בין מצוק גבוה, אגן קטן יחסית וזרימה מהירה.', href: '/floods/judean-desert/david' },
-        { id: 9, slug: 'mishmar', name: 'נחל משמר', image: '/mview-banner.jpg', text: 'נחל פראי במרכז מדבר יהודה, עם מפלים ונקודות צפייה מרשימות כשהאגן מתחיל לעבוד.', href: '/floods/judean-desert/mishmar' },
-        { id: 10, slug: 'rahaf', name: 'נחל רחף', image: '/access-banner.jpg', text: 'נחל תלול במצוק ההעתקים שבו אירועי זרימה יוצרים מפלים מרשימים ומחייבים בחירה מדויקת של נקודת צפייה.', href: '/floods/judean-desert/rahaf' },
-        { id: 11, slug: 'hemar', name: 'נחל חמר', image: '/camping-banner.jpg', text: 'נחל דרומי במדבר יהודה עם אגן ניקוז גדול יחסית ומספר נקודות שבהן ניתן לעקוב אחרי הגעת הזרימה.', href: '/floods/judean-desert/hemar' },
-        { id: 12, slug: 'bokek', name: 'נחל בוקק', image: '/access-banner-mobile.jpg', text: 'נחל קצר באזור המלונות של ים המלח, שמגיב במהירות לאירועי גשם מתאימים במעלה האגן.', href: '/floods/judean-desert/bokek' }
-      ],
+      rivers: [],
       seo: [
         'מדבר יהודה הוא אחד האזורים המרתקים בישראל לציד שטפונות. המבנה הטופוגרפי החד, מצוק ההעתקים ואגני הניקוז היורדים ממערב למזרח יוצרים נחלים שמגיבים במהירות יחסית לאירועי גשם מתאימים.',
         'כדי להבין איזה נחל עשוי לשטוף צריך להסתכל לא רק על הגשם בנחל עצמו, אלא על כל אגן הניקוז שלו. גשם שיורד במעלה האגן, לעיתים עשרות קילומטרים מנקודת התצפית, יכול להגיע לערוץ רק לאחר זמן ולהפוך אותו בתוך דקות לנחל זורם.',
@@ -252,6 +239,7 @@
     const PAGE_SIZE = 6;
     let visibleRiversCount = PAGE_SIZE;
     let currentRiverSearch = '';
+    let riversLoadState = 'loading';
 
     const staticSeo = {
       title: 'שטפונות במדבר יהודה | מסלולי הג\'יפים של מדבר יהודה',
@@ -291,23 +279,47 @@
     }
 
     function renderRivers() {
+      const grid = document.getElementById('riversGrid');
+      const count = document.getElementById('riverCount');
+      const noResults = document.getElementById('noRiverResults');
+      const loadMoreWrap = document.getElementById('loadMoreWrap');
+      const clearBtn = document.getElementById('clearRiverSearch');
+
+      if (riversLoadState === 'loading') {
+        if (grid) grid.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400 font-bold"><i class="fa-solid fa-spinner fa-spin text-xl mb-2"></i><div>טוען נחלים...</div></div>';
+        if (count) count.textContent = '';
+        noResults?.classList.add('hidden');
+        loadMoreWrap?.classList.add('hidden');
+        clearBtn?.classList.add('hidden');
+        clearBtn?.classList.remove('flex');
+        return;
+      }
+
+      if (riversLoadState === 'error') {
+        if (grid) grid.innerHTML = '<div class="col-span-full text-center py-10 text-rose-600 font-bold">לא ניתן לטעון את רשימת הנחלים כרגע.</div>';
+        if (count) count.textContent = '';
+        noResults?.classList.add('hidden');
+        loadMoreWrap?.classList.add('hidden');
+        clearBtn?.classList.add('hidden');
+        clearBtn?.classList.remove('flex');
+        return;
+      }
+
       const filtered = getFilteredRivers();
       const isSearching = currentRiverSearch.trim().length > 0;
       const shown = isSearching ? filtered : filtered.slice(0, visibleRiversCount);
 
-      document.getElementById('riversGrid').innerHTML = shown.map(riverCard).join('');
-      document.getElementById('riverCount').textContent = isSearching
+      if (grid) grid.innerHTML = shown.map(riverCard).join('');
+      if (count) count.textContent = isSearching
         ? `${filtered.length} נחלים נמצאו`
         : `${filtered.length} נחלים`;
 
-      document.getElementById('noRiverResults').classList.toggle('hidden', filtered.length !== 0);
+      if (noResults) noResults.classList.toggle('hidden', filtered.length !== 0);
 
-      const loadMoreWrap = document.getElementById('loadMoreWrap');
       if (loadMoreWrap) {
         loadMoreWrap.classList.toggle('hidden', isSearching || visibleRiversCount >= filtered.length);
       }
 
-      const clearBtn = document.getElementById('clearRiverSearch');
       if (clearBtn) {
         clearBtn.classList.toggle('hidden', !isSearching);
         clearBtn.classList.toggle('flex', isSearching);
@@ -427,7 +439,11 @@
     }
 
     async function loadRegionRivers() {
-      if (!regionSupabase) return;
+      if (!regionSupabase) {
+        riversLoadState = 'error';
+        renderRivers();
+        return;
+      }
       try {
         const {data,error} = await regionSupabase
           .from('flood_rivers')
@@ -448,8 +464,12 @@
             href:`/floods/${r.region_slug || regionPageData.slug}/${r.slug}`
           }));
           visibleRiversCount = PAGE_SIZE;
+          riversLoadState = 'loaded';
           renderRivers();
           injectRegionSchema();
+        } else {
+          riversLoadState = 'error';
+          renderRivers();
         }
         try {
           const {data:cfg} = await regionSupabase.from('floods_page_config').select('tools,facebook_links,whatsapp_links').eq('id','main').maybeSingle();
@@ -461,7 +481,9 @@
           renderRegionCommunities();
         } catch (_) {}
       } catch (err) {
-        console.warn('Flood rivers table unavailable, using static fallbacks.', err);
+        console.warn('Flood rivers table unavailable.', err);
+        riversLoadState = 'error';
+        renderRivers();
       }
     }
 
