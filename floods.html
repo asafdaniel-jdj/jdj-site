@@ -19,7 +19,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="pageMetaTitle">שטפונות וציד שטפונות במדבר יהודה, בנגב ובערבה | מסלולי הג'יפים של מדבר יהודה</title>
+  <title id="pageMetaTitle">שטפונות במדבר יהודה, בנגב ובערבה | מסלולי הג'יפים של מדבר יהודה</title>
   <meta id="pageMetaDesc" name="description" content="מדריך ציד שטפונות במדבר יהודה, בנגב ובערבה: אזורי שטפונות, כלים, תחזיות, מילון מושגים, גלריה, קהילות והנחיות בטיחות לצפייה בשטפונות.">
   <meta name="robots" content="index,follow">
   <link id="canonicalTag" rel="canonical" href="https://jdj.co.il/floods">
@@ -27,7 +27,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <!-- Open Graph / WhatsApp / Facebook -->
   <meta property="og:type" content="website">
   <meta id="ogUrlTag" property="og:url" content="https://jdj.co.il/floods">
-  <meta id="ogTitleTag" property="og:title" content="שטפונות וציד שטפונות במדבר יהודה, בנגב ובערבה | מסלולי הג'יפים של מדבר יהודה">
+  <meta id="ogTitleTag" property="og:title" content="שטפונות במדבר יהודה, בנגב ובערבה | מסלולי הג'יפים של מדבר יהודה">
   <meta id="ogDescTag" property="og:description" content="מדריך ציד שטפונות במדבר יהודה, בנגב ובערבה: אזורי שטפונות, כלים, תחזיות, מילון מושגים, גלריה, קהילות והנחיות בטיחות לצפייה בשטפונות.">
   <meta property="og:image" content="https://jdj.co.il/og-image.jpg">
   <meta property="og:image:width" content="1200">
@@ -35,7 +35,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta id="twitterTitleTag" name="twitter:title" content="שטפונות וציד שטפונות במדבר יהודה, בנגב ובערבה | מסלולי הג'יפים של מדבר יהודה">
+  <meta id="twitterTitleTag" name="twitter:title" content="שטפונות במדבר יהודה, בנגב ובערבה | מסלולי הג'יפים של מדבר יהודה">
   <meta id="twitterDescTag" name="twitter:description" content="מדריך ציד שטפונות במדבר יהודה, בנגב ובערבה: אזורי שטפונות, כלים, תחזיות, מילון מושגים, גלריה, קהילות והנחיות בטיחות לצפייה בשטפונות.">
   <meta name="twitter:image" content="https://jdj.co.il/og-image.jpg">
 
@@ -59,7 +59,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     .media-card:hover img { transform: scale(1.035); }
 
     /* HERO text panel: change only this number to control darkness */
-    :root { --hero-text-panel-opacity: 0.19; }
+    :root { --hero-text-panel-opacity: 0.0150; }
     .hero-text-panel {
       background-color: rgba(2, 6, 23, var(--hero-text-panel-opacity));
       backdrop-filter: blur(1px);
@@ -388,6 +388,40 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
   </main>
+
+  <!-- FLOODS RIVER MEDIA LIGHTBOX -->
+  <div id="floodRiverGalleryModal" class="fixed inset-0 z-[90] hidden bg-slate-950/95 backdrop-blur-sm p-3 sm:p-5 md:p-8">
+    <div class="max-w-6xl mx-auto h-full flex flex-col">
+      <div class="flex items-center justify-between gap-3 text-white pb-3">
+        <div class="min-w-0">
+          <div id="floodGalleryRiverTitle" class="font-black text-base md:text-xl truncate">גלריית נחל</div>
+          <div id="floodGalleryCounter" class="text-xs text-white/60 font-bold mt-0.5"></div>
+        </div>
+        <div class="flex items-center gap-2">
+          <a id="floodGalleryRiverLink" href="/floods" class="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 hover:bg-white/15 px-3 py-2 text-xs font-black transition">
+            <span>לעמוד הנחל</span><i class="fa-solid fa-arrow-left text-[10px]"></i>
+          </a>
+          <button type="button" onclick="closeFloodRiverGallery()" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/15 flex items-center justify-center transition" aria-label="סגור גלריה"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+      </div>
+
+      <div class="relative flex-1 min-h-0 rounded-2xl md:rounded-3xl overflow-hidden bg-black border border-white/10 shadow-2xl">
+        <img id="floodGalleryImage" src="" alt="" class="hidden absolute inset-0 w-full h-full object-contain bg-black">
+        <video id="floodGalleryVideo" class="hidden absolute inset-0 w-full h-full object-contain bg-black" controls playsinline></video>
+
+        <button type="button" onclick="prevFloodRiverMedia()" class="absolute right-3 md:right-5 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center z-10 border border-white/15" aria-label="הקודם"><i class="fa-solid fa-chevron-right"></i></button>
+        <button type="button" onclick="nextFloodRiverMedia()" class="absolute left-3 md:left-5 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center z-10 border border-white/15" aria-label="הבא"><i class="fa-solid fa-chevron-left"></i></button>
+      </div>
+
+      <div class="pt-3 flex items-center justify-between gap-3">
+        <div id="floodGalleryCredit" class="text-xs text-white/65 font-bold truncate"></div>
+        <a id="floodGalleryRiverLinkMobile" href="/floods" class="sm:hidden inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-black text-white">
+          <span>לעמוד הנחל</span><i class="fa-solid fa-arrow-left text-[10px]"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div data-site-footer></div>
 
   <script>
@@ -453,8 +487,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="grid grid-cols-1 md:grid-cols-2">
             ${regions.map((r, index) => `
               <a href="${esc(r.href)}" class="group relative flex items-center justify-between gap-4 px-4 sm:px-5 md:px-6 py-4 md:py-5 bg-white hover:bg-indigo-50/70 transition ${index === 0 ? 'md:border-l md:border-slate-200' : ''}">
-                <span class="w-11 h-11 md:w-12 md:h-12 rounded-2xl bg-white text-indigo-600 border border-white/70 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition">
-                  <i class="fa-solid ${index === 0 ? 'fa-water' : 'fa-mountain-sun'} text-lg"></i>
+                <span class="w-11 h-11 md:w-12 md:h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition">
+                  <i class="fa-solid ${esc(r.icon)} text-lg"></i>
                 </span>
                 <div class="min-w-0 flex-1 text-right">
                   <div class="text-slate-900 font-black text-sm sm:text-base md:text-[19px] tracking-tight leading-tight">${esc(r.heroTitle)}</div>
@@ -486,7 +520,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <img src="${esc(resolveAssetUrl(r.image, '/access-banner.jpg'))}" alt="${esc(r.title)}" class="absolute inset-0 w-full h-full object-cover">
           <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent"></div>
           <div class="absolute inset-x-0 bottom-0 p-5 md:p-7 text-white space-y-1.5">
-            <div class="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center"><i class="fa-solid ${esc(r.icon)}"></i></div>
+            <div class="w-10 h-10 rounded-2xl bg-white/90 text-indigo-600 backdrop-blur-sm border border-white/70 shadow-sm flex items-center justify-center"><i class="fa-solid ${esc(r.icon)}"></i></div>
             <h3 class="text-2xl md:text-3xl font-black">${esc(r.title)}</h3>
             <p class="text-xs md:text-sm text-white/80 font-semibold">${esc(r.subtitle)}</p>
             <div class="pt-2 text-sm font-black text-indigo-300">לכל הנחלים באזור ←</div>
@@ -574,6 +608,142 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     renderTools();
     loadFloodsPageConfig();
 
+    let floodRiverGalleryItems = [];
+    let floodRiverGalleryIndex = 0;
+    let floodRiverGalleryHref = '/floods';
+    let floodRiverGalleryName = '';
+
+    function riverSlugFromHref(href) {
+      try {
+        const path = new URL(href, window.location.origin).pathname.replace(/\/+$/, '');
+        return decodeURIComponent(path.split('/').filter(Boolean).pop() || '');
+      } catch (_) {
+        return String(href || '').split('?')[0].replace(/\/+$/, '').split('/').pop() || '';
+      }
+    }
+
+    function normalizeRiverMedia(river) {
+      const items = [];
+      const seen = new Set();
+      const pushItem = (item) => {
+        const url = resolveAssetUrl(item?.url || '', '');
+        if (!url || seen.has(url)) return;
+        const type = item?.type === 'video' ? 'video' : 'image';
+        seen.add(url);
+        items.push({
+          type,
+          url,
+          credit: String(item?.credit || ''),
+          credit_url: String(item?.credit_url || '')
+        });
+      };
+
+      if (river?.main_image) {
+        pushItem({
+          type:'image',
+          url:river.main_image,
+          credit:river.main_image_credit || '',
+          credit_url:river.main_image_credit_url || ''
+        });
+      }
+
+      const media = Array.isArray(river?.media) ? [...river.media].sort((a,b)=>(a?.sort_order||0)-(b?.sort_order||0)) : [];
+      media.forEach(pushItem);
+      return items;
+    }
+
+    async function openFloodRiverGallery(href, fallbackTitle = '') {
+      const slug = riverSlugFromHref(href);
+      if (!slug || !floodsSupabase) {
+        if (href) window.location.href = href;
+        return;
+      }
+
+      try {
+        const {data:river,error} = await floodsSupabase
+          .from('flood_rivers')
+          .select('name,slug,region_slug,main_image,main_image_credit,main_image_credit_url,media')
+          .eq('slug',slug)
+          .eq('status','published')
+          .maybeSingle();
+        if (error || !river) throw error || new Error('River not found');
+
+        floodRiverGalleryItems = normalizeRiverMedia(river);
+        floodRiverGalleryIndex = 0;
+        floodRiverGalleryHref = `/floods/${river.region_slug || 'judean-desert'}/${river.slug}`;
+        floodRiverGalleryName = river.name || fallbackTitle || 'נחל';
+
+        if (!floodRiverGalleryItems.length) {
+          window.location.href = floodRiverGalleryHref;
+          return;
+        }
+
+        const modal = document.getElementById('floodRiverGalleryModal');
+        document.getElementById('floodGalleryRiverTitle').textContent = `גלריית ${floodRiverGalleryName}`;
+        document.getElementById('floodGalleryRiverLink').href = floodRiverGalleryHref;
+        document.getElementById('floodGalleryRiverLinkMobile').href = floodRiverGalleryHref;
+        updateFloodRiverGallery();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.classList.add('overflow-hidden');
+      } catch (err) {
+        console.warn('River gallery unavailable, opening river page.', err);
+        if (href) window.location.href = href;
+      }
+    }
+
+    function updateFloodRiverGallery() {
+      const item = floodRiverGalleryItems[floodRiverGalleryIndex];
+      if (!item) return;
+      const image = document.getElementById('floodGalleryImage');
+      const video = document.getElementById('floodGalleryVideo');
+      const credit = document.getElementById('floodGalleryCredit');
+      document.getElementById('floodGalleryCounter').textContent = `${floodRiverGalleryIndex + 1} / ${floodRiverGalleryItems.length}`;
+
+      if (item.type === 'video') {
+        image.classList.add('hidden');
+        image.removeAttribute('src');
+        video.classList.remove('hidden');
+        if (video.src !== item.url) video.src = item.url;
+      } else {
+        video.pause();
+        video.classList.add('hidden');
+        video.removeAttribute('src');
+        image.classList.remove('hidden');
+        image.src = item.url;
+        image.alt = `${floodRiverGalleryName}, תמונה ${floodRiverGalleryIndex + 1}`;
+      }
+      credit.textContent = item.credit ? `${item.type === 'video' ? 'וידאו' : 'צילום'}: ${item.credit}` : '';
+    }
+
+    function closeFloodRiverGallery() {
+      const modal = document.getElementById('floodRiverGalleryModal');
+      const video = document.getElementById('floodGalleryVideo');
+      video?.pause();
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+      document.body.classList.remove('overflow-hidden');
+    }
+
+    function nextFloodRiverMedia() {
+      if (floodRiverGalleryItems.length <= 1) return;
+      floodRiverGalleryIndex = (floodRiverGalleryIndex + 1) % floodRiverGalleryItems.length;
+      updateFloodRiverGallery();
+    }
+
+    function prevFloodRiverMedia() {
+      if (floodRiverGalleryItems.length <= 1) return;
+      floodRiverGalleryIndex = (floodRiverGalleryIndex - 1 + floodRiverGalleryItems.length) % floodRiverGalleryItems.length;
+      updateFloodRiverGallery();
+    }
+
+    window.openFloodRiverGallery = openFloodRiverGallery;
+    window.closeFloodRiverGallery = closeFloodRiverGallery;
+    window.nextFloodRiverMedia = nextFloodRiverMedia;
+    window.prevFloodRiverMedia = prevFloodRiverMedia;
+
     function renderFloodsGallery() {
       const section = document.getElementById('gallerySection');
       const el = document.getElementById('galleryGrid');
@@ -581,15 +751,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (section) section.classList.toggle('hidden', items.length === 0);
       if (!el) return;
       el.innerHTML = items.map(g => `
-        <a href="${esc(g.href)}" class="media-card relative overflow-hidden rounded-2xl min-h-[190px] md:min-h-[260px] shadow-md group block bg-slate-200">
+        <button type="button" data-river-gallery-href="${esc(String(g.href || ''))}" data-river-gallery-title="${esc(String(g.title || ''))}" class="media-card relative overflow-hidden rounded-2xl min-h-[190px] md:min-h-[260px] shadow-md group block w-full text-right bg-slate-200">
           <img src="${esc(resolveAssetUrl(g.image || g.url || '', '/access-banner.jpg'))}" alt="${esc(g.title || 'שטפון')}" loading="lazy" class="absolute inset-0 w-full h-full object-cover">
           <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
           <div aria-label="${g.type === 'video' ? 'סרטון' : 'תמונה'}" title="${g.type === 'video' ? 'סרטון' : 'תמונה'}" class="absolute top-3 left-3 w-11 h-11 rounded-full ${g.type === 'video' ? 'bg-slate-950 text-white' : 'bg-white text-slate-900'} flex items-center justify-center shadow-lg border border-white/40">
             <i class="fa-solid ${g.type === 'video' ? 'fa-play' : 'fa-image'} ${g.type === 'video' ? 'text-indigo-400' : 'text-slate-700'} text-sm"></i>
           </div>
           <div class="absolute bottom-0 inset-x-0 p-4 text-white"><h3 class="font-black text-base md:text-lg">${esc(g.title || '')}</h3><p class="text-[11px] md:text-xs text-white/75 font-bold">${esc(g.meta || '')}</p>${g.credit?`<p class="mt-1 text-xs md:text-sm text-white font-black drop-shadow"><i class="fa-solid ${g.type==='video'?'fa-video':'fa-camera'} ml-1 text-indigo-300"></i>${g.type==='video'?'וידאו':'צילום'}: ${esc(g.credit)}</p>`:''}</div>
-        </a>`).join('');
+        </button>`).join('');
+      el.querySelectorAll('[data-river-gallery-href]').forEach(button => {
+        button.addEventListener('click', () => openFloodRiverGallery(
+          button.dataset.riverGalleryHref || '',
+          button.dataset.riverGalleryTitle || ''
+        ));
+      });
     }
+
+    const GLOSSARY_ICONS = [
+      'fa-compass','fa-droplet','fa-water','fa-map','fa-location-dot','fa-binoculars',
+      'fa-flag','fa-clock','fa-car-side','fa-mountain-sun','fa-triangle-exclamation',
+      'fa-shield-halved','fa-cloud-rain','fa-bolt','fa-sun','fa-moon','fa-eye',
+      'fa-camera','fa-route','fa-list-check','fa-crosshairs','fa-wind'
+    ];
 
     function renderGlossary() {
       const section = document.getElementById('glossarySection');
@@ -601,8 +784,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         .map(item => Array.isArray(item) ? item : [item.term || item.title || '', item.description || item.text || ''])
         .filter(([term, desc]) => term && desc);
       if (section) section.classList.toggle('hidden', normalized.length === 0);
-      primary.innerHTML = normalized.slice(0,4).map(glossaryCard).join('');
-      more.innerHTML = normalized.slice(4).map(glossaryCard).join('');
+      primary.innerHTML = normalized.slice(0,4).map((item,index)=>glossaryCard(item,index)).join('');
+      more.innerHTML = normalized.slice(4).map((item,index)=>glossaryCard(item,index+4)).join('');
       if (toggle) toggle.classList.toggle('hidden', normalized.length <= 4);
     }
 
@@ -636,11 +819,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (wa) wa.innerHTML = make(whatsapp);
     }
 
-    const glossaryCard = ([term, desc]) => `
-      <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4">
-        <div class="font-black text-slate-900 mb-1">${term}</div>
-        <p class="text-xs text-slate-600 leading-relaxed font-medium">${desc}</p>
+    const glossaryCard = ([term, desc], index = 0) => {
+      const icon = GLOSSARY_ICONS[index % GLOSSARY_ICONS.length];
+      return `
+      <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 flex items-start gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-cyan-50 text-cyan-800 border border-cyan-100 flex items-center justify-center shrink-0 shadow-sm">
+          <i class="fa-solid ${icon} text-sm"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="font-black text-slate-900 mb-1">${term}</div>
+          <p class="text-xs text-slate-600 leading-relaxed font-medium">${desc}</p>
+        </div>
       </div>`;
+    };
 
     renderGlossary();
     renderFloodsGallery();
@@ -679,9 +870,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
 
     /* SEO DB integration with static fallbacks */
+    document.addEventListener('keydown', event => {
+      const modal = document.getElementById('floodRiverGalleryModal');
+      if (!modal || modal.classList.contains('hidden')) return;
+      if (event.key === 'Escape') closeFloodRiverGallery();
+      if (event.key === 'ArrowLeft') nextFloodRiverMedia();
+      if (event.key === 'ArrowRight') prevFloodRiverMedia();
+    });
+
     (function initFloodsSeo() {
       const fallback = {
-        title: 'שטפונות וציד שטפונות במדבר יהודה, בנגב ובערבה | מסלולי הג\'יפים של מדבר יהודה',
+        title: 'שטפונות במדבר יהודה, בנגב ובערבה | מסלולי הג\'יפים של מדבר יהודה',
         description: 'מדריך ציד שטפונות במדבר יהודה, בנגב ובערבה: אזורי שטפונות, כלים, תחזיות, מילון מושגים, גלריה, קהילות והנחיות בטיחות לצפייה בשטפונות.',
         h1: 'ציידי השטפונות',
         canonical: 'https://jdj.co.il/floods'

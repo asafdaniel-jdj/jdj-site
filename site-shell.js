@@ -134,7 +134,7 @@
       <div class="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-8 text-xs md:text-sm font-bold tracking-tight">
         <div class="border-b border-slate-800 md:border-b-0 pb-2 md:pb-0 space-y-3">
           <button onclick="toggleFooterAccordion('footerSec1', 'footerArr1')" class="w-full flex items-center justify-between py-2 md:py-0 text-white font-black text-sm md:text-base md:border-b md:border-slate-800 md:pb-2 cursor-pointer md:cursor-default"><span>סוגי תוכן באתר</span><i id="footerArr1" class="fa-solid fa-chevron-down text-xs md:hidden transition-transform duration-200"></i></button>
-          <ul id="footerSec1" class="hidden md:block space-y-2 text-slate-400 font-semibold pb-2 md:pb-0 transition-all duration-200">
+          <ul id="footerSec1" class="block space-y-2 text-slate-400 font-semibold pb-2 md:pb-0 transition-all duration-200">
             <li><a href="/category?type=routes" class="hover:text-indigo-400 transition block py-1 md:py-0">🚘 מסלולי טיול 4x4</a></li>
             <li><a href="/category?type=technical" class="hover:text-indigo-400 transition block py-1 md:py-0">⚙️ מקטעים ומעלה טכניים</a></li>
             <li><a href="/category?type=viewpoints" class="hover:text-indigo-400 transition block py-1 md:py-0">🔭 נקודות תצפית נוף</a></li>
@@ -223,7 +223,7 @@
     document.querySelectorAll('[data-site-header="desktop"]').forEach(el => { el.innerHTML = desktopHeader(); });
     document.querySelectorAll('[data-site-header="mobile-overlay"]').forEach(el => { el.innerHTML = mobileOverlayHeader(); });
     document.querySelectorAll('[data-site-side-menu]').forEach(el => { el.innerHTML = sideMenu(section); });
-    document.querySelectorAll('[data-site-footer]').forEach(el => { el.innerHTML = footer(); });
+    document.querySelectorAll('[data-site-footer]').forEach(el => { el.classList.remove('hidden'); el.style.display = 'block'; el.innerHTML = footer(); });
   }
 
   document.addEventListener('keydown', event => {

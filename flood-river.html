@@ -20,7 +20,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title id="pageMetaTitle">שטפונות בנחל | אגן ניקוז, נחל ויובלים לציידי שטפונות</title>
+  <title id="pageMetaTitle">שטפונות בנחל | שטפונות במדבר יהודה | מסלולי הג'יפים של מדבר יהודה</title>
   <meta id="pageMetaDesc" name="description" content="מידע על שטפונות בנחל, אגן הניקוז, תוואי הנחל, יובלים וערוצים, מפה אינטראקטיבית ונקודות שימושיות לציידי שטפונות.">
   <meta name="robots" content="index,follow">
   <link id="canonicalTag" rel="canonical" href="https://jdj.co.il/floods">
@@ -28,7 +28,7 @@
   <!-- Open Graph / WhatsApp / Facebook -->
   <meta property="og:type" content="website">
   <meta id="ogUrlTag" property="og:url" content="https://jdj.co.il/floods">
-  <meta id="ogTitleTag" property="og:title" content="שטפונות בנחל | אגן ניקוז, נחל ויובלים לציידי שטפונות">
+  <meta id="ogTitleTag" property="og:title" content="שטפונות בנחל | שטפונות במדבר יהודה | מסלולי הג'יפים של מדבר יהודה">
   <meta id="ogDescTag" property="og:description" content="מידע על שטפונות בנחל, אגן הניקוז, תוואי הנחל, יובלים וערוצים, מפה אינטראקטיבית ונקודות שימושיות לציידי שטפונות.">
   <meta property="og:image" content="https://jdj.co.il/og-image.jpg">
   <meta property="og:image:width" content="1200">
@@ -36,7 +36,7 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta id="twitterTitleTag" name="twitter:title" content="שטפונות בנחל | אגן ניקוז, נחל ויובלים לציידי שטפונות">
+  <meta id="twitterTitleTag" name="twitter:title" content="שטפונות בנחל | שטפונות במדבר יהודה | מסלולי הג'יפים של מדבר יהודה">
   <meta id="twitterDescTag" name="twitter:description" content="מידע על שטפונות בנחל, אגן הניקוז, תוואי הנחל, יובלים וערוצים, מפה אינטראקטיבית ונקודות שימושיות לציידי שטפונות.">
   <meta name="twitter:image" content="https://jdj.co.il/og-image.jpg">
 
@@ -164,7 +164,7 @@
             <span class="text-[12px] font-black tracking-tight leading-tight">שלח נקודות לתכנון</span>
           </button>
 
-          <div class="rounded-2xl border border-indigo-200 bg-indigo-50/20 p-1.5 flex flex-col gap-1">
+          <div id="mapNavigationActions" class="rounded-2xl border border-indigo-200 bg-indigo-50/20 p-1.5 flex flex-col gap-1">
             <button id="fitBasinBtn" type="button" class="w-full bg-white hover:bg-indigo-50/80 active:scale-[0.98] text-slate-800 hover:text-indigo-950 font-bold py-2 px-2.5 rounded-xl text-xs border border-indigo-100 hover:border-indigo-300 shadow-2xs transition-all duration-150 flex items-center gap-2 text-right cursor-pointer">
               <i class="fa-solid fa-expand text-indigo-600 text-xs shrink-0 w-4 text-center"></i>
               <span class="font-bold leading-tight whitespace-nowrap">התאם לאגן</span>
@@ -279,7 +279,7 @@
       name: 'נחל חבר',
       pageTitle: 'שטפונות בנחל חבר',
       canonical: 'https://jdj.co.il/floods/judean-desert/hever',
-      seoTitle: 'שטפונות בנחל חבר | אגן ניקוז, נחל ויובלים לציידי שטפונות',
+      seoTitle: 'שטפונות בנחל חבר | שטפונות במדבר יהודה | מסלולי הג\'יפים של מדבר יהודה',
       seoDescription: 'שטפונות בנחל חבר: אגן הניקוז, תוואי הנחל, יובלים וערוצים, מפה אינטראקטיבית, נקודות וקישורים שימושיים לציידי שטפונות.',
       mainImage: '',
       mainImageCredit: '',
@@ -288,6 +288,7 @@
       galleryMedia: [],
       videos: [],
       videoMedia: [],
+      media: [],
       basinSearchTerms: ['חבר'],
       aliases: ['חבר', 'נחל חבר'],
       basinProbePoints: [],
@@ -304,6 +305,18 @@
       contentHtml: '<p>טוען את פרטי הנחל...</p>',
       safetyNote: ''
     };
+
+    function normalizedRiverDisplayName(name) {
+      const raw = String(name || '').trim();
+      if (!raw) return 'נחל';
+      return /^נחל\s/.test(raw) ? raw : `נחל ${raw}`;
+    }
+
+    function riverAreaSeoLabel(regionSlug, regionName) {
+      if (regionSlug === 'negev-arava') return 'שטפונות בנגב ובערבה';
+      if (regionSlug === 'judean-desert') return 'שטפונות במדבר יהודה';
+      return `שטפונות ב${regionName || 'אזור הדרום'}`;
+    }
 
     function requestedRiverSlug() {
       const querySlug = new URLSearchParams(window.location.search).get('slug');
@@ -374,10 +387,11 @@
         riverData.regionSlug = r.region_slug || riverData.regionSlug;
         riverData.regionName = r.region || riverData.regionName;
         riverData.name = r.name;
-        riverData.pageTitle = `שטפונות ב${r.name}`;
+        const riverDisplayName = normalizedRiverDisplayName(r.name);
+        riverData.pageTitle = `שטפונות ב${riverDisplayName}`;
         riverData.canonical = `https://jdj.co.il/floods/${riverData.regionSlug}/${r.slug}`;
-        riverData.seoTitle = `שטפונות ב${r.name} | אגן ניקוז, נחל ויובלים לציידי שטפונות`;
-        riverData.seoDescription = `שטפונות ב${r.name}: אגן הניקוז, תוואי הנחל, יובלים וערוצים, מפה אינטראקטיבית, נקודות וקישורים שימושיים לציידי שטפונות.`;
+        riverData.seoTitle = `${riverData.pageTitle} | ${riverAreaSeoLabel(riverData.regionSlug, riverData.regionName)} | מסלולי הג'יפים של מדבר יהודה`;
+        riverData.seoDescription = `${riverData.pageTitle}: אגן הניקוז, תוואי הנחל, יובלים וערוצים, מפה אינטראקטיבית, נקודות וקישורים שימושיים לציידי שטפונות.`;
         riverData.mainImage = resolveAssetUrl(r.main_image, '');
         riverData.mainImageCredit = String(r.main_image_credit || '');
         riverData.mainImageCreditUrl = String(r.main_image_credit_url || '');
@@ -385,6 +399,7 @@
         riverData.galleryMedia = galleryMedia;
         riverData.videos = videos;
         riverData.videoMedia = videoMedia;
+        riverData.media = media;
         riverData.basinSearchTerms = Array.isArray(r.basin_search_terms) ? r.basin_search_terms : [];
         riverData.aliases = Array.isArray(r.aliases) && r.aliases.length ? r.aliases : [String(r.name).replace(/^נחל\s+/,'')];
         riverData.basinGeojson = r.basin_geojson || null;
@@ -448,60 +463,82 @@
         </div>`;
     }
 
+    function createCombinedMediaTile(item, imageAltBase, remainingCount = 0, tileClass = 'rounded-xl') {
+      if (!item) return `<div class="${tileClass} bg-slate-100 border border-dashed border-slate-200"></div>`;
+      const overlay = remainingCount > 0 ? `
+        <div class="absolute inset-0 bg-slate-900/65 backdrop-blur-[1px] flex flex-col items-center justify-center text-white p-1 text-center font-black z-20">
+          <span class="text-sm sm:text-base leading-none">+${remainingCount}</span>
+          <span class="text-[10px] font-bold mt-0.5 tracking-tight opacity-90">פריטים נוספים</span>
+        </div>` : '';
+
+      if (item.type === 'video') {
+        return createVideoGalleryTile(item.videoIndex, item.label || 'סרטון מהשטח', overlay);
+      }
+      return createPhotoGalleryTile(item.url, item.imageIndex, imageAltBase, remainingCount, tileClass);
+    }
+
     function renderGallery() {
       const wrapper = document.getElementById('itemGalleryWrapper');
       const mainImage = riverData.mainImage || '';
-      const galleryMedia = (riverData.galleryMedia || []).filter(m=>m?.url && m.url !== mainImage);
+      const rawMedia = Array.isArray(riverData.media) && riverData.media.length
+        ? [...riverData.media].sort((a,b)=>(a?.sort_order||0)-(b?.sort_order||0))
+        : [...(riverData.galleryMedia || []), ...(riverData.videoMedia || [])];
+
       const imageItems = [];
-      if (mainImage) imageItems.push({url:mainImage, credit:riverData.mainImageCredit||'', credit_url:riverData.mainImageCreditUrl||'', type:'image'});
-      galleryMedia.forEach(m=>{if(!imageItems.some(x=>x.url===m.url)) imageItems.push({...m,type:'image'});});
-      currentVideoItems = (riverData.videoMedia || []).filter(v=>v?.url);
-      const videoItem = currentVideoItems[0] || null;
-      const imageAltBase = `${riverData.pageTitle} ב${riverData.regionName}`;
-      const totalItems = imageItems.length + (videoItem ? 1 : 0);
-      const remainingCount = totalItems > 5 ? totalItems - 5 : 0;
+      const seen = new Set();
+      if (mainImage) {
+        imageItems.push({url:mainImage, credit:riverData.mainImageCredit||'', credit_url:riverData.mainImageCreditUrl||'', type:'image'});
+        seen.add(mainImage);
+      }
+
+      rawMedia.filter(m=>m?.type==='image' && m.url).forEach(m=>{
+        if (seen.has(m.url)) return;
+        seen.add(m.url);
+        imageItems.push({...m,type:'image'});
+      });
+      currentVideoItems = rawMedia.filter(m=>m?.type==='video' && m.url);
 
       currentLightboxItems = imageItems;
+      const imageIndex = new Map(imageItems.map((item,index)=>[item.url,index]));
+      const videoIndex = new Map(currentVideoItems.map((item,index)=>[item.url,index]));
 
-      if (!imageItems.length && !videoItem) {
+      const combined = [];
+      if (mainImage) {
+        combined.push({type:'image', url:mainImage, imageIndex:imageIndex.get(mainImage)});
+      }
+      rawMedia.forEach(m=>{
+        if (!m?.url || (m.type === 'image' && m.url === mainImage)) return;
+        if (m.type === 'video') combined.push({type:'video', url:m.url, videoIndex:videoIndex.get(m.url), label:m.title || 'סרטון מהשטח'});
+        else if (m.type === 'image') combined.push({type:'image', url:m.url, imageIndex:imageIndex.get(m.url)});
+      });
+
+      const imageAltBase = `${riverData.pageTitle} ב${riverData.regionName}`;
+      const totalItems = combined.length;
+      if (!totalItems) {
         wrapper.classList.add('hidden');
         return;
       }
-
       wrapper.classList.remove('hidden');
 
       if (totalItems === 1) {
-        if (videoItem && !imageItems.length) {
-          wrapper.innerHTML = `<div class="w-full h-52 sm:h-64 md:h-72 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm">${createVideoGalleryTile(0)}</div>`;
-          return;
-        }
-        wrapper.innerHTML = `
-          <div class="w-full h-52 sm:h-64 md:h-72 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-sm cursor-pointer group bg-slate-100" onclick="openLightbox(0)">
-            <img src="${imageItems[0].url}" fetchpriority="high" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" alt="${imageAltBase}">
-          </div>`;
+        const item = combined[0];
+        wrapper.innerHTML = `<div class="w-full h-52 sm:h-64 md:h-72 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm">${createCombinedMediaTile(item,imageAltBase,0,'rounded-2xl sm:rounded-3xl')}</div>`;
         return;
       }
 
       const gridClass = "grid gap-1.5 sm:gap-2 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 bg-slate-100 w-full p-0.5 shadow-sm";
+      const visible = combined.slice(0,5);
+      const remainingCount = Math.max(0, totalItems - 5);
       let html = '';
-      const allImages=imageItems.map(x=>x.url);
 
-      if (!videoItem) {
-        const count = allImages.length;
-        if (count === 2) {
-          html = `<div class="${gridClass} grid-cols-2 h-48 sm:h-60 md:h-72">${createPhotoGalleryTile(allImages[0],0,imageAltBase)}${createPhotoGalleryTile(allImages[1],1,imageAltBase)}</div>`;
-        } else if (count === 3) {
-          html = `<div class="${gridClass} grid-cols-3 h-48 sm:h-60 md:h-72"><div class="relative h-full col-span-2">${createPhotoGalleryTile(allImages[0],0,imageAltBase)}</div><div class="relative h-full col-span-1 grid grid-rows-2 gap-1.5">${createPhotoGalleryTile(allImages[1],1,imageAltBase,0,'rounded-lg')}${createPhotoGalleryTile(allImages[2],2,imageAltBase,0,'rounded-lg')}</div></div>`;
-        } else if (count === 4) {
-          html = `<div class="${gridClass} grid-cols-2 h-52 sm:h-64 md:h-80">${createPhotoGalleryTile(allImages[0],0,imageAltBase)}<div class="grid grid-cols-1 grid-rows-3 gap-1.5 h-full">${createPhotoGalleryTile(allImages[1],1,imageAltBase,0,'rounded-lg')}${createPhotoGalleryTile(allImages[2],2,imageAltBase,0,'rounded-lg')}${createPhotoGalleryTile(allImages[3],3,imageAltBase,0,'rounded-lg')}</div></div>`;
-        } else {
-          html = `<div class="${gridClass} grid-cols-2 h-56 sm:h-64 md:h-80">${createPhotoGalleryTile(allImages[0],0,imageAltBase)}<div class="grid grid-cols-2 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-1.5 h-full min-h-0">${createPhotoGalleryTile(allImages[1],1,imageAltBase,0,'rounded-lg')}${createPhotoGalleryTile(allImages[2],2,imageAltBase,0,'rounded-lg')}${createPhotoGalleryTile(allImages[3],3,imageAltBase,0,'rounded-lg')}${createPhotoGalleryTile(allImages[4],4,imageAltBase,remainingCount,'rounded-lg')}</div></div>`;
-        }
+      if (visible.length === 2) {
+        html = `<div class="${gridClass} grid-cols-2 h-48 sm:h-60 md:h-72">${createCombinedMediaTile(visible[0],imageAltBase)}${createCombinedMediaTile(visible[1],imageAltBase)}</div>`;
+      } else if (visible.length === 3) {
+        html = `<div class="${gridClass} grid-cols-3 h-48 sm:h-60 md:h-72"><div class="relative h-full col-span-2">${createCombinedMediaTile(visible[0],imageAltBase)}</div><div class="relative h-full col-span-1 grid grid-rows-2 gap-1.5">${createCombinedMediaTile(visible[1],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[2],imageAltBase,0,'rounded-lg')}</div></div>`;
+      } else if (visible.length === 4) {
+        html = `<div class="${gridClass} grid-cols-2 h-52 sm:h-64 md:h-80">${createCombinedMediaTile(visible[0],imageAltBase)}<div class="grid grid-cols-1 grid-rows-3 gap-1.5 h-full">${createCombinedMediaTile(visible[1],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[2],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[3],imageAltBase,0,'rounded-lg')}</div></div>`;
       } else {
-        const sideTiles = [createVideoGalleryTile(0, 'סרטון מהשטח')];
-        allImages.slice(1,4).forEach((img,idx)=>sideTiles.push(createPhotoGalleryTile(img,idx+1,imageAltBase,0,'rounded-lg')));
-        while(sideTiles.length<4) sideTiles.push('<div class="rounded-lg bg-slate-100 border border-dashed border-slate-200"></div>');
-        html = `<div class="${gridClass} grid-cols-2 h-56 sm:h-64 md:h-80">${createPhotoGalleryTile(allImages[0],0,imageAltBase)}<div class="grid grid-cols-2 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-1.5 h-full min-h-0">${sideTiles.slice(0,4).join('')}</div></div>`;
+        html = `<div class="${gridClass} grid-cols-2 h-56 sm:h-64 md:h-80">${createCombinedMediaTile(visible[0],imageAltBase)}<div class="grid grid-cols-2 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-1.5 h-full min-h-0">${createCombinedMediaTile(visible[1],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[2],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[3],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[4],imageAltBase,remainingCount,'rounded-lg')}</div></div>`;
       }
 
       wrapper.innerHTML = html;
@@ -1074,6 +1111,28 @@ ${riverData.safetyNote.trim()}`;
       if (labelEl) setTimeout(() => { labelEl.textContent = original; }, 1800);
     }
 
+    function updateMapActionVisibility() {
+      const validPlanningPoints = (riverData.points || []).filter(point =>
+        point?.is_active !== false &&
+        (point?.type === 'observation' || point?.type === 'check') &&
+        Number.isFinite(point?.lat) && Number.isFinite(point?.lng)
+      );
+      const hasOutlet = Array.isArray(riverData.outlet) &&
+        Number.isFinite(riverData.outlet[0]) && Number.isFinite(riverData.outlet[1]);
+      const hasBasin = !!riverData.basinGeojson;
+
+      const planningBtn = document.getElementById('sharePlanningPointsBtn');
+      const outletBtn = document.getElementById('focusOutletBtn');
+      const basinBtn = document.getElementById('fitBasinBtn');
+      const navWrap = document.getElementById('mapNavigationActions');
+
+      planningBtn?.classList.toggle('hidden', validPlanningPoints.length === 0);
+      outletBtn?.classList.toggle('hidden', !hasOutlet);
+      basinBtn?.classList.toggle('hidden', !hasBasin);
+
+      if (navWrap) navWrap.classList.toggle('hidden', !hasOutlet && !hasBasin);
+    }
+
     function renderTopMapLegend() {
       const el = document.getElementById('mapLegendTop');
       if (!el) return;
@@ -1132,7 +1191,13 @@ ${riverData.safetyNote.trim()}`;
           seo = await JDJSeoDB.resolve(supabaseClient, {
             templateKey:'flood_river',
             seoKey:`FLOOD_RIVER:${riverData.slug}`,
-            vars:{river:riverData.name, region:riverData.regionName, region_slug:riverData.regionSlug, slug:riverData.slug},
+            vars:{
+              river: normalizedRiverDisplayName(riverData.name),
+              region: riverData.regionName,
+              region_bet: riverData.regionSlug === 'negev-arava' ? 'בנגב ובערבה' : 'במדבר יהודה',
+              region_slug: riverData.regionSlug,
+              slug: riverData.slug
+            },
             fallback
           });
           if (typeof JDJSeoDB.applyHead === 'function') JDJSeoDB.applyHead(seo);
@@ -1161,6 +1226,7 @@ ${riverData.safetyNote.trim()}`;
       renderGallery();
       renderTopMapLegend();
       renderTools();
+      updateMapActionVisibility();
       initRiverMap();
       await initRiverSeo();
     }
