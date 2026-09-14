@@ -99,7 +99,7 @@
         <i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i>
         <a id="breadcrumbRegion" href="/floods" class="hover:text-indigo-600 transition whitespace-nowrap">אזור</a>
         <i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i>
-        <span id="breadcrumbRiver" class="text-slate-800 font-bold truncate">טוען...</span>
+        <span id="breadcrumbRiver" class="text-slate-800 font-bold truncate" aria-live="polite"></span>
       </div>
       <button type="button" onclick="history.back()" class="bg-white hover:bg-slate-100 text-slate-700 font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-slate-200 shadow-xs transition text-xs flex items-center gap-1.5 shrink-0">
         <i class="fa-solid fa-arrow-right"></i>
@@ -109,9 +109,9 @@
 
 
     <!-- TITLE + STANDARD GALLERY -->
-    <section class="space-y-4">
+    <section id="riverTitleGallerySection" class="hidden space-y-4">
       <div class="text-right">
-        <h1 id="riverPageTitle" class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-950 leading-tight">טוען פרטי נחל...</h1>
+        <h1 id="riverPageTitle" class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-950 leading-tight"></h1>
       </div>
       <div id="itemGalleryWrapper" class="w-full"></div>
     </section>
@@ -130,10 +130,10 @@
     </section>
 
     <!-- RIVER COPY, NO STATS BOX -->
-    <section class="bg-white rounded-3xl border border-slate-200/90 shadow-md p-5 sm:p-7 md:p-8">
+    <section id="riverAboutSection" class="hidden bg-white rounded-3xl border border-slate-200/90 shadow-md p-5 sm:p-7 md:p-8">
       <div class="max-w-5xl space-y-3">
         <h2 id="riverAboutTitle" class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight">פרטי הנחל</h2>
-        <div id="riverContent" class="space-y-3 text-sm md:text-base text-slate-600 font-medium leading-relaxed"><p>טוען את פרטי הנחל...</p></div>
+        <div id="riverContent" class="space-y-3 text-sm md:text-base text-slate-600 font-medium leading-relaxed"></div>
       </div>
     </section>
 
@@ -201,15 +201,20 @@
 
   <!-- STANDARD PRODUCT VIDEO MODAL -->
   <div id="videoModal" class="fixed inset-0 bg-black/95 z-50 hidden flex-col justify-between p-4 md:p-8">
-    <div class="flex items-center justify-between text-white max-w-5xl mx-auto w-full">
+    <div class="flex items-center justify-between text-white max-w-5xl mx-auto w-full gap-3">
       <span class="text-xs font-bold bg-white/10 px-3 py-1 rounded-full flex items-center gap-1.5">
-        <i class="fa-solid fa-play text-indigo-400 text-[10px]"></i>
-        <span>סרטון מהשטח</span>
+        <i class="fa-solid fa-play text-indigo-300 text-[10px]"></i>
+        <span>וידאו מהשטח</span>
       </span>
-      <button onclick="closeVideoModal()" aria-label="סגור וידאו" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <div class="flex items-center gap-2">
+        <span id="videoCounter" class="text-xs font-mono font-bold bg-white/10 px-3 py-1 rounded-full">1 / 1</span>
+        <button onclick="closeVideoModal()" aria-label="סגור וידאו" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
     </div>
     <div class="relative max-w-5xl mx-auto w-full flex-grow flex items-center justify-center my-4">
+      <button id="prevVideoBtn" onclick="prevVideo()" aria-label="סרטון קודם" class="absolute right-2 md:right-4 z-10 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition border border-white/20 hidden"><i class="fa-solid fa-chevron-right text-lg"></i></button>
       <video id="modalVideoPlayer" controls playsinline class="max-h-[76vh] max-w-[95vw] rounded-2xl shadow-2xl bg-black object-contain focus:outline-none"></video>
+      <button id="nextVideoBtn" onclick="nextVideo()" aria-label="סרטון הבא" class="absolute left-2 md:left-4 z-10 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition border border-white/20 hidden"><i class="fa-solid fa-chevron-left text-lg"></i></button>
     </div>
     <div id="videoCreditWrap" class="hidden max-w-5xl mx-auto w-full mb-3">
       <div class="bg-white/12 backdrop-blur-md border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm md:text-base font-black text-center shadow-lg">
@@ -350,6 +355,8 @@
       document.getElementById('riverAboutTitle').textContent = `על השטפונות ב${riverData.name}`;
       const content = document.getElementById('riverContent');
       if (content) content.innerHTML = riverContentHtml(riverData.contentHtml);
+      document.getElementById('riverTitleGallerySection')?.classList.remove('hidden');
+      document.getElementById('riverAboutSection')?.classList.remove('hidden');
       const safety = document.getElementById('riverSafetyNote');
       if (safety) {
         safety.textContent = riverData.safetyNote || '';
@@ -371,6 +378,8 @@
       if (aboutTitle) aboutTitle.textContent = 'פרטי הנחל';
       const content = document.getElementById('riverContent');
       if (content) content.innerHTML = `<p class="text-rose-600 font-bold">${message}</p>`;
+      document.getElementById('riverTitleGallerySection')?.classList.remove('hidden');
+      document.getElementById('riverAboutSection')?.classList.remove('hidden');
       const gallery = document.getElementById('itemGalleryWrapper');
       if (gallery) gallery.innerHTML = '';
       document.title = "הנחל אינו זמין | מסלולי הג'יפים של מדבר יהודה";
@@ -456,18 +465,25 @@
     let currentLightboxItems = [];
     let currentLightboxIndex = 0;
     let currentVideoItems = [];
+    let currentVideoIndex = 0;
 
-    function createVideoGalleryTile(videoIndex, label = 'סרטון מהשטח', extraOverlay = '') {
+    function createVideoGalleryTile(videoCount = 1, previewUrl = '', tileClass = 'rounded-xl') {
+      const multiBadge = videoCount > 1
+        ? `<div class="absolute bottom-3 right-3 rounded-full bg-slate-950/70 text-white text-sm font-black px-3 py-1 leading-none border border-white/10 shadow-lg">+${videoCount}</div>`
+        : '';
+      const mediaLayer = previewUrl
+        ? `<img src="${previewUrl}" loading="lazy" class="absolute inset-0 w-full h-full object-cover scale-110 blur-[3px] opacity-80 group-hover:scale-[1.14] transition duration-300" alt="">`
+        : `<div class="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-indigo-950"></div>`;
       return `
-        <div class="relative h-full cursor-pointer group overflow-hidden rounded-xl bg-slate-950 border border-slate-800" onclick="openVideoModal(${videoIndex})">
-          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/45 to-black/25"></div>
+        <div class="relative h-full cursor-pointer group overflow-hidden ${tileClass} border border-slate-200/80 bg-slate-900" onclick="openVideoModal(0)">
+          ${mediaLayer}
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/72 via-slate-900/24 to-white/10"></div>
           <div class="absolute inset-0 flex items-center justify-center">
-            <div class="w-14 h-14 rounded-full bg-indigo-600/90 text-white shadow-xl flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-500 transition duration-300 border border-white/15">
-              <i class="fa-solid fa-play text-lg pr-0.5"></i>
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/18 backdrop-blur-sm text-white shadow-xl flex items-center justify-center group-hover:scale-110 group-hover:bg-white/24 transition duration-300 border border-white/35">
+              <i class="fa-solid fa-play text-lg sm:text-xl pr-0.5"></i>
             </div>
           </div>
-          <div class="absolute bottom-3 right-3 left-3 text-white font-black text-sm sm:text-base drop-shadow-md">${label}</div>
-          ${extraOverlay}
+          ${multiBadge}
         </div>`;
     }
 
@@ -485,14 +501,8 @@
 
     function createCombinedMediaTile(item, imageAltBase, remainingCount = 0, tileClass = 'rounded-xl') {
       if (!item) return `<div class="${tileClass} bg-slate-100 border border-dashed border-slate-200"></div>`;
-      const overlay = remainingCount > 0 ? `
-        <div class="absolute inset-0 bg-slate-900/65 backdrop-blur-[1px] flex flex-col items-center justify-center text-white p-1 text-center font-black z-20">
-          <span class="text-sm sm:text-base leading-none">+${remainingCount}</span>
-          <span class="text-[10px] font-bold mt-0.5 tracking-tight opacity-90">פריטים נוספים</span>
-        </div>` : '';
-
-      if (item.type === 'video') {
-        return createVideoGalleryTile(item.videoIndex, item.label || 'סרטון מהשטח', overlay);
+      if (item.type === 'video-group') {
+        return createVideoGalleryTile(item.videoCount || 1, item.previewUrl || '', tileClass);
       }
       return createPhotoGalleryTile(item.url, item.imageIndex, imageAltBase, remainingCount, tileClass);
     }
@@ -520,17 +530,22 @@
 
       currentLightboxItems = imageItems;
       const imageIndex = new Map(imageItems.map((item,index)=>[item.url,index]));
-      const videoIndex = new Map(currentVideoItems.map((item,index)=>[item.url,index]));
+      const imageCombined = imageItems.map((item) => ({type:'image', url:item.url, imageIndex:imageIndex.get(item.url)}));
+      const videoGroup = currentVideoItems.length
+        ? {
+            type:'video-group',
+            videoCount: currentVideoItems.length,
+            previewUrl: currentVideoItems.find(v => v.poster_url)?.poster_url || imageItems[1]?.url || imageItems[0]?.url || ''
+          }
+        : null;
 
       const combined = [];
-      if (mainImage) {
-        combined.push({type:'image', url:mainImage, imageIndex:imageIndex.get(mainImage)});
+      if (videoGroup) {
+        const insertAt = Math.min(3, imageCombined.length);
+        combined.push(...imageCombined.slice(0, insertAt), videoGroup, ...imageCombined.slice(insertAt));
+      } else {
+        combined.push(...imageCombined);
       }
-      rawMedia.forEach(m=>{
-        if (!m?.url || (m.type === 'image' && m.url === mainImage)) return;
-        if (m.type === 'video') combined.push({type:'video', url:m.url, videoIndex:videoIndex.get(m.url), label:m.title || 'סרטון מהשטח'});
-        else if (m.type === 'image') combined.push({type:'image', url:m.url, imageIndex:imageIndex.get(m.url)});
-      });
 
       const imageAltBase = `${riverData.pageTitle} ב${riverData.regionName}`;
       const totalItems = combined.length;
@@ -548,7 +563,7 @@
 
       const gridClass = "grid gap-1.5 sm:gap-2 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 bg-slate-100 w-full p-0.5 shadow-sm";
       const visible = combined.slice(0,5);
-      const remainingCount = Math.max(0, totalItems - 5);
+      const remainingCount = Math.max(0, totalItems - visible.length);
       let html = '';
 
       if (visible.length === 2) {
@@ -556,7 +571,7 @@
       } else if (visible.length === 3) {
         html = `<div class="${gridClass} grid-cols-3 h-48 sm:h-60 md:h-72"><div class="relative h-full col-span-2">${createCombinedMediaTile(visible[0],imageAltBase)}</div><div class="relative h-full col-span-1 grid grid-rows-2 gap-1.5">${createCombinedMediaTile(visible[1],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[2],imageAltBase,0,'rounded-lg')}</div></div>`;
       } else if (visible.length === 4) {
-        html = `<div class="${gridClass} grid-cols-2 h-52 sm:h-64 md:h-80">${createCombinedMediaTile(visible[0],imageAltBase)}<div class="grid grid-cols-1 grid-rows-3 gap-1.5 h-full">${createCombinedMediaTile(visible[1],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[2],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[3],imageAltBase,0,'rounded-lg')}</div></div>`;
+        html = `<div class="${gridClass} grid-cols-2 h-52 sm:h-64 md:h-80">${createCombinedMediaTile(visible[0],imageAltBase)}<div class="grid grid-cols-1 grid-rows-3 gap-1.5 h-full">${createCombinedMediaTile(visible[1],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[2],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[3],imageAltBase,remainingCount,'rounded-lg')}</div></div>`;
       } else {
         html = `<div class="${gridClass} grid-cols-2 h-56 sm:h-64 md:h-80">${createCombinedMediaTile(visible[0],imageAltBase)}<div class="grid grid-cols-2 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-1.5 h-full min-h-0">${createCombinedMediaTile(visible[1],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[2],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[3],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[4],imageAltBase,remainingCount,'rounded-lg')}</div></div>`;
       }
@@ -575,21 +590,49 @@
       else {link.removeAttribute('href'); link.classList.remove('cursor-pointer');}
     }
 
-    function openVideoModal(index) {
-      const item=currentVideoItems[index]; if(!item?.url) return;
+    function updateVideoModal() {
+      const item = currentVideoItems[currentVideoIndex];
       const modal = document.getElementById('videoModal');
       const player = document.getElementById('modalVideoPlayer');
+      if (!modal || !player || !item?.url) return;
+      player.pause();
       player.src = item.url;
+      player.load();
       setCreditDisplay('videoCreditWrap','videoCreditLink','וידאו',item);
+      const counter = document.getElementById('videoCounter');
+      if (counter) counter.textContent = `${currentVideoIndex + 1} / ${currentVideoItems.length}`;
+      const prevBtn = document.getElementById('prevVideoBtn');
+      const nextBtn = document.getElementById('nextVideoBtn');
+      prevBtn?.classList.toggle('hidden', currentVideoItems.length <= 1);
+      nextBtn?.classList.toggle('hidden', currentVideoItems.length <= 1);
+      player.play().catch(() => {});
+    }
+
+    function openVideoModal(index = 0) {
+      if (!currentVideoItems.length) return;
+      currentVideoIndex = Math.max(0, Math.min(index, currentVideoItems.length - 1));
+      const modal = document.getElementById('videoModal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
-      player.play().catch(() => {});
+      updateVideoModal();
+    }
+
+    function nextVideo() {
+      if (currentVideoItems.length <= 1) return;
+      currentVideoIndex = (currentVideoIndex + 1) % currentVideoItems.length;
+      updateVideoModal();
+    }
+
+    function prevVideo() {
+      if (currentVideoItems.length <= 1) return;
+      currentVideoIndex = (currentVideoIndex - 1 + currentVideoItems.length) % currentVideoItems.length;
+      updateVideoModal();
     }
 
     function closeVideoModal() {
       const modal = document.getElementById('videoModal');
       const player = document.getElementById('modalVideoPlayer');
-      player.pause(); player.src='';
+      player.pause(); player.removeAttribute('src'); player.load();
       modal.classList.add('hidden'); modal.classList.remove('flex');
     }
 
@@ -1239,6 +1282,34 @@ ${riverData.safetyNote.trim()}`;
 
 
 
+
+
+    document.addEventListener('keydown', event => {
+      const videoModal = document.getElementById('videoModal');
+      const lightboxModal = document.getElementById('lightboxModal');
+      const videoOpen = videoModal && !videoModal.classList.contains('hidden');
+      const lightboxOpen = lightboxModal && !lightboxModal.classList.contains('hidden');
+      if (!videoOpen && !lightboxOpen) return;
+      if (event.key === 'Escape') {
+        if (videoOpen) closeVideoModal();
+        if (lightboxOpen) closeLightbox();
+      }
+      if (videoOpen) {
+        if (event.key === 'ArrowLeft') nextVideo();
+        if (event.key === 'ArrowRight') prevVideo();
+      }
+      if (lightboxOpen) {
+        if (event.key === 'ArrowLeft') nextImage();
+        if (event.key === 'ArrowRight') prevImage();
+      }
+    });
+
+    document.getElementById('videoModal')?.addEventListener('click', event => {
+      if (event.target === event.currentTarget) closeVideoModal();
+    });
+    document.getElementById('lightboxModal')?.addEventListener('click', event => {
+      if (event.target === event.currentTarget) closeLightbox();
+    });
 
     async function bootRiverPage() {
       const loaded = await loadRiverFromDb();
