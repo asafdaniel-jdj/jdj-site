@@ -682,12 +682,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 const isRec = isTrueValue(item.is_recommended);
                 const isTech = isTrueValue(item.is_technical) || (item.nature && item.nature.includes('טכני'));
                 const imageUrl = item.main_image || 'access-banner.jpg';
+                const itemTitle = cleanDashes(item.title || '');
+                const itemRegion = cleanDashes(item.region || '');
+                const itemDifficulty = cleanDashes(item.difficulty || '');
+                const hasLength = item.length_km !== null && item.length_km !== undefined && String(item.length_km).trim() !== '';
 
                 card.innerHTML = `
                     <div>
                         <div class="relative mb-3 sm:mb-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
                             <img src="${imageUrl}"
-                                 alt="${cleanDashes(item.title)} ב${item.region || 'מדבר יהודה'}"
+                                 alt="${itemTitle}${itemRegion ? ` ב${itemRegion}` : ''}"
                                  onerror="this.onerror=null; this.src='access-banner.jpg';"
                                  class="w-full h-44 sm:h-48 object-cover group-hover:scale-105 transition duration-300">
 
@@ -707,35 +711,43 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-end gap-1.5 mb-1.5 sm:mb-2">
-                            ${isTech ? `
-                                <span class="bg-rose-600 text-white font-black text-xs px-2.5 py-0.5 sm:py-1 rounded-xl shadow-xs flex items-center gap-1">
-                                    <span>טכני</span>
-                                    <i class="fa-solid fa-gear text-[10px]"></i>
-                                </span>
-                            ` : ''}
-                            <span class="bg-purple-50 text-purple-900 text-xs font-bold px-3 py-0.5 sm:py-1 rounded-xl border border-purple-200/60">${item.region || 'מדבר יהודה'}</span>
-                        </div>
+                        ${(isTech || itemRegion) ? `
+                            <div class="flex items-center justify-end gap-1.5 mb-1.5 sm:mb-2">
+                                ${isTech ? `
+                                    <span class="bg-rose-600 text-white font-black text-xs px-2.5 py-0.5 sm:py-1 rounded-xl shadow-xs flex items-center gap-1">
+                                        <span>טכני</span>
+                                        <i class="fa-solid fa-gear text-[10px]"></i>
+                                    </span>
+                                ` : ''}
+                                ${itemRegion ? `<span class="bg-purple-50 text-purple-900 text-xs font-bold px-3 py-0.5 sm:py-1 rounded-xl border border-purple-200/60">${itemRegion}</span>` : ''}
+                            </div>
+                        ` : ''}
 
-                        <h3 class="font-extrabold text-slate-900 text-lg sm:text-xl mb-1.5 sm:mb-2 group-hover:text-indigo-600 transition tracking-tight">${cleanDashes(item.title)}</h3>
+                        <h3 class="font-extrabold text-slate-900 text-lg sm:text-xl mb-1.5 sm:mb-2 group-hover:text-indigo-600 transition tracking-tight">${itemTitle}</h3>
                         <p class="text-xs md:text-sm text-slate-600 mb-3 sm:mb-4 line-clamp-2 leading-relaxed font-medium">${cleanDashes(item.short_description || '')}</p>
 
-                        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-4 sm:mb-5 text-xs font-bold">
-                            <span class="bg-slate-100 text-slate-700 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl flex items-center gap-1">
-                                <span>${item.difficulty || 'רגיל'}</span>
-                                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-[11px]"></i>
-                            </span>
-                            <span class="bg-slate-100 text-slate-700 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl flex items-center gap-1">
-                                <span>${item.length_km || 0} ק"מ</span>
-                                <i class="fa-solid fa-ruler-horizontal text-slate-400 text-[11px]"></i>
-                            </span>
-                            ${hasWater ? `
-                                <span class="bg-teal-50 text-teal-700 border border-teal-200/80 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl flex items-center gap-1">
-                                    <span>כולל מים</span>
-                                    <i class="fa-solid fa-droplets text-teal-500 text-[11px]"></i>
-                                </span>
-                            ` : ''}
-                        </div>
+                        ${(itemDifficulty || hasLength || hasWater) ? `
+                            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-4 sm:mb-5 text-xs font-bold">
+                                ${itemDifficulty ? `
+                                    <span class="bg-slate-100 text-slate-700 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl flex items-center gap-1">
+                                        <span>${itemDifficulty}</span>
+                                        <i class="fa-solid fa-triangle-exclamation text-amber-500 text-[11px]"></i>
+                                    </span>
+                                ` : ''}
+                                ${hasLength ? `
+                                    <span class="bg-slate-100 text-slate-700 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl flex items-center gap-1">
+                                        <span>${item.length_km} ק"מ</span>
+                                        <i class="fa-solid fa-ruler-horizontal text-slate-400 text-[11px]"></i>
+                                    </span>
+                                ` : ''}
+                                ${hasWater ? `
+                                    <span class="bg-teal-50 text-teal-700 border border-teal-200/80 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl flex items-center gap-1">
+                                        <span>כולל מים</span>
+                                        <i class="fa-solid fa-droplets text-teal-500 text-[11px]"></i>
+                                    </span>
+                                ` : ''}
+                            </div>
+                        ` : ''}
                     </div>
 
                     <div class="w-full border-2 border-indigo-800 text-indigo-900 group-hover:bg-indigo-900 group-hover:text-white font-extrabold py-3 sm:py-3.5 px-4 rounded-2xl text-center text-xs sm:text-sm transition flex items-center justify-center gap-2 tracking-tight">
@@ -777,16 +789,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 card.className = 'bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs hover:shadow-md hover:border-amber-400 transition cursor-pointer flex items-center gap-3.5 group';
 
                 const imageSrc = story.cover_image || story.main_image || 'access.jpg';
-                const authorName = story.author || story.author_name || 'צוות האתר';
+                const authorName = cleanDashes(story.author || story.author_name || '');
 
                 card.innerHTML = `
                     <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-slate-900 shrink-0 border border-slate-100">
                         <img src="${imageSrc}" alt="${cleanDashes(story.title)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="text-[11px] font-bold text-amber-800 mb-0.5">
-                            <span>מאת ${authorName}</span>
-                        </div>
+                        ${authorName ? `
+                            <div class="text-[11px] font-bold text-amber-800 mb-0.5">
+                                <span>מאת ${authorName}</span>
+                            </div>
+                        ` : ''}
                         <h3 class="font-extrabold text-slate-900 text-sm sm:text-base group-hover:text-amber-700 transition tracking-tight truncate">
                             ${cleanDashes(story.title)}
                         </h3>
@@ -832,23 +846,30 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 card.className = 'bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 shadow-2xs hover:shadow-md hover:border-emerald-500 transition cursor-pointer flex items-center gap-3.5 group';
 
                 const imageSrc = khan.main_image || 'access-banner.jpg';
-                const locName = khan.location_name || 'ישוב במדבר';
+                const khanTitle = cleanDashes(khan.title || '');
+                const khanRegion = cleanDashes(khan.region || '');
+                const locName = cleanDashes(khan.location_name || '');
+                const khanRating = khan.rating !== null && khan.rating !== undefined ? String(khan.rating).trim() : '';
 
                 card.innerHTML = `
                     <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-100 relative">
-                        <img src="${imageSrc}" alt="${cleanDashes(khan.title)} ב${khan.region || 'הנגב והערבה'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <img src="${imageSrc}" alt="${khanTitle}${khanRegion ? ` ב${khanRegion}` : ''}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between gap-1 mb-0.5">
-                            <span class="text-[11px] font-extrabold text-purple-900 bg-purple-50 px-2 py-0.5 rounded border border-purple-200/60">${khan.region || 'מדבר יהודה'}</span>
-                            <span class="text-[11px] font-bold text-amber-600">${khan.rating || '4.5 ⭐'}</span>
-                        </div>
+                        ${(khanRegion || khanRating) ? `
+                            <div class="flex items-center justify-between gap-1 mb-0.5">
+                                ${khanRegion ? `<span class="text-[11px] font-extrabold text-purple-900 bg-purple-50 px-2 py-0.5 rounded border border-purple-200/60">${khanRegion}</span>` : '<span></span>'}
+                                ${khanRating ? `<span class="text-[11px] font-bold text-amber-600">${khanRating}</span>` : ''}
+                            </div>
+                        ` : ''}
                         <h3 class="font-extrabold text-slate-900 text-sm sm:text-base group-hover:text-emerald-700 transition tracking-tight truncate">
-                            ${cleanDashes(khan.title)}
+                            ${khanTitle}
                         </h3>
-                        <p class="text-xs text-slate-500 font-medium truncate mt-0.5">
-                            📍 ${locName}
-                        </p>
+                        ${locName ? `
+                            <p class="text-xs text-slate-500 font-medium truncate mt-0.5">
+                                📍 ${locName}
+                            </p>
+                        ` : ''}
                         <div class="text-[11px] font-bold text-emerald-700 group-hover:underline mt-1">
                             לפרטים נוספים ←
                         </div>
