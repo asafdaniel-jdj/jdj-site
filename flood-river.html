@@ -91,7 +91,7 @@
     <div data-site-side-menu></div>
 <main class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-7 space-y-5 flex-grow">
     <!-- EXISTING SITE BREADCRUMB LANGUAGE -->
-    <nav aria-label="Breadcrumb" class="flex items-center justify-between text-xs sm:text-sm gap-3">
+    <nav id="riverBreadcrumbNav" aria-label="Breadcrumb" class="hidden flex items-center justify-between text-xs sm:text-sm gap-3">
       <div class="flex items-center gap-1.5 sm:gap-2 text-slate-500 font-medium min-w-0">
         <a href="/" class="hover:text-indigo-600 transition whitespace-nowrap">בית</a>
         <i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i>
@@ -107,7 +107,14 @@
       </button>
     </nav>
 
+    <!-- NEUTRAL LOADING SKELETON: NO PLACEHOLDER COPY -->
+    <div id="riverLoadingSkeleton" class="space-y-4 animate-pulse" aria-hidden="true">
+      <div class="h-9 sm:h-10 w-2/3 sm:w-1/2 rounded-xl bg-slate-200"></div>
+      <div class="h-56 sm:h-64 md:h-80 w-full rounded-2xl sm:rounded-3xl bg-slate-200"></div>
+      <div class="h-16 w-full rounded-2xl bg-slate-100 border border-slate-200"></div>
+    </div>
 
+    <div id="riverLoadedContent" class="hidden space-y-5">
     <!-- TITLE + STANDARD GALLERY -->
     <section id="riverTitleGallerySection" class="hidden space-y-4">
       <div class="text-right">
@@ -197,6 +204,7 @@
       </div>
       <div id="toolsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5"></div>
     </section>
+    </div>
   </main>
 
   <!-- STANDARD PRODUCT VIDEO MODAL -->
@@ -343,6 +351,12 @@
       ).join('');
     }
 
+    function revealRiverPage() {
+      document.getElementById('riverLoadingSkeleton')?.classList.add('hidden');
+      document.getElementById('riverBreadcrumbNav')?.classList.remove('hidden');
+      document.getElementById('riverLoadedContent')?.classList.remove('hidden');
+    }
+
     function applyRiverDataToDom() {
       const regionLink = document.getElementById('breadcrumbRegion');
       if (regionLink) {
@@ -382,6 +396,7 @@
       document.getElementById('riverAboutSection')?.classList.remove('hidden');
       const gallery = document.getElementById('itemGalleryWrapper');
       if (gallery) gallery.innerHTML = '';
+      revealRiverPage();
       document.title = "הנחל אינו זמין | מסלולי הג'יפים של מדבר יהודה";
     }
 
@@ -1322,6 +1337,7 @@ ${riverData.safetyNote.trim()}`;
       renderTopMapLegend();
       renderTools();
       updateMapActionVisibility();
+      revealRiverPage();
       initRiverMap();
       await initRiverSeo();
     }
