@@ -215,7 +215,7 @@
         <span>וידאו מהשטח</span>
       </span>
       <div class="flex items-center gap-2">
-        <span id="videoCounter" class="text-xs font-mono font-bold bg-white/10 px-3 py-1 rounded-full">1 / 1</span>
+        <span id="videoCounter" dir="ltr" class="text-xs font-mono font-bold bg-white/10 px-3 py-1 rounded-full">1 / 1</span>
         <button onclick="closeVideoModal()" aria-label="סגור וידאו" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
     </div>
@@ -235,7 +235,7 @@
   <!-- STANDARD PRODUCT IMAGE LIGHTBOX -->
   <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-50 hidden flex-col justify-between p-4 md:p-8">
     <div class="flex items-center justify-between text-white max-w-5xl mx-auto w-full">
-      <span id="lbCounter" class="text-xs font-mono font-bold bg-white/10 px-3 py-1 rounded-full">1 / 1</span>
+      <span id="lbCounter" dir="ltr" class="text-xs font-mono font-bold bg-white/10 px-3 py-1 rounded-full">1 / 1</span>
       <button onclick="closeLightbox()" aria-label="סגור תמונה" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
     <div class="relative max-w-5xl mx-auto w-full flex-grow flex items-center justify-center my-4">
@@ -586,7 +586,7 @@
       } else if (visible.length === 3) {
         html = `<div class="${gridClass} grid-cols-3 h-48 sm:h-60 md:h-72"><div class="relative h-full col-span-2">${createCombinedMediaTile(visible[0],imageAltBase)}</div><div class="relative h-full col-span-1 grid grid-rows-2 gap-1.5">${createCombinedMediaTile(visible[1],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[2],imageAltBase,0,'rounded-lg')}</div></div>`;
       } else if (visible.length === 4) {
-        html = `<div class="${gridClass} grid-cols-2 h-52 sm:h-64 md:h-80 min-h-0">${createCombinedMediaTile(visible[0],imageAltBase)}<div class="grid gap-1.5 h-full min-h-0 overflow-hidden" style="grid-template-rows:repeat(3,minmax(0,1fr))"><div class="min-h-0 overflow-hidden">${createCombinedMediaTile(visible[1],imageAltBase,0,'rounded-lg')}</div><div class="min-h-0 overflow-hidden">${createCombinedMediaTile(visible[2],imageAltBase,0,'rounded-lg')}</div><div class="min-h-0 overflow-hidden">${createCombinedMediaTile(visible[3],imageAltBase,remainingCount,'rounded-lg')}</div></div></div>`;
+        html = `<div class="${gridClass} grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 p-1 sm:p-1.5">${visible.map((item,index)=>`<div class="relative overflow-hidden rounded-xl sm:rounded-2xl" style="aspect-ratio:4/5">${createCombinedMediaTile(item,imageAltBase,0,'rounded-xl sm:rounded-2xl')}</div>`).join('')}</div>`;
       } else {
         html = `<div class="${gridClass} grid-cols-2 h-56 sm:h-64 md:h-80">${createCombinedMediaTile(visible[0],imageAltBase)}<div class="grid grid-cols-2 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-1.5 h-full min-h-0">${createCombinedMediaTile(visible[1],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[2],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[3],imageAltBase,0,'rounded-lg')}${createCombinedMediaTile(visible[4],imageAltBase,remainingCount,'rounded-lg')}</div></div>`;
       }
@@ -623,12 +623,18 @@
       player.play().catch(() => {});
     }
 
+    function setVideoModalScrollLock(locked) {
+      document.documentElement.classList.toggle('overflow-hidden', locked);
+      document.body.classList.toggle('overflow-hidden', locked);
+    }
+
     function openVideoModal(index = 0) {
       if (!currentVideoItems.length) return;
       currentVideoIndex = Math.max(0, Math.min(index, currentVideoItems.length - 1));
       const modal = document.getElementById('videoModal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
+      setVideoModalScrollLock(true);
       updateVideoModal();
     }
 
@@ -649,6 +655,7 @@
       const player = document.getElementById('modalVideoPlayer');
       player.pause(); player.removeAttribute('src'); player.load();
       modal.classList.add('hidden'); modal.classList.remove('flex');
+      setVideoModalScrollLock(false);
     }
 
     function openLightbox(index) {
