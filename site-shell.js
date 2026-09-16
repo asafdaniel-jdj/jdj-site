@@ -12,10 +12,10 @@
 
   const topNav = `
     <nav class="hidden lg:flex items-center justify-center text-lg md:text-xl font-bold text-slate-900 tracking-tight absolute left-1/2 -translate-x-1/2" style="gap: 20px;">
-      <a href="/category?type=routes" class="hover:text-indigo-600 transition whitespace-nowrap">מסלולי טיול</a>
-      <a href="/category?type=technical" class="hover:text-indigo-600 transition whitespace-nowrap">מקטעים טכניים</a>
-      <a href="/khan-catalog" class="hover:text-indigo-600 transition whitespace-nowrap">חאנים ולינה</a>
-      <a href="/category?type=water" class="hover:text-indigo-600 transition whitespace-nowrap">מעיינות וגבים</a>
+      <a href="/category?type=routes" id="nav-routes" class="hover:text-indigo-600 transition whitespace-nowrap">מסלולי טיול</a>
+      <a href="/category?type=technical" id="nav-technical" class="hover:text-indigo-600 transition whitespace-nowrap">מקטעים טכניים</a>
+      <a href="/khan-catalog" id="nav-khans" class="hover:text-indigo-600 transition whitespace-nowrap">חאנים ולינה</a>
+      <a href="/category?type=water" id="nav-water" class="hover:text-indigo-600 transition whitespace-nowrap">מעיינות וגבים</a>
     </nav>`;
 
   function logo(className) {
@@ -82,6 +82,9 @@
   }
 
   function sideMenu(section) {
+    const activeClass = (key, active = 'bg-indigo-50 text-indigo-700') => section === key
+      ? active
+      : 'hover:bg-slate-100 hover:text-indigo-600';
     const floodActive = section === 'floods'
       ? 'bg-cyan-50 text-cyan-800'
       : 'hover:bg-cyan-50 hover:text-cyan-800';
@@ -95,26 +98,26 @@
           </div>
           <nav class="flex flex-col text-slate-900 font-bold text-base tracking-tight">
             <div class="space-y-0.5">
-              <a href="/category?type=routes" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">מסלולי טיול</a>
-              <a href="/category?type=technical" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">מקטעים טכניים</a>
-              <a href="/category?type=viewpoints" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">נקודות תצפית</a>
-              <a href="/category?type=water" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">מעיינות וגבים</a>
+              <a href="/category?type=routes" id="drawer-nav-routes" class="block py-2 px-3 rounded-xl ${activeClass('routes')} transition">מסלולי טיול</a>
+              <a href="/category?type=technical" id="drawer-nav-technical" class="block py-2 px-3 rounded-xl ${activeClass('technical')} transition">מקטעים טכניים</a>
+              <a href="/category?type=viewpoints" id="drawer-nav-viewpoints" class="block py-2 px-3 rounded-xl ${activeClass('viewpoints')} transition">נקודות תצפית</a>
+              <a href="/category?type=water" id="drawer-nav-water" class="block py-2 px-3 rounded-xl ${activeClass('water')} transition">מעיינות וגבים</a>
               <a href="/floods" class="block py-2 px-3 rounded-xl ${floodActive} transition">שטפונות בנחלי הדרום והמזרח</a>
-              <a href="/category?type=poi" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">נקודות עניין</a>
+              <a href="/category?type=poi" id="drawer-nav-poi" class="block py-2 px-3 rounded-xl ${activeClass('poi')} transition">נקודות עניין</a>
             </div>
             <div class="py-2"><div class="border-t border-slate-100"></div></div>
             <div class="space-y-0.5">
-              <a href="/khan-catalog" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">חאנים ומתחמי לינה</a>
-              <a href="/stories" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">סיפורי מדבר ומורשת</a>
-              <a href="/access" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">דרכי גישה למסלולים</a>
-              <a href="/camp" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">חניוני לילה חינמיים</a>
-              <a href="/mview" class="block py-2 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">תצפיות מצוק ההעתקים</a>
+              <a href="/khan-catalog" id="drawer-nav-khans" class="block py-2 px-3 rounded-xl ${activeClass('khans')} transition">חאנים ומתחמי לינה</a>
+              <a href="/stories" class="block py-2 px-3 rounded-xl ${activeClass('stories')} transition">סיפורי מדבר ומורשת</a>
+              <a href="/access" class="block py-2 px-3 rounded-xl ${activeClass('access')} transition">דרכי גישה למסלולים</a>
+              <a href="/camp" class="block py-2 px-3 rounded-xl ${activeClass('camp')} transition">חניוני לילה חינמיים</a>
+              <a href="/mview" class="block py-2 px-3 rounded-xl ${activeClass('mview')} transition">תצפיות מצוק ההעתקים</a>
             </div>
             <div class="py-2"><div class="border-t border-slate-100"></div></div>
             <div class="space-y-0.5 text-slate-600 text-sm">
-              <a href="/about" class="block py-1.5 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">אודות המיזם</a>
-              <a href="/disclaimer" class="block py-1.5 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">הגבלת אחריות ותנאים</a>
-              <a href="/accessibility" class="block py-1.5 px-3 rounded-xl hover:bg-slate-100 hover:text-indigo-600 transition">הצהרת נגישות</a>
+              <a href="/about" class="block py-1.5 px-3 rounded-xl ${activeClass('about')} transition">אודות המיזם</a>
+              <a href="/disclaimer" class="block py-1.5 px-3 rounded-xl ${activeClass('disclaimer')} transition">הגבלת אחריות ותנאים</a>
+              <a href="/accessibility" class="block py-1.5 px-3 rounded-xl ${activeClass('accessibility')} transition">הצהרת נגישות</a>
             </div>
           </nav>
         </div>
