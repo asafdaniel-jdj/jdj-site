@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const VERSION = '1.0.0';
+  const VERSION = '1.1.0';
   const galleries = new Map();
   let gallerySequence = 0;
   let activeViewer = null;
@@ -76,9 +76,7 @@
 
   function buildGalleryState(options) {
     const container = resolveElement(options.container);
-    if (!container) throw new Error('JDJMediaGallery: container not found');
-
-    const id = String(options.galleryId || container.id || `jdj-media-gallery-${++gallerySequence}`);
+    const id = String(options.galleryId || container?.id || `jdj-media-gallery-${++gallerySequence}`);
     const mainImage = normalizeMainImage(options.mainImage);
     const media = normalizeMedia(options.media);
 
@@ -156,6 +154,9 @@
       includeMainInMosaic,
       includeMainInViewer,
       mainImageClickable,
+      viewerTitle: String(options.viewerTitle || options.title || ''),
+      viewerActionHref: String(options.viewerActionHref || ''),
+      viewerActionLabel: String(options.viewerActionLabel || ''),
       onOpen: typeof options.onOpen === 'function' ? options.onOpen : null,
       onClose: typeof options.onClose === 'function' ? options.onClose : null
     };
@@ -284,11 +285,15 @@
     modal.innerHTML = `
       <button type="button" data-jdj-viewer-close class="absolute inset-0 w-full h-full cursor-default" aria-label="סגור תצוגת מדיה"></button>
       <div class="relative z-10 flex items-center justify-between text-white max-w-5xl mx-auto w-full gap-3 pointer-events-none">
-        <span id="jdjViewerKind" class="hidden text-xs font-bold bg-white/10 px-3 py-1 rounded-full items-center gap-1.5 pointer-events-auto">
-          <i class="fa-solid fa-play text-indigo-300 text-[10px]" aria-hidden="true"></i>
-          <span>וידאו מהשטח</span>
-        </span>
-        <div class="mr-auto flex items-center gap-2 pointer-events-auto">
+        <div class="min-w-0 pointer-events-auto">
+          <div id="jdjViewerTitle" class="hidden font-black text-sm md:text-lg truncate"></div>
+          <span id="jdjViewerKind" class="hidden mt-1 text-xs font-bold bg-white/10 px-3 py-1 rounded-full items-center gap-1.5 w-fit">
+            <i class="fa-solid fa-play text-indigo-300 text-[10px]" aria-hidden="true"></i>
+            <span>וידאו מהשטח</span>
+          </span>
+        </div>
+        <div class="mr-auto flex items-center gap-2 pointer-events-auto shrink-0">
+          <a id="jdjViewerAction" href="#" class="hidden items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 hover:bg-white/15 px-3 py-2 text-xs font-black transition"><span id="jdjViewerActionLabel"></span><i class="fa-solid fa-arrow-left text-[10px]"></i></a>
           <span id="jdjViewerCounter" dir="ltr" class="text-xs font-mono font-bold bg-white/10 px-3 py-1 rounded-full">1 / 1</span>
           <button type="button" data-jdj-viewer-close aria-label="סגור" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"><i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i></button>
         </div>
@@ -414,6 +419,26 @@
     const prev = modal.querySelector('#jdjViewerPrev');
     const next = modal.querySelector('#jdjViewerNext');
     const hint = modal.querySelector('#jdjViewerHint');
+    const title = modal.querySelector('#jdjViewerTitle');
+    const action = modal.querySelector('#jdjViewerAction');
+    const actionLabel = modal.querySelector('#jdjViewerActionLabel');
+
+    if (title) {
+      title.textContent = gallery.viewerTitle || '';
+      title.classList.toggle('hidden', !gallery.viewerTitle);
+    }
+    if (action && actionLabel) {
+      const hasAction = Boolean(gallery.viewerActionHref && gallery.viewerActionLabel);
+      action.classList.toggle('hidden', !hasAction);
+      action.classList.toggle('inline-flex', hasAction);
+      if (hasAction) {
+        action.href = gallery.viewerActionHref;
+        actionLabel.textContent = gallery.viewerActionLabel;
+      } else {
+        action.removeAttribute('href');
+        actionLabel.textContent = '';
+      }
+    }
 
     counter.textContent = `${activeViewer.index + 1} / ${items.length}`;
     prev.classList.toggle('hidden', items.length <= 1);
@@ -541,8 +566,15 @@
     }
   }
 
+  function register(options = {}) {
+    const gallery = buildGalleryState(options);
+    galleries.set(gallery.id, gallery);
+    return gallery.id;
+  }
+
   function render(options = {}) {
     const gallery = buildGalleryState(options);
+    if (!gallery.container) throw new Error('JDJMediaGallery: container not found');
     galleries.set(gallery.id, gallery);
     renderMosaic(gallery);
     return gallery.id;
@@ -552,8 +584,10 @@
     const gallery = getGallery(galleryOrId);
     if (!gallery) return false;
     if (activeViewer?.galleryId === gallery.id) closeViewer();
-    gallery.container.innerHTML = '';
-    gallery.container.removeAttribute('data-jdj-media-gallery-bound');
+    if (gallery.container) {
+      gallery.container.innerHTML = '';
+      gallery.container.removeAttribute('data-jdj-media-gallery-bound');
+    }
     galleries.delete(gallery.id);
     return true;
   }
@@ -575,6 +609,7 @@
 
   window.JDJMediaGallery = Object.freeze({
     version: VERSION,
+    register,
     render,
     remove,
     openImage,
