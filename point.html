@@ -64,6 +64,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="seo-db.js"></script>
+    <script src="/site-media-gallery.js"></script>
 
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -454,43 +455,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </div>
 
-    <!-- 🎬 Modal וידאו -->
-    <div id="videoModal" class="fixed inset-0 bg-black/95 z-50 hidden flex-col justify-between p-4 md:p-8">
-        <div class="flex items-center justify-between text-white max-w-5xl mx-auto w-full">
-            <span class="text-xs font-bold bg-white/10 px-3 py-1 rounded-full flex items-center gap-1.5">
-                <i class="fa-solid fa-play text-indigo-400 text-[10px]"></i>
-                <span>סרטון מהשטח</span>
-            </span>
-            <button onclick="closeVideoModal()" aria-label="סגור וידאו" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"><i class="fa-solid fa-xmark text-lg"></i></button>
-        </div>
-
-        <div class="relative max-w-5xl mx-auto w-full flex-grow flex items-center justify-center my-4">
-            <video id="modalVideoPlayer" controls playsinline class="max-h-[80vh] max-w-[95vw] rounded-2xl shadow-2xl bg-black object-contain focus:outline-none"></video>
-        </div>
-
-        <div class="text-center text-white/60 text-xs">
-            לחצו על המסך או מקש ESC לסגירה
-        </div>
-    </div>
-
-    <!-- 🖼️ Lightbox לתמונות גלריה -->
-    <div id="lightboxModal" class="fixed inset-0 bg-black/95 z-50 hidden flex-col justify-between p-4 md:p-8">
-        <div class="flex items-center justify-between text-white max-w-5xl mx-auto w-full">
-            <span id="lbCounter" class="text-xs font-mono font-bold bg-white/10 px-3 py-1 rounded-full">1 / 1</span>
-            <button onclick="closeLightbox()" aria-label="סגור תמונה" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"><i class="fa-solid fa-xmark text-lg"></i></button>
-        </div>
-
-        <div class="relative max-w-5xl mx-auto w-full flex-grow flex items-center justify-center my-4">
-            <button id="lbPrevBtn" onclick="prevImage()" aria-label="תמונה קודמת" class="absolute right-2 md:right-4 z-10 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition border border-white/20"><i class="fa-solid fa-chevron-right text-lg"></i></button>
-            <img id="lbImage" src="" class="max-h-[75vh] max-w-full object-contain rounded-lg shadow-2xl transition duration-200" alt="תצוגת מסך מלא">
-            <button id="lbNextBtn" onclick="nextImage()" aria-label="תמונה הבאה" class="absolute left-2 md:left-4 z-10 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition border border-white/20"><i class="fa-solid fa-chevron-left text-lg"></i></button>
-        </div>
-
-        <div class="text-center text-white/60 text-xs">
-            ניתן לנווט במקשי החצים במקלדת
-        </div>
-    </div>
-
     <!-- 🔻 פוטר האתר האחיד -->
     <footer class="w-full bg-slate-900 text-slate-300 border-t-4 border-indigo-600 mt-8 md:mt-16">
         <div class="bg-slate-950/90 py-5 md:py-6 px-4 border-b border-slate-800">
@@ -623,9 +587,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         let globalWarningText = "";
         let currentProduct = null;
         let pendingActionType = null;
-        let currentLightboxImages = [];
-        let currentLightboxIndex = 0;
-        let lightboxLoadToken = 0;
         let earlyAccessTimerInterval = null;
         let earlyAccessOriginalRobots = undefined;
         let defaultCategoryKey = 'poi';
@@ -726,12 +687,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 if (drawer && !drawer.classList.contains('pointer-events-none')) toggleSideMenu();
                 const sheet = document.getElementById('mobileActionsSheet');
                 if (sheet && !sheet.classList.contains('pointer-events-none')) toggleMobileActionsSheet();
-                const videoModal = document.getElementById('videoModal');
-                if (videoModal && !videoModal.classList.contains('hidden')) closeVideoModal();
                 const mapModal = document.getElementById('mapModalOverlay');
                 if (mapModal && !mapModal.classList.contains('hidden')) closeMapModal();
-                const lb = document.getElementById('lightboxModal');
-                if (lb && !lb.classList.contains('hidden')) closeLightbox();
             }
         });
 
@@ -1360,250 +1317,60 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         /* -------------------------------------------------------------------
-           🎨 מערכת המדיה החדשה והנקייה של מוצרי POINT (Hero & Gallery)
+           🎨 מדיה משותפת של האתר: פסיפס + Viewer
            ------------------------------------------------------------------- */
-
-        // פונקציית עזר ליצירת HTML של משבצת וידאו תקנית
-        function createVideoTileHtml(videoSrc, customClass = '') {
-            return `
-                <div class="relative w-full h-full rounded-xl sm:rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 group cursor-pointer ${customClass}" onclick="openVideoModal('${videoSrc}')">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-black/30 z-10"></div>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center z-20 p-3 text-center">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-indigo-600/90 text-white flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:bg-indigo-500 transition duration-200 mb-2 border border-white/20">
-                            <i class="fa-solid fa-play text-base sm:text-lg pr-0.5"></i>
-                        </div>
-                        <span class="text-white font-black text-xs sm:text-sm tracking-wide">סרטון מהשטח</span>
-                        <span class="text-slate-300 text-[10px] sm:text-xs font-medium mt-0.5 opacity-90">צפו בסרטון מהביקור במקום</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        // פונקציית עזר ליצירת HTML של משבצת תמונת גלריה
-        function createPhotoTileHtml(imgUrl, galleryIndex, totalRemaining = 0, imageAltBase = '') {
-            return `
-                <div class="relative w-full h-full rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/90 bg-slate-100 group cursor-pointer" onclick="openLightbox(${galleryIndex})">
-                    <img src="${imgUrl}" loading="lazy" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" alt="${imageAltBase}, תמונה ${galleryIndex + 1}">
-                    ${totalRemaining > 0 ? `
-                        <div class="absolute inset-0 bg-slate-900/65 backdrop-blur-[1px] flex flex-col items-center justify-center text-white p-1 text-center font-black z-10">
-                            <span class="text-sm sm:text-base leading-none">+${totalRemaining}</span>
-                            <span class="text-[10px] font-bold mt-0.5 tracking-tight opacity-90">תמונות</span>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-
-        // פונקציה לבניית הגריד השמאלי (משני - דסקטופ/מובייל)
-        function renderSecondaryMediaGrid(videoUrl, galleryImages, imageAltBase) {
-            const hasVideo = !!videoUrl;
-            const photoCount = galleryImages.length;
-
-            // 1. וידאו בלבד
-            if (hasVideo && photoCount === 0) {
-                return `
-                    <div class="w-full h-full min-h-[220px]">
-                        ${createVideoTileHtml(videoUrl, 'h-full')}
-                    </div>
-                `;
-            }
-
-            // 2. תמונת גלריה אחת בלבד (ללא וידאו)
-            if (!hasVideo && photoCount === 1) {
-                return `
-                    <div class="w-full h-full min-h-[220px]">
-                        ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
-                    </div>
-                `;
-            }
-
-            // 3. וידאו + תמונת גלריה אחת (2 משבצות, אחת מעל השניה)
-            if (hasVideo && photoCount === 1) {
-                return `
-                    <div class="grid grid-cols-1 grid-rows-2 gap-1.5 sm:gap-2 h-full min-h-[220px]">
-                        ${createVideoTileHtml(videoUrl)}
-                        ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
-                    </div>
-                `;
-            }
-
-            // 4. שתי תמונות גלריה בלבד (ללא וידאו)
-            if (!hasVideo && photoCount === 2) {
-                return `
-                    <div class="grid grid-cols-1 grid-rows-2 gap-1.5 sm:gap-2 h-full min-h-[220px]">
-                        ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
-                        ${createPhotoTileHtml(galleryImages[1], 2, 0, imageAltBase)}
-                    </div>
-                `;
-            }
-
-            // 5. וידאו + 2 תמונות גלריה (3 משבצות - וידאו רחב למעלה, שתי תמונות למטה)
-            if (hasVideo && photoCount === 2) {
-                return `
-                    <div class="grid grid-cols-2 grid-rows-2 gap-1.5 sm:gap-2 h-full min-h-[220px]">
-                        <div class="col-span-2 row-span-1">
-                            ${createVideoTileHtml(videoUrl)}
-                        </div>
-                        <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
-                        </div>
-                        <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[1], 2, 0, imageAltBase)}
-                        </div>
-                    </div>
-                `;
-            }
-
-            // 6. שלוש תמונות גלריה בלבד (ללא וידאו - תמונה גדולה למעלה, 2 למטה)
-            if (!hasVideo && photoCount === 3) {
-                return `
-                    <div class="grid grid-cols-2 grid-rows-2 gap-1.5 sm:gap-2 h-full min-h-[220px]">
-                        <div class="col-span-2 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
-                        </div>
-                        <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[1], 2, 0, imageAltBase)}
-                        </div>
-                        <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[2], 3, 0, imageAltBase)}
-                        </div>
-                    </div>
-                `;
-            }
-
-            // 7. וידאו + 3 תמונות גלריה או יותר (4 משבצות ב-2x2)
-            if (hasVideo && photoCount >= 3) {
-                const remaining = photoCount - 3;
-                return `
-                    <div class="grid grid-cols-2 grid-rows-2 gap-1.5 sm:gap-2 h-full min-h-[220px]">
-                        <div class="col-span-1 row-span-1">
-                            ${createVideoTileHtml(videoUrl)}
-                        </div>
-                        <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
-                        </div>
-                        <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[1], 2, 0, imageAltBase)}
-                        </div>
-                        <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[2], 3, remaining, imageAltBase)}
-                        </div>
-                    </div>
-                `;
-            }
-
-            // 8. 4 תמונות גלריה או יותר בלבד (ללא וידאו - 4 משבצות ב-2x2)
-            if (!hasVideo && photoCount >= 4) {
-                const remaining = photoCount - 4;
-                return `
-                    <div class="grid grid-cols-2 grid-rows-2 gap-1.5 sm:gap-2 h-full min-h-[220px]">
-                        <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[0], 1, 0, imageAltBase)}
-                        </div>
-                        <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[1], 2, 0, imageAltBase)}
-                        </div>
-                        <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[2], 3, 0, imageAltBase)}
-                        </div>
-                        <div class="col-span-1 row-span-1">
-                            ${createPhotoTileHtml(galleryImages[3], 4, remaining, imageAltBase)}
-                        </div>
-                    </div>
-                `;
-            }
-
-            return '';
-        }
-
-        // פונקציית העל הראשי להרנדור המדיה העליונה
         function renderHeroMedia(item) {
             const wrapper = document.getElementById('itemMediaWrapper');
+            if (!wrapper) return;
+
+            if (!window.JDJMediaGallery) {
+                wrapper.classList.add('hidden');
+                console.error('JDJMediaGallery is not available');
+                return;
+            }
+
             const cleanTitle = cleanDashes(item.title);
             const regionName = item.region || 'מדבר יהודה';
             const altText = `${cleanTitle} ב${regionName}`;
+            const mainImage = item.main_image && item.main_image.trim()
+                ? item.main_image.trim()
+                : 'access-banner.jpg';
 
-            const mainImage = item.main_image ? item.main_image.trim() : '';
-            const videos = parseVideos(item);
-            const rawGallery = parseGalleryImages(item);
-
-            // הסרת כפילויות מתוך gallery_images בלבד + הסרת mainImage במידה ומופיעה בה
             const galleryImages = [];
-            rawGallery.forEach(img => {
-                if (img && img !== mainImage && !galleryImages.includes(img)) {
-                    galleryImages.push(img);
-                }
+            parseGalleryImages(item).forEach((url) => {
+                if (url && url !== mainImage && !galleryImages.includes(url)) galleryImages.push(url);
             });
 
-            // מערך Lightbox מאוחד: main_image ראשון, ולאחריו galleryImages ללא כפילויות
-            currentLightboxImages = mainImage ? [mainImage, ...galleryImages] : [...galleryImages];
+            const videos = [];
+            parseVideos(item).forEach((url) => {
+                if (url && !videos.includes(url)) videos.push(url);
+            });
 
-            const videoUrl = videos.length > 0 ? videos[0] : null;
+            const media = [
+                ...galleryImages.map((url, index) => ({
+                    type: 'image',
+                    url,
+                    sort_order: index
+                })),
+                ...videos.map((url, index) => ({
+                    type: 'video',
+                    url,
+                    sort_order: galleryImages.length + index
+                }))
+            ];
 
-            // מקרה 1: main_image בלבד (אין וידאו ואין תמונות גלריה) -> באנר רחב יחיד
-            if (!videoUrl && galleryImages.length === 0) {
-                const singleImageSrc = mainImage || 'access-banner.jpg';
-                wrapper.innerHTML = `
-                    <div class="w-full h-60 sm:h-80 md:h-[380px] rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-sm cursor-pointer group bg-slate-100" onclick="openLightbox(0)">
-                        <img src="${singleImageSrc}" alt="${altText}" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" fetchpriority="high">
-                    </div>
-                `;
-                return;
-            }
-
-            // מקרה 2: main_image + וידאו בלבד (מצב מיוחד: flex-[7] תמונה ראשית מימין, flex-[3] וידאו משמאל בדסקטופ)
-            if (videoUrl && galleryImages.length === 0) {
-                wrapper.innerHTML = `
-                    <!-- Desktop Layout (מימין לשמאל ב-RTL: main_image flex-[7] מימין, video_url flex-[3] משמאל) -->
-                    <div class="hidden md:flex flex-row w-full gap-3 items-stretch h-[340px] lg:h-[380px]">
-                        <!-- main_image מימין -->
-                        <div class="flex-[7] min-w-0 relative h-full rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100 cursor-pointer group" onclick="openLightbox(0)">
-                            <img src="${mainImage || 'access-banner.jpg'}" alt="${altText}" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" fetchpriority="high">
-                        </div>
-                        <!-- video_url משמאל -->
-                        <div class="flex-[3] min-w-0 relative h-full">
-                            ${createVideoTileHtml(videoUrl, 'h-full')}
-                        </div>
-                    </div>
-
-                    <!-- Mobile Layout (מאונך: 1. תמונה ראשית, 2. וידאו) -->
-                    <div class="flex flex-col md:hidden gap-2.5 w-full">
-                        <div class="w-full h-60 rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100 cursor-pointer group" onclick="openLightbox(0)">
-                            <img src="${mainImage || 'access-banner.jpg'}" alt="${altText}" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" fetchpriority="high">
-                        </div>
-                        <div class="w-full h-48">
-                            ${createVideoTileHtml(videoUrl, 'h-full')}
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            // מקרה 3 & 4: main_image + gallery_images (עם או ללא וידאו)
-            // פריסה אופקית ב-RTL תקני: main_image (flex-1 min-w-0) מימין, גריד מדיה משנית (flex-1 min-w-0) משמאל
-            wrapper.innerHTML = `
-                <!-- Desktop Layout -->
-                <div class="hidden md:flex flex-row w-full gap-2.5 sm:gap-3 items-stretch h-[340px] lg:h-[380px]">
-                    <!-- main_image גדולה מימין -->
-                    <div class="flex-1 min-w-0 relative h-full rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100 cursor-pointer group" onclick="openLightbox(0)">
-                        <img src="${mainImage || 'access-banner.jpg'}" alt="${altText}" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" fetchpriority="high">
-                    </div>
-                    <!-- אזור המדיה המשנית משמאל -->
-                    <div class="flex-1 min-w-0 relative h-full">
-                        ${renderSecondaryMediaGrid(videoUrl, galleryImages, altText)}
-                    </div>
-                </div>
-
-                <!-- Mobile Layout (מאונך) -->
-                <div class="flex flex-col md:hidden gap-2.5 w-full">
-                    <div class="w-full h-60 rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100 cursor-pointer group" onclick="openLightbox(0)">
-                        <img src="${mainImage || 'access-banner.jpg'}" alt="${altText}" class="w-full h-full object-cover object-center group-hover:scale-102 transition duration-300" fetchpriority="high">
-                    </div>
-                    <div class="w-full min-h-[180px]">
-                        ${renderSecondaryMediaGrid(videoUrl, galleryImages, altText)}
-                    </div>
-                </div>
-            `;
+            window.JDJMediaGallery.render({
+                container: wrapper,
+                galleryId: 'pointMediaGallery',
+                mainImage: { url: mainImage },
+                media,
+                includeMainInMosaic: true,
+                includeMainInViewer: false,
+                mainImageClickable: false,
+                videoGroupInsertAt: 3,
+                altBase: altText,
+                maxVisible: 5
+            });
         }
 
         function triggerActionGate(actionType) {
@@ -1644,24 +1411,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             if (currentProduct && currentProduct.facebook_link) {
                 window.open(currentProduct.facebook_link, '_blank');
             }
-        }
-
-        function openVideoModal(videoSrc) {
-            const modal = document.getElementById('videoModal');
-            const player = document.getElementById('modalVideoPlayer');
-            player.src = videoSrc;
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            player.play().catch(() => {});
-        }
-
-        function closeVideoModal() {
-            const modal = document.getElementById('videoModal');
-            const player = document.getElementById('modalVideoPlayer');
-            player.pause();
-            player.src = '';
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
         }
 
         async function fetchRoutesLinkedToPoint(pointId) {
@@ -1951,63 +1700,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         }
 
-        function openLightbox(index) {
-            if (!currentLightboxImages || currentLightboxImages.length === 0) return;
-            currentLightboxIndex = index;
-            updateLightbox();
-            const lb = document.getElementById('lightboxModal');
-            lb.classList.remove('hidden');
-            lb.classList.add('flex');
-        }
-
-        function closeLightbox() {
-            lightboxLoadToken++;
-            const lb = document.getElementById('lightboxModal');
-            lb.classList.add('hidden');
-            lb.classList.remove('flex');
-            const lbImage = document.getElementById('lbImage');
-            if (lbImage) lbImage.removeAttribute('src');
-        }
-
-        function updateLightbox() {
-            const targetIndex = currentLightboxIndex;
-            const targetSrc = currentLightboxImages[targetIndex];
-            if (!targetSrc) return;
-
-            const requestToken = ++lightboxLoadToken;
-            const loader = new Image();
-
-            loader.onload = () => {
-                if (requestToken !== lightboxLoadToken || targetIndex !== currentLightboxIndex) return;
-
-                const lbImage = document.getElementById('lbImage');
-                const title = currentProduct ? cleanDashes(currentProduct.title) : 'תמונת נקודת עניין';
-                const region = currentProduct ? (currentProduct.region || 'מדבר יהודה') : '';
-                lbImage.src = targetSrc;
-                lbImage.alt = region ? `${title} ב${region}, תמונה ${targetIndex + 1}` : `${title}, תמונה ${targetIndex + 1}`;
-                document.getElementById('lbCounter').innerText = `${targetIndex + 1} / ${currentLightboxImages.length}`;
-            };
-
-            loader.onerror = () => {
-                if (requestToken !== lightboxLoadToken || targetIndex !== currentLightboxIndex) return;
-                console.warn('Lightbox image failed to load:', targetSrc);
-            };
-
-            loader.src = targetSrc;
-        }
-
-        function nextImage() {
-            if (currentLightboxImages.length <= 1) return;
-            currentLightboxIndex = (currentLightboxIndex + 1) % currentLightboxImages.length;
-            updateLightbox();
-        }
-
-        function prevImage() {
-            if (currentLightboxImages.length <= 1) return;
-            currentLightboxIndex = (currentLightboxIndex - 1 + currentLightboxImages.length) % currentLightboxImages.length;
-            updateLightbox();
-        }
-
         function buildTrackedContentUrl(contentType, canonicalPath, source) {
             const channels = {
                 whatsapp: { source: 'whatsapp', medium: 'messaging' },
@@ -2077,24 +1769,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 }
             }
         }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeLightbox();
-                closeVideoModal();
-            } else if (e.key === 'ArrowRight') {
-                prevImage();
-            } else if (e.key === 'ArrowLeft') {
-                nextImage();
-            }
-        });
-
-        document.getElementById('videoModal').addEventListener('click', (e) => {
-            if (e.target.id === 'videoModal') closeVideoModal();
-        });
-        document.getElementById('lightboxModal').addEventListener('click', (e) => {
-            if (e.target.id === 'lightboxModal') closeLightbox();
-        });
 
         initPointPage();
     </script>
