@@ -10,6 +10,14 @@
     instagram: 'https://bit.ly/4aIY4pK'
   };
 
+
+  const FLOODS_CONFIG = {
+    endpoint: 'https://edjmwcnxsqnsxqrcsjxp.supabase.co/rest/v1/floods_page_config?id=eq.main&select=home_season_mode',
+    apiKey: 'sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i'
+  };
+
+  let floodsVisibilityPromise = null;
+
   const topNav = `
     <nav class="hidden lg:flex items-center justify-center text-lg md:text-xl font-bold text-slate-900 tracking-tight absolute left-1/2 -translate-x-1/2" style="gap: 20px;">
       <a href="/category?type=routes" id="nav-routes" class="hover:text-indigo-600 transition whitespace-nowrap">מסלולי טיול</a>
@@ -102,7 +110,7 @@
               <a href="/category?type=technical" id="drawer-nav-technical" class="block py-2 px-3 rounded-xl ${activeClass('technical')} transition">מקטעים טכניים</a>
               <a href="/category?type=viewpoints" id="drawer-nav-viewpoints" class="block py-2 px-3 rounded-xl ${activeClass('viewpoints')} transition">נקודות תצפית</a>
               <a href="/category?type=water" id="drawer-nav-water" class="block py-2 px-3 rounded-xl ${activeClass('water')} transition">מעיינות וגבים</a>
-              <a href="/floods" class="block py-2 px-3 rounded-xl ${floodActive} transition">שטפונות בנחלי הדרום והמזרח</a>
+              <a href="/floods" data-site-flood-entry class="block py-2 px-3 rounded-xl ${floodActive} transition">שטפונות בנחלי הדרום והמזרח</a>
               <a href="/category?type=poi" id="drawer-nav-poi" class="block py-2 px-3 rounded-xl ${activeClass('poi')} transition">נקודות עניין</a>
             </div>
             <div class="py-2"><div class="border-t border-slate-100"></div></div>
@@ -143,7 +151,7 @@
             <li><a href="/category?type=viewpoints" class="hover:text-indigo-400 transition block py-1 md:py-0">🔭 נקודות תצפית נוף</a></li>
             <li><a href="/category?type=water" class="hover:text-indigo-400 transition block py-1 md:py-0">💧 מעיינות, גבים ומים</a></li>
             <li><a href="/category?type=poi" class="hover:text-indigo-400 transition block py-1 md:py-0">📌 נקודות עניין והיסטוריה</a></li>
-            <li><a href="/floods" class="hover:text-cyan-300 transition block py-1 md:py-0">🌊 שטפונות בנחלי הדרום והמזרח</a></li>
+            <li data-site-flood-entry><a href="/floods" class="hover:text-cyan-300 transition block py-1 md:py-0">🌊 שטפונות בנחלי הדרום והמזרח</a></li>
           </ul>
         </div>
         <div class="border-b border-slate-800 md:border-b-0 pb-2 md:pb-0 space-y-3">
@@ -167,7 +175,7 @@
         <div class="pb-2 md:pb-0 space-y-3">
           <button onclick="toggleFooterAccordion('footerSec4', 'footerArr4')" class="w-full flex items-center justify-between py-2 md:py-0 text-white font-black text-sm md:text-base md:border-b md:border-slate-800 md:pb-2 cursor-pointer md:cursor-default"><span>קהילה ויצירת קשר</span><i id="footerArr4" class="fa-solid fa-chevron-down text-xs md:hidden transition-transform duration-200"></i></button>
           <div id="footerSec4" class="hidden md:block space-y-3 pb-2 md:pb-0 transition-all duration-200">
-            <p class="text-slate-400 text-xs leading-relaxed font-medium">רוצים לקבל עדכוני שיטפונות ומצב גבים? הצטרפו לקהילה שלנו!</p>
+            <p data-site-community-copy class="text-slate-400 text-xs leading-relaxed font-medium">רוצים לקבל עדכוני שיטפונות ומצב גבים? הצטרפו לקהילה שלנו!</p>
             <div class="flex items-center gap-2 pt-1">
               <a href="${SITE.whatsapp}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow-md" title="וואטסאפ"><i class="fa-brands fa-whatsapp text-base"></i></a>
               <a href="${SITE.facebook}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center transition shadow-md" title="פייסבוק"><i class="fa-brands fa-facebook-f text-sm"></i></a>
@@ -187,6 +195,38 @@
         </div>
       </div>
     </footer>`;
+  }
+
+  function setFloodsVisibility(enabled) {
+    document.documentElement.dataset.floodsSection = enabled ? 'on' : 'off';
+    document.querySelectorAll('[data-site-flood-entry]').forEach(el => {
+      el.classList.toggle('hidden', !enabled);
+    });
+    document.querySelectorAll('[data-site-community-copy]').forEach(el => {
+      el.textContent = enabled
+        ? 'רוצים לקבל עדכוני שיטפונות ומצב גבים? הצטרפו לקהילה שלנו!'
+        : 'רוצים לקבל עדכונים מהשטח ומסלולים חדשים? הצטרפו לקהילה שלנו!';
+    });
+  }
+
+  async function loadFloodsVisibility() {
+    if (!floodsVisibilityPromise) {
+      floodsVisibilityPromise = fetch(FLOODS_CONFIG.endpoint, {
+        headers: { apikey: FLOODS_CONFIG.apiKey }
+      })
+        .then(response => {
+          if (!response.ok) throw new Error(`Floods config request failed: ${response.status}`);
+          return response.json();
+        })
+        .then(rows => rows?.[0]?.home_season_mode !== 'off')
+        .catch(error => {
+          console.warn('Floods visibility fallback to visible:', error);
+          return true;
+        });
+    }
+    const enabled = await floodsVisibilityPromise;
+    setFloodsVisibility(enabled);
+    return enabled;
   }
 
   window.toggleSideMenu = function toggleSideMenu() {
@@ -227,6 +267,7 @@
     document.querySelectorAll('[data-site-header="mobile-overlay"]').forEach(el => { el.innerHTML = mobileOverlayHeader(); });
     document.querySelectorAll('[data-site-side-menu]').forEach(el => { el.innerHTML = sideMenu(section); });
     document.querySelectorAll('[data-site-footer]').forEach(el => { el.classList.remove('hidden'); el.style.display = 'block'; el.innerHTML = footer(); });
+    loadFloodsVisibility();
   }
 
   document.addEventListener('keydown', event => {
@@ -238,5 +279,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render, { once: true });
   else render();
 
-  window.JDJSiteShell = { render };
+  window.JDJSiteShell = { render, loadFloodsVisibility };
 })();

@@ -555,7 +555,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         function applyHomeSeasonMode(mode) {
-            const normalized = mode === 'summer' ? 'summer' : 'winter';
+            const normalized = ['summer', 'winter', 'off'].includes(mode) ? mode : 'winter';
             document.documentElement.dataset.homeSeasonMode = normalized;
 
             const winter = document.getElementById('homeFloodsWinter');
@@ -565,9 +565,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         async function loadHomeSeasonMode() {
-            // Preview helper: ?season=summer or ?season=winter overrides DB for this browser load only.
+            // Preview helper: ?season=summer, ?season=winter or ?season=off overrides DB for this browser load only.
             const previewMode = new URLSearchParams(window.location.search).get('season');
-            if (previewMode === 'summer' || previewMode === 'winter') {
+            if (['summer', 'winter', 'off'].includes(previewMode)) {
                 applyHomeSeasonMode(previewMode);
                 return previewMode;
             }
@@ -580,7 +580,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     .eq('id', 'main')
                     .maybeSingle();
 
-                if (!error && (data?.home_season_mode === 'summer' || data?.home_season_mode === 'winter')) {
+                if (!error && ['summer', 'winter', 'off'].includes(data?.home_season_mode)) {
                     mode = data.home_season_mode;
                 }
             } catch (err) {
