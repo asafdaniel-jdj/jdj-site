@@ -172,10 +172,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <!-- Mike: editorial credit, not a memorial card -->
       <div class="relative bg-white rounded-[30px] border border-slate-200 shadow-sm overflow-hidden">
         <div class="absolute inset-y-0 right-0 w-1.5 bg-indigo-600"></div>
-        <div class="grid grid-cols-1 md:grid-cols-[250px_1fr] items-stretch">
-          <div class="flex items-center justify-center p-4 md:p-6 bg-slate-50">
+        <div id="mikeGrid" class="grid grid-cols-1 items-stretch">
+          <div id="mikeImageWrap" class="hidden flex items-center justify-center p-4 md:p-6 bg-slate-50">
             <div class="relative w-full max-w-[220px] aspect-square overflow-hidden rounded-[26px] bg-slate-100 shadow-sm border border-slate-100">
-              <img id="mikeImage" src="/MIKE.jpg" onerror="this.onerror=null;this.src='/access.jpg';" alt="מייק אדרי" class="absolute inset-0 w-full h-full object-cover">
+              <img id="mikeImage" alt="מייק אדרי" class="absolute inset-0 w-full h-full object-cover">
               <div class="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent md:hidden"></div>
               <div class="absolute bottom-3 right-3 md:hidden text-white">
                 <div class="text-xs font-bold text-white/80">צייד שטפונות ותיק</div>
@@ -413,7 +413,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const floodsData = {
       /* Admin-ready content block: image, heading and copy */
       mike: {
-        image: '/MIKE.jpg',
+        image: '',
         kicker: 'אז איך הכל התחיל',
         name: 'מייק אדרי',
         text: 'הוא האיש שהכניס אותי לעולם ציד השטפונות, לימד אותי לקרוא עננים, להבין אגני ניקוז ולהסתכל אחרת על המדבר. בזכות הידע, הניסיון והסבלנות שלו נפתח בפניי עולם מרתק של טבע, עוצמה, דיוק וכבוד אמיתי לשטח. הדף הזה הוא מחווה קטנה לאדם שחי ונושם שטפונות, ומשתף לאורך השנים אהבה גדולה למדבר, למים ולרגעים שאי אפשר לשכוח.',
@@ -440,7 +440,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     function renderMikeBlock() {
       const m = floodsData.mike;
       const img = document.getElementById('mikeImage');
-      if (img) { img.src = resolveAssetUrl(m.image, '/MIKE.jpg'); img.alt = m.name; }
+      const imageWrap = document.getElementById('mikeImageWrap');
+      const grid = document.getElementById('mikeGrid');
+      const imageUrl = resolveAssetUrl(m.image, '');
+      if (img && imageWrap && grid) {
+        if (imageUrl) {
+          img.onerror = () => {
+            img.removeAttribute('src');
+            imageWrap.classList.add('hidden');
+            grid.classList.remove('md:grid-cols-[250px_1fr]');
+          };
+          img.src = imageUrl;
+          img.alt = m.name;
+          imageWrap.classList.remove('hidden');
+          grid.classList.add('md:grid-cols-[250px_1fr]');
+        } else {
+          img.removeAttribute('src');
+          imageWrap.classList.add('hidden');
+          grid.classList.remove('md:grid-cols-[250px_1fr]');
+        }
+      }
       const kicker = document.getElementById('mikeKicker');
       if (kicker) kicker.textContent = m.kicker;
       const name = document.getElementById('mikeName');
@@ -530,7 +549,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         floodsData.heroSubtitle = cfg.hero_subtitle || 'לצאת בזמן הנכון, למקום הנכון, בבטחה, ולתפוס את הגל הראשון';
         floodsData.heroDesktopImage = resolveAssetUrl(cfg.hero_desktop_image, '/FLOODS DESKTOP.jpg');
         floodsData.heroMobileImage = resolveAssetUrl(cfg.hero_mobile_image, '/FLOODS MOBILE.jpg');
-        floodsData.mike.image = resolveAssetUrl(cfg.mike_image || floodsData.mike.image, '/MIKE.jpg');
+        floodsData.mike.image = resolveAssetUrl(cfg.mike_image, '');
         floodsData.mike.kicker = cfg.mike_kicker || floodsData.mike.kicker;
         floodsData.mike.name = cfg.mike_name || floodsData.mike.name;
         floodsData.mike.text = cfg.mike_text || floodsData.mike.text;
