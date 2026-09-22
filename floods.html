@@ -141,8 +141,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="relative w-full max-w-[1280px] mx-auto">
       <div class="relative rounded-[28px] overflow-hidden border border-slate-200 shadow-sm h-[300px] min-h-[300px] md:h-[340px] md:min-h-[340px] flex flex-col justify-between">
         <div class="absolute inset-0 w-full h-full z-0 overflow-hidden">
-          <img id="heroMobileImage" src="/FLOODS MOBILE.jpg" onerror="this.onerror=null;this.src='/access-banner-mobile.jpg';" alt="שטפונות במדבר" class="md:hidden w-full h-full object-cover object-center" fetchpriority="high">
-          <img id="heroDesktopImage" src="/FLOODS DESKTOP.jpg" onerror="this.onerror=null;this.src='/access-banner.jpg';" alt="שטפונות במדבר" class="hidden md:block w-full h-full object-cover object-center" fetchpriority="high">
+          <img id="heroMobileImage" src="/FLOODS-MOBILE.jpg" onerror="this.onerror=null;this.src='/access-banner-mobile.jpg';" alt="שטפונות במדבר" class="md:hidden w-full h-full object-cover object-center" fetchpriority="high">
+          <img id="heroDesktopImage" src="/FLOODS-DESKTOP.jpg" onerror="this.onerror=null;this.src='/access-banner.jpg';" alt="שטפונות במדבר" class="hidden md:block w-full h-full object-cover object-center" fetchpriority="high">
           <!-- Exact index hero gradient -->
           <div class="absolute inset-x-0 top-0 h-28 md:h-36 bg-gradient-to-b from-white/80 via-white/35 to-transparent pointer-events-none"></div>
         </div>
@@ -498,8 +498,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const heroDesktop = document.getElementById('heroDesktopImage');
       const heroTitle = document.getElementById('heroTitle');
       const heroSubtitle = document.getElementById('heroSubtitle');
-      if (heroMobile && floodsData.heroMobileImage) heroMobile.src = resolveAssetUrl(floodsData.heroMobileImage, '/FLOODS MOBILE.jpg');
-      if (heroDesktop && floodsData.heroDesktopImage) heroDesktop.src = resolveAssetUrl(floodsData.heroDesktopImage, '/FLOODS DESKTOP.jpg');
+      if (heroMobile && floodsData.heroMobileImage) heroMobile.src = resolveAssetUrl(floodsData.heroMobileImage, '/FLOODS-MOBILE.jpg');
+      if (heroDesktop && floodsData.heroDesktopImage) heroDesktop.src = resolveAssetUrl(floodsData.heroDesktopImage, '/FLOODS-DESKTOP.jpg');
       if (heroTitle && floodsData.heroTitle) heroTitle.textContent = floodsData.heroTitle;
       if (heroSubtitle && floodsData.heroSubtitle) heroSubtitle.textContent = floodsData.heroSubtitle;
 
@@ -547,8 +547,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (error || !cfg) return;
         floodsData.heroTitle = cfg.hero_title || 'ציידי השטפונות';
         floodsData.heroSubtitle = cfg.hero_subtitle || 'לצאת בזמן הנכון, למקום הנכון, בבטחה, ולתפוס את הגל הראשון';
-        floodsData.heroDesktopImage = resolveAssetUrl(cfg.hero_desktop_image, '/FLOODS DESKTOP.jpg');
-        floodsData.heroMobileImage = resolveAssetUrl(cfg.hero_mobile_image, '/FLOODS MOBILE.jpg');
+        floodsData.heroDesktopImage = resolveAssetUrl(cfg.hero_desktop_image, '/FLOODS-DESKTOP.jpg');
+        floodsData.heroMobileImage = resolveAssetUrl(cfg.hero_mobile_image, '/FLOODS-MOBILE.jpg');
         floodsData.mike.image = resolveAssetUrl(cfg.mike_image, '');
         floodsData.mike.kicker = cfg.mike_kicker || floodsData.mike.kicker;
         floodsData.mike.name = cfg.mike_name || floodsData.mike.name;
@@ -589,8 +589,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     floodsData.heroTitle = 'ציידי השטפונות';
     floodsData.heroSubtitle = 'לצאת בזמן הנכון, למקום הנכון, בבטחה, ולתפוס את הגל הראשון';
-    floodsData.heroDesktopImage = '/FLOODS DESKTOP.jpg';
-    floodsData.heroMobileImage = '/FLOODS MOBILE.jpg';
+    floodsData.heroDesktopImage = '/FLOODS-DESKTOP.jpg';
+    floodsData.heroMobileImage = '/FLOODS-MOBILE.jpg';
     renderMikeBlock();
     renderHeroAndRegions();
     renderArticles();
