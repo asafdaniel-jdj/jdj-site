@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-NS38C48X');</script>
+  <!-- End Google Tag Manager -->
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8XZHZXFHCY"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-8XZHZXFHCY');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title id="pageMetaTitle">ציידי השטפונות | מסלולי הג'יפים של מדבר יהודה</title>
+  <meta id="pageMetaDesc" name="description" content="מידע וכלים לציידי שטפונות בנחלי מדבר יהודה, הנגב והערבה.">
+  <meta name="robots" content="index,follow">
+  <link id="canonicalTag" rel="canonical" href="https://jdj.co.il/floods">
+
+  <!-- Open Graph / WhatsApp / Facebook -->
+  <meta property="og:type" content="website">
+  <meta id="ogUrlTag" property="og:url" content="https://jdj.co.il/floods">
+  <meta id="ogTitleTag" property="og:title" content="ציידי השטפונות | מסלולי הג'יפים של מדבר יהודה">
+  <meta id="ogDescTag" property="og:description" content="מידע וכלים לציידי שטפונות בנחלי מדבר יהודה, הנגב והערבה.">
+  <meta property="og:image" content="https://jdj.co.il/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta id="twitterTitleTag" name="twitter:title" content="ציידי השטפונות | מסלולי הג'יפים של מדבר יהודה">
+  <meta id="twitterDescTag" name="twitter:description" content="מידע וכלים לציידי שטפונות בנחלי מדבר יהודה, הנגב והערבה.">
+  <meta name="twitter:image" content="https://jdj.co.il/og-image.jpg">
+
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://edjmwcnxsqnsxqrcsjxp.supabase.co" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/seo-db.js"></script>
+  <script src="/site-shell.js" defer></script>
+  <script src="/site-media-gallery.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body { font-family: 'Heebo', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .river-card img { transition: transform .35s ease; }
+    .river-card:hover img { transform: scale(1.035); }
+
+    #riverMap { width: 100%; height: 100%; min-height: 420px; z-index: 1; }
+    .leaflet-container { font-family: 'Heebo', sans-serif; background: #e2e8f0; }
+    .leaflet-control-layers { direction: rtl; text-align: right; border-radius: 14px; overflow: hidden; }
+    .leaflet-control-layers-expanded { padding: 10px 12px; }
+    .jdj-map-status { backdrop-filter: blur(10px); }
+    .leaflet-interactive.jdj-map-marker { filter: drop-shadow(0 2px 4px rgba(15,23,42,.38)); }
+    .jdj-point-popup .leaflet-popup-content-wrapper { border-radius: 18px; box-shadow: 0 16px 38px rgba(15,23,42,.18); border: 1px solid #e2e8f0; overflow: hidden; }
+    .jdj-point-popup .leaflet-popup-content { margin: 0; width: 245px !important; }
+    .jdj-point-popup .leaflet-popup-tip { box-shadow: 2px 2px 4px rgba(15,23,42,.08); }
+    .jdj-point-card { direction: rtl; text-align: right; font-family: 'Heebo', sans-serif; }
+    .jdj-point-card-head { padding: 12px 14px 10px; border-bottom: 1px solid #e2e8f0; }
+    .jdj-point-type { display:inline-flex; align-items:center; gap:6px; font-size:11px; line-height:1; font-weight:900; border-radius:999px; padding:6px 9px; }
+    .jdj-point-name { margin-top:8px; color:#0f172a; font-size:16px; line-height:1.25; font-weight:900; }
+    .jdj-point-desc { margin-top:5px; color:#64748b; font-size:12px; line-height:1.45; font-weight:600; }
+    .jdj-point-card-actions { padding:10px 14px 14px; }
+    .jdj-point-offroad { min-height:40px; width:100%; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:12px; color:white !important; font-size:12px; font-weight:900; text-decoration:none !important; transition:.15s ease; box-shadow:0 2px 6px rgba(15,23,42,.12); }
+    .jdj-point-offroad:hover { filter:brightness(.94); transform:translateY(-1px); }
+    @media (min-width: 768px) { #riverMap { min-height: 500px; } }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between overflow-x-hidden" data-section="floods">
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NS38C48X"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+    <div data-site-header="internal"></div>
+
+    <div data-site-side-menu></div>
+<main class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-7 space-y-5 flex-grow">
+    <!-- EXISTING SITE BREADCRUMB LANGUAGE -->
+    <nav id="riverBreadcrumbNav" aria-label="Breadcrumb" class="hidden flex items-center justify-between text-xs sm:text-sm gap-3">
+      <div class="flex items-center gap-1.5 sm:gap-2 text-slate-500 font-medium min-w-0">
+        <a href="/" class="hover:text-indigo-600 transition whitespace-nowrap">בית</a>
+        <i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i>
+        <a href="/floods" class="hover:text-indigo-600 transition whitespace-nowrap">שטפונות בנחלי הדרום והמזרח</a>
+        <i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i>
+        <a id="breadcrumbRegion" href="/floods" class="hover:text-indigo-600 transition whitespace-nowrap">אזור</a>
+        <i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i>
+        <span id="breadcrumbRiver" class="text-slate-800 font-bold truncate" aria-live="polite"></span>
+      </div>
+      <button type="button" onclick="history.back()" class="bg-white hover:bg-slate-100 text-slate-700 font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-slate-200 shadow-xs transition text-xs flex items-center gap-1.5 shrink-0">
+        <i class="fa-solid fa-arrow-right"></i>
+        <span>חזרה</span>
+      </button>
+    </nav>
+
+    <!-- NEUTRAL LOADING SKELETON: NO PLACEHOLDER COPY -->
+    <div id="riverLoadingSkeleton" class="space-y-4 animate-pulse" aria-hidden="true">
+      <div class="h-9 sm:h-10 w-2/3 sm:w-1/2 rounded-xl bg-slate-200"></div>
+      <div class="h-56 sm:h-64 md:h-80 w-full rounded-2xl sm:rounded-3xl bg-slate-200"></div>
+      <div class="h-16 w-full rounded-2xl bg-slate-100 border border-slate-200"></div>
+    </div>
+
+    <div id="riverLoadedContent" class="hidden space-y-5">
+    <!-- TITLE + STANDARD GALLERY -->
+    <section id="riverTitleGallerySection" class="hidden space-y-4">
+      <div class="text-right">
+        <h1 id="riverPageTitle" class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-950 leading-tight"></h1>
+      </div>
+      <div id="itemGalleryWrapper" class="w-full"></div>
+    </section>
+
+    <!-- SAFETY -->
+    <section class="w-full bg-white rounded-2xl border border-slate-200 shadow-sm px-4 py-3 md:px-5">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 border border-amber-200 flex items-center justify-center shrink-0"><i class="fa-solid fa-triangle-exclamation text-base"></i></div>
+        <div class="min-w-0 flex-1 md:flex md:items-center md:gap-3">
+          <div class="font-black text-slate-900 text-sm md:text-base whitespace-nowrap">צדים שטפון? קודם בטיחות</div>
+          <div class="hidden md:block w-px h-5 bg-slate-200"></div>
+          <div><p class="text-[11px] md:text-sm text-slate-500 font-medium leading-relaxed mt-0.5 md:mt-0">לא נכנסים לערוץ הנחל ולא מתקרבים לזרימה. לפני כל יציאה בודקים תחזית, התרעות, דרכי גישה ותנאי שטח.</p><p id="riverSafetyNote" class="hidden text-[11px] md:text-sm text-amber-800 font-bold mt-1"></p></div>
+        </div>
+        <a href="/disclaimer#floods" class="hidden sm:inline-flex items-center gap-1.5 text-xs md:text-sm font-black text-indigo-600 hover:text-indigo-800 transition whitespace-nowrap">להנחיות המלאות <i class="fa-solid fa-arrow-left text-[10px]"></i></a>
+      </div>
+    </section>
+
+    <!-- RIVER COPY, NO STATS BOX -->
+    <section id="riverAboutSection" class="hidden bg-white rounded-3xl border border-slate-200/90 shadow-md p-5 sm:p-7 md:p-8">
+      <div class="max-w-5xl space-y-3">
+        <h2 id="riverAboutTitle" class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight">פרטי הנחל</h2>
+        <div id="riverContent" class="space-y-3 text-sm md:text-base text-slate-600 font-medium leading-relaxed"></div>
+      </div>
+    </section>
+
+
+
+    <!-- LIVE RIVER MAP V6: BASIN + MAIN RIVER + TRIBUTARIES + POINTS -->
+    <section class="space-y-7 md:space-y-8">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-200 pb-4">
+        <div>
+          <h2 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight">מפת הנחל, אגן הניקוז והנקודות</h2>
+        </div>
+        <div id="mapLegendTop" class="flex flex-wrap items-center gap-2.5 text-xs font-bold"></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_172px] gap-6 md:gap-7 items-start">
+        <div class="relative min-h-[420px] md:min-h-[500px] rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div id="riverMap"></div>
+        </div>
+
+        <aside class="w-full lg:w-[172px] shrink-0 lg:sticky lg:top-6 bg-white rounded-3xl p-3 border border-slate-200/90 shadow-md flex flex-col gap-2.5 self-start z-10">
+          <div class="flex items-center justify-center gap-1.5 border-b border-slate-100 pb-2 text-slate-700 font-extrabold text-xs tracking-tight">
+            <i class="fa-solid fa-compass text-indigo-600 text-[11px]"></i>
+            <span>פעולות במפה</span>
+          </div>
+
+          <button id="sharePlanningPointsBtn" type="button" class="w-full bg-blue-900 hover:bg-slate-900 active:scale-[0.98] text-white font-black py-3 px-2.5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border border-blue-950/40 text-center" title="שלח את כל נקודות התצפית והביקורת לוואטסאפ">
+            <i class="fa-brands fa-whatsapp text-sm shrink-0 text-white"></i>
+            <span class="text-[12px] font-black tracking-tight leading-tight">שלח נקודות לתכנון</span>
+          </button>
+
+          <div id="mapNavigationActions" class="rounded-2xl border border-indigo-200 bg-indigo-50/20 p-1.5 flex flex-col gap-1">
+            <button id="fitBasinBtn" type="button" class="w-full bg-white hover:bg-indigo-50/80 active:scale-[0.98] text-slate-800 hover:text-indigo-950 font-bold py-2 px-2.5 rounded-xl text-xs border border-indigo-100 hover:border-indigo-300 shadow-2xs transition-all duration-150 flex items-center gap-2 text-right cursor-pointer">
+              <i class="fa-solid fa-expand text-indigo-600 text-xs shrink-0 w-4 text-center"></i>
+              <span class="font-bold leading-tight whitespace-nowrap">התאם לאגן</span>
+            </button>
+            <button id="focusOutletBtn" type="button" class="w-full bg-white hover:bg-indigo-50/80 active:scale-[0.98] text-slate-800 hover:text-indigo-950 font-bold py-2 px-2.5 rounded-xl text-xs border border-indigo-100 hover:border-indigo-300 shadow-2xs transition-all duration-150 flex items-center gap-2 text-right cursor-pointer">
+              <i class="fa-solid fa-water text-indigo-600 text-xs shrink-0 w-4 text-center"></i>
+              <span class="font-bold leading-tight whitespace-nowrap">מוצא הנחל</span>
+            </button>
+          </div>
+
+          <div class="border-t border-slate-200/80 pt-1.5 mt-0.5 space-y-1.5">
+            <div class="text-xs font-black text-slate-700 text-center tracking-wide">שיתוף</div>
+            <button id="shareRiverBtn" type="button" class="w-full bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-700 hover:text-slate-950 font-bold py-2 px-2.5 rounded-xl text-xs border border-slate-200 hover:border-slate-300 shadow-2xs transition-all duration-150 flex items-center gap-2 text-right cursor-pointer">
+              <i class="fa-brands fa-whatsapp text-emerald-600 text-sm shrink-0 w-4 text-center"></i>
+              <span class="font-bold leading-tight whitespace-nowrap">שלח לחברים</span>
+            </button>
+            <button id="copyRiverBtn" type="button" class="w-full bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-700 hover:text-slate-950 font-bold py-2 px-2.5 rounded-xl text-xs border border-slate-200 hover:border-slate-300 shadow-2xs transition-all duration-150 flex items-center gap-2 text-right cursor-pointer">
+              <i class="fa-solid fa-link text-slate-600 text-xs shrink-0 w-4 text-center"></i>
+              <span class="btn-text font-bold leading-tight whitespace-nowrap">העתק קישור</span>
+            </button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- TOOLS, APPROVED -->
+    <section class="space-y-5 md:space-y-6 pt-3 md:pt-5">
+      <div class="border-b border-slate-200 pb-3">
+        <h2 class="text-2xl md:text-3xl font-black tracking-tight flex items-center gap-2.5"><span class="w-8 h-8 rounded-xl bg-slate-900 text-indigo-400 flex items-center justify-center text-sm shadow"><i class="fa-solid fa-toolbox"></i></span>כלים שימושיים לפני היציאה</h2>
+      </div>
+      <div id="toolsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5"></div>
+    </section>
+    </div>
+  </main>
+
+  <!-- Media viewer is provided globally by /site-media-gallery.js -->
+
+  <!-- FLOOD PLANNING SAFETY GATE -->
+  <div id="floodWarningModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden justify-center items-center z-[80] p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-amber-200 text-center space-y-5">
+      <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl mx-auto border border-amber-300/60">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div class="space-y-2">
+        <h3 class="text-lg font-black text-slate-900">לפני שיוצאים לצוד שטפון</h3>
+        <p id="floodWarningText" class="text-xs text-slate-600 leading-relaxed font-medium whitespace-pre-line text-right"></p>
+      </div>
+      <div class="pt-2 space-y-2">
+        <button id="confirmFloodWarningBtn" type="button" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-3 px-4 rounded-xl text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-check"></i><span>קראתי והבנתי, המשך ל WhatsApp</span>
+        </button>
+        <button id="cancelFloodWarningBtn" type="button" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-xs transition">ביטול</button>
+      </div>
+    </div>
+  </div>
+
+  <div data-site-footer></div>
+
+  <script>
+    const SUPABASE_URL = 'https://edjmwcnxsqnsxqrcsjxp.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i';
+    const supabaseClient = window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+
+    function resolveAssetUrl(value, fallback = '') {
+      const raw = String(value || '').trim();
+      if (!raw) return fallback;
+      if (/^(?:https?:)?\/\//i.test(raw) || raw.startsWith('/') || raw.startsWith('data:') || raw.startsWith('blob:')) return raw;
+      return `/${raw.replace(/^\.?\//, '')}`;
+    }
+    const riverData = {
+      slug: '',
+      regionSlug: '',
+      regionName: '',
+      name: '',
+      pageTitle: '',
+      canonical: '',
+      seoTitle: '',
+      seoDescription: '',
+      mainImage: '',
+      mainImageCredit: '',
+      mainImageCreditUrl: '',
+      galleryImages: [],
+      galleryMedia: [],
+      videos: [],
+      videoMedia: [],
+      media: [],
+      basinSearchTerms: [],
+      aliases: [],
+      basinProbePoints: [],
+      outlet: [],
+      points: [],
+      tools: [
+        { key:'radar', title:'מכ״ם גשם', label:'גשם בזמן אמת', icon:'fa-satellite-dish', href:'https://www.weather2day.co.il/rain-radar-google#radar' },
+        { key:'forecast', title:'תחזית', label:'מודלים ומפות', icon:'fa-cloud-rain', href:'https://ims.gov.il/he/ModelMapPanel' },
+        { key:'offroad', title:'Off-Road', label:'נקודות בשטח', icon:'fa-location-crosshairs', href:'https://off-road.io/' },
+        { key:'pools', title:'מצב הגבים', label:'מסמך קהילתי', icon:'fa-water', href:'https://docs.google.com/spreadsheets/d/1BbT762qaYilLnwGD7sJDo8sfs_Y5ExjvixS_Tl3rSas/edit?fbclid=IwAR2&gid=0#gid=0' }
+      ],
+      basinGeojson: null,
+      streamsGeojson: null,
+      contentHtml: '',
+      safetyNote: ''
+    };
+
+    function normalizedRiverDisplayName(name) {
+      const raw = String(name || '').trim();
+      if (!raw) return 'נחל';
+      return /^נחל\s/.test(raw) ? raw : `נחל ${raw}`;
+    }
+
+    function riverAreaSeoLabel(regionSlug, regionName) {
+      if (regionSlug === 'negev-arava') return 'שטפונות בנגב ובערבה';
+      if (regionSlug === 'judean-desert') return 'שטפונות במדבר יהודה';
+      return `שטפונות ב${regionName || 'אזור הדרום'}`;
+    }
+
+    function requestedRiverSlug() {
+      const querySlug = new URLSearchParams(window.location.search).get('slug');
+      if (querySlug) return querySlug;
+      if (window.location.protocol !== 'file:') {
+        const parts = window.location.pathname.split('/').filter(Boolean);
+        const last = parts[parts.length - 1] || '';
+        if (last && !last.endsWith('.html') && last !== 'floods') return last;
+      }
+      return '';
+    }
+
+    function riverContentHtml(value = '') {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      if (/<\/?[a-z][\s\S]*>/i.test(raw)) return raw;
+      return raw.split(/\n\s*\n/).filter(Boolean).map(paragraph =>
+        `<p>${escMap(paragraph).replace(/\n/g, '<br>')}</p>`
+      ).join('');
+    }
+
+    function revealRiverPage() {
+      document.getElementById('riverLoadingSkeleton')?.classList.add('hidden');
+      document.getElementById('riverBreadcrumbNav')?.classList.remove('hidden');
+      document.getElementById('riverLoadedContent')?.classList.remove('hidden');
+    }
+
+    function applyRiverDataToDom() {
+      const regionLink = document.getElementById('breadcrumbRegion');
+      if (regionLink) {
+        regionLink.textContent = riverData.regionName;
+        regionLink.href = `/floods/${riverData.regionSlug}`;
+      }
+      const breadRiver = document.getElementById('breadcrumbRiver');
+      if (breadRiver) breadRiver.textContent = riverData.name;
+      document.getElementById('riverPageTitle').textContent = riverData.pageTitle;
+      document.getElementById('riverAboutTitle').textContent = `על השטפונות ב${riverData.name}`;
+      const content = document.getElementById('riverContent');
+      if (content) content.innerHTML = riverContentHtml(riverData.contentHtml);
+      document.getElementById('riverTitleGallerySection')?.classList.remove('hidden');
+      document.getElementById('riverAboutSection')?.classList.remove('hidden');
+      const safety = document.getElementById('riverSafetyNote');
+      if (safety) {
+        safety.textContent = riverData.safetyNote || '';
+        safety.classList.toggle('hidden', !riverData.safetyNote);
+      }
+    }
+
+    function showRiverLoadError(message = 'לא ניתן לטעון את פרטי הנחל כרגע.') {
+      const regionLink = document.getElementById('breadcrumbRegion');
+      if (regionLink) {
+        regionLink.textContent = 'שטפונות';
+        regionLink.href = '/floods';
+      }
+      const breadRiver = document.getElementById('breadcrumbRiver');
+      if (breadRiver) breadRiver.textContent = 'לא זמין';
+      const title = document.getElementById('riverPageTitle');
+      if (title) title.textContent = 'לא ניתן לטעון את הנחל';
+      const aboutTitle = document.getElementById('riverAboutTitle');
+      if (aboutTitle) aboutTitle.textContent = 'פרטי הנחל';
+      const content = document.getElementById('riverContent');
+      if (content) content.innerHTML = `<p class="text-rose-600 font-bold">${message}</p>`;
+      document.getElementById('riverTitleGallerySection')?.classList.remove('hidden');
+      document.getElementById('riverAboutSection')?.classList.remove('hidden');
+      const gallery = document.getElementById('itemGalleryWrapper');
+      if (gallery) gallery.innerHTML = '';
+      revealRiverPage();
+      document.title = "הנחל אינו זמין | מסלולי הג'יפים של מדבר יהודה";
+    }
+
+    async function loadRiverFromDb() {
+      if (!supabaseClient) return false;
+      const slug = requestedRiverSlug();
+      if (!slug) return false;
+      try {
+        const {data:r,error} = await supabaseClient
+          .from('flood_rivers')
+          .select('*')
+          .eq('slug',slug)
+          .eq('status','published')
+          .maybeSingle();
+        if (error) throw error;
+        if (!r) return false;
+
+        const {data:pts,error:ptsError} = await supabaseClient
+          .from('flood_river_points')
+          .select('*')
+          .eq('river_id',r.id)
+          .eq('is_active',true)
+          .order('sort_order',{ascending:true});
+        if (ptsError) throw ptsError;
+
+        const media = Array.isArray(r.media) ? [...r.media].sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)) : [];
+        const galleryMedia = media.filter(m=>m?.type==='image' && m.url).map(m=>({...m,url:resolveAssetUrl(m.url),credit:String(m.credit||''),credit_url:String(m.credit_url||'')}));
+        const videoMedia = media.filter(m=>m?.type==='video' && m.url).map(m=>({...m,credit:String(m.credit||''),credit_url:String(m.credit_url||'')}));
+        const gallery = galleryMedia.map(m=>m.url);
+        const videos = videoMedia.map(m=>m.url);
+        riverData.slug = r.slug;
+        riverData.regionSlug = r.region_slug || '';
+        riverData.regionName = r.region || '';
+        riverData.name = r.name;
+        const riverDisplayName = normalizedRiverDisplayName(r.name);
+        riverData.pageTitle = `שטפונות ב${riverDisplayName}`;
+        riverData.canonical = `https://jdj.co.il/floods/${riverData.regionSlug}/${r.slug}`;
+        riverData.seoTitle = `${riverData.pageTitle} | ${riverAreaSeoLabel(riverData.regionSlug, riverData.regionName)} | מסלולי הג'יפים של מדבר יהודה`;
+        riverData.seoDescription = `${riverData.pageTitle}: אגן הניקוז, תוואי הנחל, יובלים וערוצים, מפה אינטראקטיבית, נקודות וקישורים שימושיים לציידי שטפונות.`;
+        riverData.mainImage = resolveAssetUrl(r.main_image, '');
+        riverData.mainImageCredit = String(r.main_image_credit || '');
+        riverData.mainImageCreditUrl = String(r.main_image_credit_url || '');
+        riverData.galleryImages = gallery;
+        riverData.galleryMedia = galleryMedia;
+        riverData.videos = videos;
+        riverData.videoMedia = videoMedia;
+        riverData.media = media;
+        riverData.basinSearchTerms = Array.isArray(r.basin_search_terms) ? r.basin_search_terms : [];
+        riverData.aliases = Array.isArray(r.aliases) && r.aliases.length ? r.aliases : [String(r.name).replace(/^נחל\s+/,'')];
+        riverData.basinGeojson = r.basin_geojson || null;
+        riverData.streamsGeojson = r.streams_geojson || null;
+        riverData.outlet = Number.isFinite(Number(r.outlet_lat)) && Number.isFinite(Number(r.outlet_lng)) ? [Number(r.outlet_lat),Number(r.outlet_lng)] : [];
+        riverData.outletOffroad = r.outlet_url || '';
+        riverData.contentHtml = r.content_html || '';
+        riverData.safetyNote = r.safety_note || '';
+        riverData.points = (pts || []).map(p=>({
+          id:p.id,
+          type:p.point_type,
+          name:p.name,
+          text:p.description || '',
+          lat:Number(p.lat),
+          lng:Number(p.lng),
+          offroad:p.offroad_url,
+          locationUrl:p.location_url,
+          is_active:p.is_active
+        }));
+
+        try {
+          const {data:cfg} = await supabaseClient.from('floods_page_config').select('tools,warning_text').eq('id','main').maybeSingle();
+          const tools = cfg?.tools || {};
+          riverData.tools.forEach(t=>{ if(tools[t.key]) t.href=tools[t.key]; });
+          riverData.globalWarning = cfg?.warning_text || '';
+        } catch (_) {}
+        return true;
+      } catch (err) {
+        console.warn('Flood river DB data unavailable.', err);
+        return false;
+      }
+    }
+
+    let riverMediaGalleryId = null;
+
+    function renderGallery() {
+      const wrapper = document.getElementById('itemGalleryWrapper');
+      if (!wrapper) return;
+
+      const rawMedia = Array.isArray(riverData.media) && riverData.media.length
+        ? [...riverData.media].sort((a,b)=>(a?.sort_order||0)-(b?.sort_order||0))
+        : [...(riverData.galleryMedia || []), ...(riverData.videoMedia || [])];
+
+      if (!window.JDJMediaGallery || typeof window.JDJMediaGallery.render !== 'function') {
+        console.error('JDJ media gallery is unavailable.');
+        wrapper.classList.add('hidden');
+        return;
+      }
+
+      if (riverMediaGalleryId) {
+        window.JDJMediaGallery.remove(riverMediaGalleryId);
+        riverMediaGalleryId = null;
+      }
+
+      riverMediaGalleryId = window.JDJMediaGallery.render({
+        galleryId: 'riverMediaGallery',
+        container: wrapper,
+        title: riverData.pageTitle,
+        altBase: `${riverData.pageTitle} ב${riverData.regionName}`,
+        mainImage: riverData.mainImage
+          ? {
+              type: 'image',
+              url: riverData.mainImage,
+              credit: riverData.mainImageCredit || '',
+              credit_url: riverData.mainImageCreditUrl || ''
+            }
+          : null,
+        media: rawMedia,
+        includeMainInMosaic: true,
+        includeMainInViewer: false,
+        mainImageClickable: false,
+        videoGroupInsertAt: 3,
+        maxVisible: 5,
+        hideWhenEmpty: true
+      });
+    }
+
+    const BASIN_SERVICE =
+      'https://services3.arcgis.com/Fqk0gVrfcnumlR5m/ArcGIS/rest/services/aganim50/FeatureServer/0/query';
+
+    const RIVER_SERVICE =
+      'https://services2.arcgis.com/utNNrmXb4IZOLXXs/ArcGIS/rest/services/Tarbut_layers_View/FeatureServer/7/query';
+
+    let riverMap = null;
+    let basinLayer = null;
+    let basinBounds = null;
+    let mainRiverLayer = null;
+    let tributaryLayer = null;
+    let configuredPointLayer = null;
+    let outletLayer = null;
+
+    function escMap(s) {
+      return String(s ?? '').replace(/[&<>"']/g, m => ({
+        '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+      })[m]);
+    }
+
+    function setMapStatus(message, state = 'wait') {
+      const el = document.getElementById('riverMapStatus');
+      if (!el) {
+        if (state === 'bad') console.warn(message);
+        return;
+      }
+      el.textContent = message;
+    }
+
+    function basinQueryUrl(params) {
+      const p = new URLSearchParams({
+        outFields: '*',
+        returnGeometry: 'true',
+        outSR: '4326',
+        f: 'geojson',
+        ...params
+      });
+      return BASIN_SERVICE + '?' + p.toString();
+    }
+
+    async function getMapJson(url, options) {
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const json = await response.json();
+      if (json.error) throw new Error(json.error.message || 'ArcGIS query error');
+      return json;
+    }
+
+    function normalizeMapRiverText(value) {
+      return String(value || '')
+        .normalize('NFKD')
+        .replace(/[\u0591-\u05C7]/g, '')
+        .replace(/[״”„“'׳`]/g, '')
+        .replace(/[^\u05D0-\u05EA0-9a-zA-Z ]+/g, ' ')
+        .replace(/^\s*(?:אגן\s+ניקוז|אגן|נחל)\s+/, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+    }
+
+    function matchesRiverAlias(feature) {
+      const aliases = [riverData.name, ...(riverData.aliases || [])].map(normalizeMapRiverText).filter(Boolean);
+      const p = feature?.properties || {};
+      const labels = [p.NAME, p.DRAIN_WATER_NAME].map(normalizeMapRiverText).filter(Boolean);
+      return labels.some(label => aliases.some(alias => label === alias));
+    }
+
+    function chooseBasinFeature(features) {
+      if (!features?.length) return null;
+      const terms = [riverData.name, ...(riverData.aliases || []), ...(riverData.basinSearchTerms || [])].map(normalizeMapRiverText).filter(Boolean);
+      const exact = features.filter(feature => terms.includes(normalizeMapRiverText(feature?.properties?.ACAD_TEXT || feature?.properties?.NAME || '')));
+      if (exact.length === 1) return exact[0];
+      const exactNames = [...new Set(exact.map(feature => normalizeMapRiverText(feature?.properties?.ACAD_TEXT || feature?.properties?.NAME || '')))];
+      if (exact.length && exactNames.length === 1) return exact[0];
+      return null;
+    }
+
+    async function findRiverBasin() {
+      const errors = [];
+
+      // Step 1: try the basin name field
+      for (const term of (riverData.basinSearchTerms || [])) {
+        try {
+          const safeTerm = String(term).replaceAll("'", "''");
+          const json = await getMapJson(
+            basinQueryUrl({
+              where: `ACAD_TEXT LIKE '%${safeTerm}%'`
+            })
+          );
+
+          const feature = chooseBasinFeature(json.features);
+          if (feature) {
+            return {
+              feature,
+              method: 'name',
+              matchedBy: term
+            };
+          }
+        } catch (error) {
+          errors.push(`name:${term}: ${error.message || error}`);
+        }
+      }
+
+      // Step 2: same spatial fallback that existed in the original working V6.
+      // Each pair is [lng, lat].
+      for (const probe of (riverData.basinProbePoints || [])) {
+        const [lng, lat] = probe || [];
+        if (!Number.isFinite(lng) || !Number.isFinite(lat)) continue;
+
+        try {
+          const json = await getMapJson(
+            basinQueryUrl({
+              where: '1=1',
+              geometry: `${lng},${lat}`,
+              geometryType: 'esriGeometryPoint',
+              inSR: '4326',
+              spatialRel: 'esriSpatialRelIntersects'
+            })
+          );
+
+          const feature = chooseBasinFeature(json.features) || ((json.features || []).length === 1 ? json.features[0] : null);
+          if (feature) {
+            return {
+              feature,
+              method: 'spatial',
+              matchedBy: `${lat},${lng}`
+            };
+          }
+        } catch (error) {
+          errors.push(`probe:${lat},${lng}: ${error.message || error}`);
+        }
+      }
+
+      console.warn('River basin lookup failed', errors);
+      return {
+        feature: null,
+        method: null,
+        errors
+      };
+    }
+
+    function geoJsonToEsriRings(geometry) {
+      if (!geometry) return [];
+      if (geometry.type === 'Polygon') return geometry.coordinates;
+      if (geometry.type === 'MultiPolygon') return geometry.coordinates.flat();
+      return [];
+    }
+
+    async function queryStreamsInsideBasin(basinFeature) {
+      const rings = geoJsonToEsriRings(basinFeature.geometry);
+      if (!rings.length) throw new Error('No polygon rings');
+
+      const geometry = JSON.stringify({
+        rings,
+        spatialReference: { wkid: 4326 }
+      });
+
+      const form = new URLSearchParams({
+        where: '1=1',
+        geometry,
+        geometryType: 'esriGeometryPolygon',
+        inSR: '4326',
+        spatialRel: 'esriSpatialRelIntersects',
+        outFields: 'NAME,MAIN_CATCH,MAIN_CAT_1,DRAIN_WATER_NAME,OBJECTID',
+        returnGeometry: 'true',
+        outSR: '4326',
+        f: 'geojson'
+      });
+
+      return await getMapJson(RIVER_SERVICE, {
+        method: 'POST',
+        headers: {'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+        body: form.toString()
+      });
+    }
+
+    function renderLiveBasin(feature) {
+      basinLayer = L.geoJSON(feature, {
+        style: {
+          color: '#ff7200',
+          weight: 4,
+          opacity: 1,
+          fillColor: '#ff9800',
+          fillOpacity: 0.13
+        }
+      }).addTo(riverMap);
+
+      basinBounds = basinLayer.getBounds();
+      if (basinBounds.isValid()) riverMap.fitBounds(basinBounds.pad(0.05));
+    }
+
+    function renderLiveStreams(featureCollection) {
+      const mainFeatures = [];
+      const tributaryFeatures = [];
+
+      for (const feature of (featureCollection.features || [])) {
+        (matchesRiverAlias(feature) ? mainFeatures : tributaryFeatures).push(feature);
+      }
+
+      mainRiverLayer = L.geoJSON({
+        type: 'FeatureCollection',
+        features: mainFeatures
+      }, {
+        style: {
+          color: '#006edc',
+          weight: 5,
+          opacity: 1
+        },
+        onEachFeature: (feature, layer) => {
+          const p = feature.properties || {};
+          const name = p.NAME || p.DRAIN_WATER_NAME || riverData.name;
+          layer.bindTooltip(escMap(name), { sticky: true });
+        }
+      }).addTo(riverMap);
+
+      tributaryLayer = L.geoJSON({
+        type: 'FeatureCollection',
+        features: tributaryFeatures
+      }, {
+        style: {
+          color: '#4ea3ef',
+          weight: 2.5,
+          opacity: 0.9
+        },
+        onEachFeature: (feature, layer) => {
+          const p = feature.properties || {};
+          const name = p.NAME || p.DRAIN_WATER_NAME || 'ערוץ נחל';
+          layer.bindTooltip(escMap(name), { sticky: true });
+        }
+      }).addTo(riverMap);
+
+      return {
+        total: (featureCollection.features || []).length,
+        mainCount: mainFeatures.length,
+        tributaryCount: tributaryFeatures.length
+      };
+    }
+
+    const MAP_POINT_STYLES = {
+      observation: { label:'נקודת תצפית', color:'#3730a3', soft:'#eef2ff', text:'#3730a3', icon:'fa-binoculars' },
+      check:       { label:'נקודת ביקורת', color:'#6b21a8', soft:'#faf5ff', text:'#6b21a8', icon:'fa-location-dot' },
+      outlet:      { label:'מוצא הנחל', color:'#065f46', soft:'#ecfdf5', text:'#065f46', icon:'fa-water' },
+      jdj:         { label:'נקודת JDJ', color:'#1e3a8a', soft:'#eff6ff', text:'#1e3a8a', icon:'fa-compass' }
+    };
+
+    function getMapPointStyle(type) {
+      return MAP_POINT_STYLES[type] || MAP_POINT_STYLES.jdj;
+    }
+
+    function buildMapPointPopup({ type='jdj', name='', description='', offroad='' }) {
+      const style = getMapPointStyle(type);
+      const safeUrl = offroad && offroad !== '#' ? escMap(offroad) : '';
+      return `
+        <div class="jdj-point-card">
+          <div class="jdj-point-card-head">
+            <span class="jdj-point-type" style="background:${style.soft};color:${style.text}">
+              <i class="fa-solid ${style.icon}"></i>${style.label}
+            </span>
+            <div class="jdj-point-name">${escMap(name || style.label)}</div>
+            ${description ? `<div class="jdj-point-desc">${escMap(description)}</div>` : ''}
+          </div>
+          ${safeUrl ? `<div class="jdj-point-card-actions"><a class="jdj-point-offroad" style="background:${style.color}" href="${safeUrl}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-map-location-dot"></i><span>פתיחה ב Off-Road</span></a></div>` : ''}
+        </div>`;
+    }
+
+    function renderOutlet() {
+      const [lat, lng] = riverData.outlet || [];
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+      const style = getMapPointStyle('outlet');
+      outletLayer = L.circleMarker([lat, lng], {
+        radius: 10,
+        color: '#ffffff',
+        weight: 3,
+        fillColor: style.color,
+        fillOpacity: 1,
+        className: 'jdj-map-marker'
+      }).addTo(riverMap);
+
+      outletLayer.bindPopup(buildMapPointPopup({
+        type: 'outlet',
+        name: `מוצא ${riverData.name}`,
+        description: 'אזור מוצא הנחל לכיוון ים המלח',
+        offroad: riverData.outletOffroad || ''
+      }), { className:'jdj-point-popup', maxWidth:280 });
+    }
+
+    function renderConfiguredMapPoints() {
+      configuredPointLayer = L.layerGroup().addTo(riverMap);
+      const points = riverData.points || [];
+
+      for (const point of points) {
+        if (!Number.isFinite(point.lat) || !Number.isFinite(point.lng)) continue;
+
+        const style = getMapPointStyle(point.type);
+        const marker = L.circleMarker([point.lat, point.lng], {
+          radius: 10,
+          color: '#ffffff',
+          weight: 3,
+          fillColor: style.color,
+          fillOpacity: 1,
+          className: 'jdj-map-marker'
+        }).addTo(configuredPointLayer);
+
+        marker.bindPopup(buildMapPointPopup({
+          type: point.type,
+          name: point.name,
+          description: point.text || point.description || '',
+          offroad: point.offroad || point.offroad_url || ''
+        }), { className:'jdj-point-popup', maxWidth:280 });
+      }
+    }
+
+    async function loadRiverMapData() {
+      try {
+        setMapStatus(`טוען את מפת ${escMap(riverData.name)}...`);
+
+        if (riverData.basinGeojson && riverData.streamsGeojson) {
+          renderLiveBasin(riverData.basinGeojson);
+          const stats = renderLiveStreams(riverData.streamsGeojson);
+          renderOutlet();
+          renderConfiguredMapPoints();
+          setMapStatus(`נתוני המפה נטענו ממאגר JDJ. נמצאו ${stats.total} קטעי נחל.`, 'ok');
+          return;
+        }
+
+        // Local preview keeps the original live ArcGIS fallback for development only.
+        if (window.location.protocol !== 'file:') {
+          renderOutlet();
+          renderConfiguredMapPoints();
+          setMapStatus('נתוני אגן הניקוז עדיין לא נשמרו עבור הנחל הזה.', 'bad');
+          return;
+        }
+
+        const basinResult = await findRiverBasin();
+        const basin = basinResult?.feature || null;
+        if (!basin) {
+          setMapStatus(`לא נמצא אגן עבור ${escMap(riverData.name)}.`, 'bad');
+          return;
+        }
+        renderLiveBasin(basin);
+        setMapStatus('האגן אותר בתצוגה המקומית. טוען נחל ויובלים...');
+        const streams = await queryStreamsInsideBasin(basin);
+        const stats = renderLiveStreams(streams);
+        renderOutlet();
+        renderConfiguredMapPoints();
+        setMapStatus(`תצוגה מקומית: נמצאו ${stats.total} קטעי נחל.`, 'ok');
+      } catch (error) {
+        console.error('River map load failed:', error);
+        setMapStatus(`המפה לא נטענה במלואה: ${escMap(error.message || error)}`, 'bad');
+      }
+    }
+
+    function initRiverMap() {
+      if (!window.L || !document.getElementById('riverMap')) {
+        setMapStatus('Leaflet לא נטען.', 'bad');
+        return;
+      }
+
+      riverMap = L.map('riverMap', {
+        zoomControl: true,
+        scrollWheelZoom: true
+      }).setView([31.60, 35.30], 11);
+
+      const israelHiking = L.tileLayer('https://israelhiking.osm.org.il/Hebrew/Tiles/{z}/{x}/{y}.png', {
+        maxZoom: 16,
+        minZoom: 7
+      }).addTo(riverMap);
+
+      const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18
+      });
+
+      const baseLayers = {
+        'מפת סימון שבילים 🗺️': israelHiking,
+        'תצלום לוויין 🛰️': satellite
+      };
+
+      L.control.layers(baseLayers, {}, {
+        collapsed: true,
+        position: 'topleft'
+      }).addTo(riverMap);
+
+      document.getElementById('fitBasinBtn')?.addEventListener('click', () => {
+        if (basinBounds?.isValid()) riverMap.fitBounds(basinBounds.pad(0.05));
+      });
+
+      document.getElementById('focusOutletBtn')?.addEventListener('click', () => {
+        const [lat, lng] = riverData.outlet || [];
+        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          riverMap.setView([lat, lng], 14);
+          outletLayer?.openPopup();
+        }
+      });
+
+      document.getElementById('sharePlanningPointsBtn')?.addEventListener('click', openFloodPlanningWarning);
+      document.getElementById('shareRiverBtn')?.addEventListener('click', shareRiverOnWhatsApp);
+      document.getElementById('copyRiverBtn')?.addEventListener('click', (event) => copyRiverLink(event.currentTarget));
+      document.getElementById('confirmFloodWarningBtn')?.addEventListener('click', () => { closeFloodPlanningWarning(); sharePlanningPointsOnWhatsApp(); });
+      document.getElementById('cancelFloodWarningBtn')?.addEventListener('click', closeFloodPlanningWarning);
+
+      setTimeout(() => riverMap.invalidateSize(true), 100);
+      loadRiverMapData();
+    }
+
+
+    const DEFAULT_FLOOD_WARNING = "ציד שטפונות עלול להיות מסוכן. אין להיכנס לערוצי נחלים, לחצות זרימות או להתקרב לשפת מצוקים בזמן חשש לשיטפון. שיטפון יכול להגיע גם כאשר באזור התצפית לא יורד גשם, בעקבות גשם במעלה אגן הניקוז. יש לבדוק תחזיות, מכ״ם גשם, התרעות וחסימות דרכים, לבחור נקודת תצפית בטוחה ולוודא מראש נתיב יציאה שאינו חוצה ערוץ. המידע באתר הוא כלי עזר בלבד ואינו תחליף לשיקול דעת, הנחיות הרשויות והערכת מצב בשטח. בלחיצה על אישור אני מאשר שקראתי והבנתי את הסיכונים ושאני פועל באחריותי.";
+
+    function openFloodPlanningWarning() {
+      const points = (riverData.points || []).filter(point =>
+        point.is_active !== false &&
+        (point.type === 'observation' || point.type === 'check') &&
+        Number.isFinite(point.lat) && Number.isFinite(point.lng)
+      );
+      if (!points.length) {
+        window.alert('עדיין לא הוגדרו נקודות תצפית או ביקורת לנחל הזה.');
+        return;
+      }
+      let text = (riverData.globalWarning || DEFAULT_FLOOD_WARNING).trim();
+      if (riverData.safetyNote && riverData.safetyNote.trim()) {
+        text += `
+
+אזהרה ייחודית ל${riverData.name}:
+${riverData.safetyNote.trim()}`;
+      }
+      const textEl = document.getElementById('floodWarningText');
+      if (textEl) textEl.textContent = text;
+      const modal = document.getElementById('floodWarningModal');
+      modal?.classList.remove('hidden');
+      modal?.classList.add('flex');
+    }
+
+    function closeFloodPlanningWarning() {
+      const modal = document.getElementById('floodWarningModal');
+      modal?.classList.add('hidden');
+      modal?.classList.remove('flex');
+    }
+
+    function sharePlanningPointsOnWhatsApp() {
+      const points = (riverData.points || []).filter(point =>
+        point.is_active !== false &&
+        (point.type === 'observation' || point.type === 'check') &&
+        Number.isFinite(point.lat) && Number.isFinite(point.lng)
+      );
+
+      if (!points.length) {
+        window.alert('עדיין לא הוגדרו נקודות תצפית או ביקורת לנחל הזה.');
+        return;
+      }
+
+      const url = riverData.canonical || window.location.href;
+      const sections = [
+        { type: 'observation', title: 'נקודות תצפית' },
+        { type: 'check', title: 'נקודות ביקורת' }
+      ];
+      const lines = [`*${riverData.name} | נקודות לתכנון ציד שטפון*`, ''];
+
+      sections.forEach(section => {
+        const sectionPoints = points.filter(point => point.type === section.type);
+        if (!sectionPoints.length) return;
+
+        lines.push(`*${section.title}*`);
+        sectionPoints.forEach((point, index) => {
+          const pointName = point.name || getMapPointStyle(point.type).label;
+          const pointLink = point.offroad || point.offroad_url || point.locationUrl || point.location_url || '';
+          lines.push(`${index + 1}. ${pointName}`);
+          if (pointLink) lines.push(pointLink);
+        });
+        lines.push('');
+      });
+
+      lines.push(`מפת ${riverData.name} ב JDJ:`);
+      lines.push(url);
+
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(lines.join('\n'))}`, '_blank', 'noopener,noreferrer');
+    }
+
+    function shareRiverOnWhatsApp() {
+      const url = riverData.canonical || window.location.href;
+      const text = `${riverData.pageTitle}\n${url}`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+    }
+
+    async function copyRiverLink(buttonEl) {
+      const url = riverData.canonical || window.location.href;
+      const labelEl = buttonEl?.querySelector('.btn-text');
+      const original = labelEl?.textContent || 'העתק קישור';
+      try {
+        await navigator.clipboard.writeText(url);
+        if (labelEl) labelEl.textContent = 'הקישור הועתק';
+      } catch (_) {
+        const temp = document.createElement('textarea');
+        temp.value = url;
+        temp.style.position = 'fixed';
+        temp.style.opacity = '0';
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        temp.remove();
+        if (labelEl) labelEl.textContent = 'הקישור הועתק';
+      }
+      if (labelEl) setTimeout(() => { labelEl.textContent = original; }, 1800);
+    }
+
+    function updateMapActionVisibility() {
+      const validPlanningPoints = (riverData.points || []).filter(point =>
+        point?.is_active !== false &&
+        (point?.type === 'observation' || point?.type === 'check') &&
+        Number.isFinite(point?.lat) && Number.isFinite(point?.lng)
+      );
+      const hasOutlet = Array.isArray(riverData.outlet) &&
+        Number.isFinite(riverData.outlet[0]) && Number.isFinite(riverData.outlet[1]);
+      const hasBasin = !!riverData.basinGeojson;
+
+      const planningBtn = document.getElementById('sharePlanningPointsBtn');
+      const outletBtn = document.getElementById('focusOutletBtn');
+      const basinBtn = document.getElementById('fitBasinBtn');
+      const navWrap = document.getElementById('mapNavigationActions');
+
+      planningBtn?.classList.toggle('hidden', validPlanningPoints.length === 0);
+      outletBtn?.classList.toggle('hidden', !hasOutlet);
+      basinBtn?.classList.toggle('hidden', !hasBasin);
+
+      if (navWrap) navWrap.classList.toggle('hidden', !hasOutlet && !hasBasin);
+    }
+
+    function renderTopMapLegend() {
+      const el = document.getElementById('mapLegendTop');
+      if (!el) return;
+
+      el.innerHTML = `
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-orange-50 text-orange-700 border border-orange-100 px-2.5 py-1"><i class="fa-solid fa-draw-polygon"></i> אגן ניקוז</span>
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1"><i class="fa-solid fa-water"></i> נחל ראשי</span>
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100 px-2.5 py-1"><i class="fa-solid fa-code-branch"></i> יובלים</span>`;
+    }
+
+    function renderTools() {
+      document.getElementById('toolsGrid').innerHTML = riverData.tools.map(t => `
+        <a href="${t.href}" target="_blank" rel="noopener noreferrer" class="bg-white py-4 px-3 md:p-5 rounded-2xl border border-slate-200 shadow-md hover:shadow-xl hover:border-indigo-500 transition text-center space-y-2.5 group md:hover:-translate-y-1 block">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-slate-900 text-indigo-400 flex items-center justify-center text-lg mx-auto shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition"><i class="fa-solid ${t.icon}"></i></div>
+          <div><div class="font-extrabold text-slate-900 text-xs md:text-base group-hover:text-indigo-600 transition">${t.title}</div><div class="text-[10px] md:text-xs text-slate-400 font-bold mt-1">${t.label}</div></div>
+        </a>`).join('');
+    }
+
+    function injectRiverSchema(seo) {
+      document.getElementById('dynamicRiverSchema')?.remove();
+      const pointItems = (riverData.points || []).map((p, index) => ({
+        '@type':'ListItem', position:index+1, name:p.name, url:p.offroad && p.offroad !== '#' ? p.offroad : riverData.canonical
+      }));
+      const webPage = { '@type':'WebPage', '@id':`${seo.canonical}#webpage`, url:seo.canonical, name:seo.h1, description:seo.description, inLanguage:'he-IL', about:{'@type':'Place',name:riverData.name} };
+      if (pointItems.length) webPage.mainEntity = {'@type':'ItemList',numberOfItems:pointItems.length,itemListElement:pointItems};
+      const schema = {
+        '@context':'https://schema.org',
+        '@graph':[
+          webPage,
+          { '@type':'BreadcrumbList', itemListElement:[
+            {'@type':'ListItem',position:1,name:'דף הבית',item:'https://jdj.co.il/'},
+            {'@type':'ListItem',position:2,name:'שטפונות בנחלי הדרום והמזרח',item:'https://jdj.co.il/floods'},
+            {'@type':'ListItem',position:3,name:`שטפונות ב${riverData.regionName}`,item:`https://jdj.co.il/floods/${riverData.regionSlug}`},
+            {'@type':'ListItem',position:4,name:riverData.name,item:seo.canonical}
+          ]}
+        ]
+      };
+      const s=document.createElement('script'); s.id='dynamicRiverSchema'; s.type='application/ld+json'; s.textContent=JSON.stringify(schema); document.head.appendChild(s);
+    }
+
+    async function initRiverSeo() {
+      const fallback = {
+        title: riverData.seoTitle,
+        description: riverData.seoDescription,
+        h1: riverData.pageTitle,
+        canonical: riverData.canonical,
+        ogTitle: riverData.seoTitle,
+        ogDescription: riverData.seoDescription,
+        ogImage: riverData.mainImage || 'https://jdj.co.il/og-image.jpg',
+        schemaType: 'WebPage+BreadcrumbList+ItemList',
+        robots: 'index,follow'
+      };
+      let seo = fallback;
+      try {
+        if (window.JDJSeoDB && supabaseClient) {
+          seo = await JDJSeoDB.resolve(supabaseClient, {
+            templateKey:'flood_river',
+            seoKey:`FLOOD_RIVER:${riverData.slug}`,
+            vars:{
+              river: normalizedRiverDisplayName(riverData.name),
+              region: riverData.regionName,
+              region_bet: riverData.regionSlug === 'negev-arava' ? 'בנגב ובערבה' : 'במדבר יהודה',
+              region_slug: riverData.regionSlug,
+              slug: riverData.slug
+            },
+            fallback
+          });
+          if (typeof JDJSeoDB.applyHead === 'function') JDJSeoDB.applyHead(seo);
+        }
+      } catch (_) {}
+      document.title = seo.title || fallback.title;
+      document.getElementById('pageMetaDesc')?.setAttribute('content', seo.description || fallback.description);
+      document.getElementById('canonicalTag')?.setAttribute('href', seo.canonical || fallback.canonical);
+      document.getElementById('ogUrlTag')?.setAttribute('content', seo.canonical || fallback.canonical);
+      document.getElementById('ogTitleTag')?.setAttribute('content', seo.ogTitle || seo.title || fallback.title);
+      document.getElementById('ogDescTag')?.setAttribute('content', seo.ogDescription || seo.description || fallback.description);
+      document.getElementById('twitterTitleTag')?.setAttribute('content', seo.ogTitle || seo.title || fallback.title);
+      document.getElementById('twitterDescTag')?.setAttribute('content', seo.ogDescription || seo.description || fallback.description);
+      document.getElementById('riverPageTitle').textContent = seo.h1 || fallback.h1;
+      injectRiverSchema({...fallback, ...seo});
+    }
+
+
+
+
+
+
+
+    async function bootRiverPage() {
+      const loaded = await loadRiverFromDb();
+      if (!loaded) {
+        showRiverLoadError();
+        return;
+      }
+      applyRiverDataToDom();
+      renderGallery();
+      renderTopMapLegend();
+      renderTools();
+      updateMapActionVisibility();
+      revealRiverPage();
+      initRiverMap();
+      await initRiverSeo();
+    }
+
+    bootRiverPage();
+  </script>
+</body>
+</html>
