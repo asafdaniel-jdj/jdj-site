@@ -885,12 +885,15 @@ export default async function handler(request, context) {
   const isTestSite = isTestHostname(url.hostname);
   if (isTestSite) {
     html = setRobotsNoindex(html);
+    html = replaceMetaByName(html, 'robots', 'noindex,nofollow');
   }
 
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.set('x-jdj-seo-edge', '1');
-  if (isTestSite || contentNotFound) {
+  if (isTestSite) {
+    headers.set('X-Robots-Tag', 'noindex, nofollow');
+  } else if (contentNotFound) {
     headers.set('X-Robots-Tag', 'noindex, follow');
   }
 
