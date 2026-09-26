@@ -540,6 +540,86 @@ async function getRow(table, id, extraFilters = []) {
   return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
+
+async function getFloodRiverBySlug(slug) {
+  const params = new URLSearchParams({
+    select: '*',
+    slug: `eq.${slug}`,
+    status: 'eq.published',
+    limit: '1'
+  });
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/flood_rivers?${params.toString()}`, {
+    headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
+  });
+  if (!response.ok) throw new Error(`Supabase flood_rivers request failed with ${response.status}`);
+  const rows = await response.json();
+  return Array.isArray(rows) && rows.length ? rows[0] : null;
+}
+
+async function getFloodRiverPoints(riverId) {
+  const params = new URLSearchParams({
+    select: 'name,offroad_url,sort_order',
+    river_id: `eq.${riverId}`,
+    is_active: 'eq.true',
+    order: 'sort_order.asc'
+  });
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/flood_river_points?${params.toString()}`, {
+    headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
+  });
+  if (!response.ok) throw new Error(`Supabase flood_river_points request failed with ${response.status}`);
+  const rows = await response.json();
+  return Array.isArray(rows) ? rows : [];
+}
+
+function normalizeRiverDisplayName(value = '') {
+  const clean = String(value || '').trim();
+  return /^נחל\s+/.test(clean) ? clean : `נחל ${clean}`;
+}
+
+function floodRiverSchema(row, points, seo) {
+  const riverName = normalizeRiverDisplayName(row.name);
+  const pointItems = (points || []).map((point, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: point.name,
+    url: point.offroad_url || seo.canonical
+  }));
+
+  const webPage = {
+    '@type': 'WebPage',
+    '@id': `${seo.canonical}#webpage`,
+    url: seo.canonical,
+    name: seo.h1 || `שטפונות ב${riverName}`,
+    description: seo.description,
+    inLanguage: 'he-IL',
+    about: { '@type': 'Place', name: riverName }
+  };
+
+  if (pointItems.length) {
+    webPage.mainEntity = {
+      '@type': 'ItemList',
+      numberOfItems: pointItems.length,
+      itemListElement: pointItems
+    };
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      webPage,
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'דף הבית', item: `${SITE_URL}/` },
+          { '@type': 'ListItem', position: 2, name: 'שטפונות בנחלי הדרום והמזרח', item: `${SITE_URL}/floods` },
+          { '@type': 'ListItem', position: 3, name: `שטפונות ${formatRegionWithBet(row.region)}`, item: `${SITE_URL}/floods/${row.region_slug}` },
+          { '@type': 'ListItem', position: 4, name: riverName, item: seo.canonical }
+        ]
+      }
+    ]
+  };
+}
+
 function seoForRoute(row, kind) {
   const title = cleanDashes(row.title || '');
   const regionPhrase = formatRegionWithBet(row.region || 'מדבר יהודה');
@@ -691,6 +771,44 @@ export default async function handler(request, context) {
         const rows = await getCategorySchemaRows(url);
         html = upsertJsonLdById(html, 'dynamicCategorySchema', categorySchema(seo, rows));
       }
+    } else if (/^\/floods\/[^/]+\/[^/]+$/.test(pagePath)) {
+      const [, , requestedRegionSlug, requestedRiverSlug] = pagePath.split('/');
+      const row = await getFloodRiverBySlug(requestedRiverSlug);
+
+      if (!row || row.region_slug !== requestedRegionSlug) {
+        html = setRobotsNoindex(html);
+        contentNotFound = true;
+      } else {
+        const riverName = normalizeRiverDisplayName(row.name);
+        const fallback = {
+          title: `שטפונות ב${riverName} | שטפונות ${formatRegionWithBet(row.region)} | ${SITE_NAME}`,
+          ogTitle: `שטפונות ב${riverName} | שטפונות ${formatRegionWithBet(row.region)} | ${SITE_NAME}`,
+          description: `שטפונות ב${riverName}: אגן הניקוז, תוואי הנחל, יובלים, נקודות ביקורת ותצפית, מפה אינטראקטיבית וכלים לציידי שטפונות.`,
+          h1: `שטפונות ב${riverName}`,
+          canonical: `${SITE_URL}/floods/${row.region_slug}/${row.slug}`,
+          image: absoluteImage(row.main_image),
+          schemaType: 'WebPage+BreadcrumbList+ItemList',
+          robots: 'index,follow'
+        };
+
+        const seo = await resolveSeoFromDb({
+          templateKey: 'flood_river',
+          seoKey: `FLOOD_RIVER:${row.slug}`,
+          vars: {
+            river: riverName,
+            region: row.region,
+            region_bet: formatRegionWithBet(row.region),
+            region_slug: row.region_slug,
+            slug: row.slug
+          },
+          fallback
+        });
+
+        const points = await getFloodRiverPoints(row.id);
+        html = applySeo(html, seo);
+        if (seo.h1) html = replaceElementTextById(html, 'riverPageTitle', seo.h1);
+        html = upsertJsonLdById(html, 'dynamicRiverSchema', floodRiverSchema(row, points, seo));
+      }
     } else if (['/item', '/point', '/khan', '/article'].includes(pagePath)) {
       const id = url.searchParams.get('id');
 
@@ -798,6 +916,7 @@ export const config = {
     '/khan', '/khan.html',
     '/mview', '/mview.html',
     '/point', '/point.html',
-    '/stories', '/stories.html'
+    '/stories', '/stories.html',
+    '/floods/:region/:slug'
   ]
 };
