@@ -1221,10 +1221,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const cleanTitle = cleanDashes(item.title);
             const regionName = item.region || 'מדבר יהודה';
 
+            const media = allImages.map((url, index) => ({
+                type: 'image',
+                url,
+                sort_order: index
+            }));
+
+            const videoUrl = String(item.video_url || '').trim();
+            if (videoUrl) {
+                media.push({
+                    type: 'video',
+                    url: videoUrl,
+                    sort_order: media.length
+                });
+            }
+
             window.JDJMediaGallery.render({
                 container: wrapper,
                 galleryId: 'itemMediaGallery',
-                media: allImages.map((url, index) => ({ type: 'image', url, sort_order: index })),
+                media,
                 altBase: `${cleanTitle} ב${regionName}`,
                 maxVisible: 5
             });
