@@ -18,7 +18,8 @@
     gtag('config', 'G-8XZHZXFHCY');
   </script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <script src="env-config.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title id="pageMetaTitle">שטפונות במדבר יהודה | מסלולי הג'יפים של מדבר יהודה</title>
   <meta id="pageMetaDesc" name="description" content="שטפונות במדבר יהודה: קטלוג נחלים, מידע על אגני ניקוז, נקודות ביקורת ותצפית, כלים לציידי שטפונות, קהילות ועדכוני שטח.">
@@ -44,8 +45,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://edjmwcnxsqnsxqrcsjxp.supabase.co" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -204,8 +204,9 @@
   <div data-site-footer></div>
 
   <script>
-    const SUPABASE_URL = 'https://edjmwcnxsqnsxqrcsjxp.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i';
+    const SUPABASE_URL = window.JDJ_ENV?.supabaseUrl;
+        const SUPABASE_KEY = window.JDJ_ENV?.supabaseKey;
+        if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('JDJ environment config is missing');
     const regionSupabase = window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
     function resolveAssetUrl(value, fallback = '') {

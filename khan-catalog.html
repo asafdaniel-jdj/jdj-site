@@ -19,7 +19,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </script>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="env-config.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageMetaTitle">חאנים ומתחמי לינה מומלצים | מסלולי הג'יפים של מדבר יהודה</title>
     <meta id="pageMetaDesc" name="description" content="מאגר חאנים, מתחמי אירוח ולילה מומלצים למטיילי שטח 4x4 במדבר יהודה, הנגב, הערבה, בקעת הירדן והשומרון.">
     <link id="canonicalTag" rel="canonical" href="https://jdj.co.il/khan-catalog">
@@ -45,8 +46,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Preconnect & Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://edjmwcnxsqnsxqrcsjxp.supabase.co" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -280,8 +280,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <!-- 📜 JS שליפה מ-Supabase וסינון חאנים -->
     <script>
-        const SUPABASE_URL = 'https://edjmwcnxsqnsxqrcsjxp.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i';
+        const SUPABASE_URL = window.JDJ_ENV?.supabaseUrl;
+        const SUPABASE_KEY = window.JDJ_ENV?.supabaseKey;
+        if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('JDJ environment config is missing');
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let rawKhans = [];

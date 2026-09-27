@@ -1,5 +1,9 @@
-const SUPABASE_URL = 'https://edjmwcnxsqnsxqrcsjxp.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i';
+const SUPABASE_URL = process.env.JDJ_SUPABASE_URL;
+const SUPABASE_KEY = process.env.JDJ_SUPABASE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  throw new Error('Missing JDJ_SUPABASE_URL / JDJ_SUPABASE_KEY environment variables');
+}
 const SITE_URL = 'https://jdj.co.il';
 
 const STATIC_URLS = [

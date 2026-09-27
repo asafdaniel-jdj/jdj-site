@@ -11,9 +11,12 @@
   };
 
 
+  const JDJ_ENV = window.JDJ_ENV || {};
   const FLOODS_CONFIG = {
-    endpoint: 'https://edjmwcnxsqnsxqrcsjxp.supabase.co/rest/v1/floods_page_config?id=eq.main&select=home_season_mode',
-    apiKey: 'sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i'
+    endpoint: JDJ_ENV.supabaseUrl
+      ? `${JDJ_ENV.supabaseUrl}/rest/v1/floods_page_config?id=eq.main&select=home_season_mode`
+      : '',
+    apiKey: JDJ_ENV.supabaseKey || ''
   };
 
   let floodsVisibilityPromise = null;
@@ -211,7 +214,11 @@
 
   async function loadFloodsVisibility() {
     if (!floodsVisibilityPromise) {
-      floodsVisibilityPromise = fetch(FLOODS_CONFIG.endpoint, {
+      if (!FLOODS_CONFIG.endpoint || !FLOODS_CONFIG.apiKey) {
+        console.warn('JDJ environment config is missing; floods visibility falls back to visible.');
+        floodsVisibilityPromise = Promise.resolve(true);
+      } else {
+        floodsVisibilityPromise = fetch(FLOODS_CONFIG.endpoint, {
         headers: { apikey: FLOODS_CONFIG.apiKey }
       })
         .then(response => {
@@ -223,6 +230,7 @@
           console.warn('Floods visibility fallback to visible:', error);
           return true;
         });
+      }
     }
     const enabled = await floodsVisibilityPromise;
     setFloodsVisibility(enabled);

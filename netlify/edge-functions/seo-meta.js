@@ -1,7 +1,11 @@
 const SITE_URL = 'https://jdj.co.il';
 const SITE_NAME = "מסלולי הג'יפים של מדבר יהודה";
-const SUPABASE_URL = 'https://edjmwcnxsqnsxqrcsjxp.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i';
+const SUPABASE_URL = Netlify.env.get('JDJ_SUPABASE_URL');
+const SUPABASE_KEY = Netlify.env.get('JDJ_SUPABASE_KEY');
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  throw new Error('Missing JDJ_SUPABASE_URL / JDJ_SUPABASE_KEY environment variables');
+}
 
 const CATEGORY_MAP = {
   routes: {
@@ -488,7 +492,7 @@ function articleSchema(row, seo) {
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'דף הבית', item: `${SITE_URL}/` },
-          { '@type': 'ListItem', position: 2, name: 'סיפורי מדבר ומורשת', item: `${SITE_URL}/stories` },
+          { '@type': 'ListItem', position: 2, name: 'סיפורי מקום, אדם ומורשת', item: `${SITE_URL}/stories` },
           { '@type': 'ListItem', position: 3, name: title, item: seo.canonical }
         ]
       }
@@ -653,7 +657,7 @@ function seoForKhan(row) {
 
 function seoForArticle(row) {
   const title = cleanDashes(row.title || '');
-  const description = `${title} – סיפור מדבר ומורשת שטח עם רקע, היסטוריה, אנשים ומקומות שעיצבו את המדבר ואת עולם טיולי הג'יפים.`;
+  const description = `${title} – סיפור מקום, אדם ומורשת עם רקע, היסטוריה, אנשים ושמות שמחברים בין הסיפור לבין השטח.`;
   return {
     title: `${title} | ${SITE_NAME}`,
     ogTitle: title,
@@ -860,6 +864,7 @@ export default async function handler(request, context) {
           if (isEarlyAccessActive(row)) html = setRobotsNoindex(html);
           if (seo.h1 && cfg.h1Id) html = replaceElementTextById(html, cfg.h1Id, seo.h1);
           if (seo.h1 && pagePath === '/item') html = replaceElementTextById(html, 'topPageHeading', seo.h1);
+          if (pagePath === '/article' && row.author) html = replaceElementTextById(html, 'articleAuthor', `מאת ${row.author}`);
           if (seo.h2 && cfg.h2Id) html = replaceElementTextById(html, cfg.h2Id, seo.h2);
           if (pagePath === '/item') {
             html = upsertJsonLdById(html, 'dynamicItemSchema', itemSchema(row, seo));
