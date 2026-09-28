@@ -787,7 +787,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 const { data, error } = await supabaseClient
                     .from('articles')
                     .select('*')
-                    .order('id', { ascending: false });
+                    .order('created_at', { ascending: false });
 
                 const publicStories = (data || []).filter(isPubliclyVisible);
                 const visibleStories = pickDiverseHomeStories(publicStories, 3);
