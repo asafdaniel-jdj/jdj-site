@@ -213,7 +213,7 @@ function cleanDashes(text) {
                 const { data, error } = await supabaseClient
                     .from('articles')
                     .select('*')
-                    .order('id', { ascending: false });
+                    .order('created_at', { ascending: false });
 
                 if (error) throw error;
 
@@ -337,8 +337,8 @@ function cleanDashes(text) {
 
         function sortAndRender() {
             filteredArticles.sort((a, b) => {
-                if (currentSortMode === 'newest') return (b.id || 0) - (a.id || 0);
-                if (currentSortMode === 'oldest') return (a.id || 0) - (b.id || 0);
+                if (currentSortMode === 'newest') return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+                if (currentSortMode === 'oldest') return new Date(a.created_at || 0) - new Date(b.created_at || 0);
                 return 0;
             });
 
