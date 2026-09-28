@@ -58,7 +58,7 @@
     style.textContent = `
       .jdj-author-overlay{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.72);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;pointer-events:none;transition:opacity .2s ease}
       .jdj-author-overlay.is-open{opacity:1;pointer-events:auto}
-      .jdj-author-modal{direction:rtl;width:min(820px,100%);max-height:min(88vh,900px);overflow:auto;background:#fff;border:1px solid #e2e8f0;border-radius:28px;box-shadow:0 30px 90px rgba(15,23,42,.35);transform:translateY(14px) scale(.985);transition:transform .2s ease;font-family:'Heebo',sans-serif;color:#0f172a}
+      .jdj-author-modal{direction:rtl;width:min(820px,100%);max-height:min(88vh,900px);overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e2e8f0;border-radius:28px;box-shadow:0 30px 90px rgba(15,23,42,.35);transform:translateY(14px) scale(.985);transition:transform .2s ease;font-family:'Heebo',sans-serif;color:#0f172a}
       .jdj-author-overlay.is-open .jdj-author-modal{transform:none}
       .jdj-author-close,.jdj-author-share{position:absolute;top:16px;width:38px;height:38px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;color:#475569;display:grid;place-items:center;cursor:pointer;z-index:2;transition:.15s}
       .jdj-author-close{left:16px}
@@ -70,10 +70,16 @@
       .jdj-author-photo-fallback{width:112px;height:112px;border-radius:28px;background:#fef3c7;color:#92400e;display:grid;place-items:center;font-size:34px;border:4px solid #fff;box-shadow:0 8px 24px rgba(15,23,42,.12);flex:none}
       .jdj-author-name{font-size:28px;line-height:1.1;font-weight:900;margin:0 0 6px}
       .jdj-author-sub{color:#64748b;font-weight:700;font-size:14px;margin:0}
-      .jdj-author-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-      .jdj-author-link{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border-radius:12px;background:#fff;border:1px solid #cbd5e1;color:#334155;font-size:12px;font-weight:800;text-decoration:none;transition:.15s}
-      .jdj-author-link:hover{border-color:#4f46e5;color:#4338ca;background:#eef2ff}
-      .jdj-author-body{padding:24px 28px 28px;display:grid;gap:24px}
+      .jdj-author-promo{margin-top:16px;padding:12px 14px;border:1px solid #e2e8f0;border-radius:16px;background:rgba(255,255,255,.78)}
+      .jdj-author-promo-title{font-size:11px;font-weight:900;color:#64748b;margin:0 0 8px;letter-spacing:.02em}
+      .jdj-author-links{display:flex;flex-wrap:wrap;gap:8px}
+      .jdj-author-link{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border-radius:12px;background:#fff;border:1px solid #cbd5e1;color:#334155;font-size:12px;font-weight:900;text-decoration:none;transition:.15s;box-shadow:0 2px 8px rgba(15,23,42,.04)}
+      .jdj-author-link[data-link-type=facebook]:hover{border-color:#2563eb;color:#1d4ed8;background:#eff6ff}
+      .jdj-author-link[data-link-type=instagram]:hover{border-color:#db2777;color:#be185d;background:#fdf2f8}
+      .jdj-author-link[data-link-type=whatsapp]{border-color:#86efac;color:#15803d;background:#f0fdf4}
+      .jdj-author-link[data-link-type=whatsapp]:hover{border-color:#16a34a;color:#fff;background:#16a34a}
+      .jdj-author-link[data-link-type=map]:hover,.jdj-author-link[data-link-type=website]:hover,.jdj-author-link[data-link-type=custom]:hover{border-color:#4f46e5;color:#4338ca;background:#eef2ff}
+      .jdj-author-body{padding:24px 28px 28px;display:grid;gap:24px;overflow:auto;overscroll-behavior:contain}
       .jdj-author-section{display:grid;gap:11px}
       .jdj-author-section-title{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:900;margin:0;color:#0f172a}
       .jdj-author-bio{color:#475569;font-size:14px;line-height:1.8}
@@ -94,14 +100,14 @@
       body.jdj-author-modal-open{overflow:hidden}
       @media(max-width:640px){
         .jdj-author-overlay{padding:0;align-items:flex-end}
-        .jdj-author-modal{width:100%;max-height:92vh;border-radius:26px 26px 0 0;transform:translateY(26px)}
-        .jdj-author-head{padding:24px 20px 18px;align-items:flex-start}
+        .jdj-author-modal{width:100%;height:min(92vh,760px);max-height:92vh;border-radius:26px 26px 0 0;transform:translateY(26px)}
+        .jdj-author-head{padding:24px 20px 18px;align-items:flex-start;flex:none}
         .jdj-author-photo,.jdj-author-photo-fallback{width:82px;height:82px;border-radius:22px}
         .jdj-author-name{font-size:23px;padding-left:34px}
-        .jdj-author-body{padding:20px;gap:21px}
+        .jdj-author-body{padding:20px;gap:21px;min-height:0}
         .jdj-author-event{align-items:flex-start;flex-direction:column}
         .jdj-author-ticket{align-self:flex-start}
-        .jdj-author-stories{grid-template-columns:1fr 1fr}
+        .jdj-author-stories{grid-template-columns:1fr}
       }
     `;
     document.head.appendChild(style);
@@ -200,6 +206,7 @@
     root.querySelector('.jdj-author-modal').innerHTML = `<div class="jdj-author-loading"><i class="fa-solid fa-circle-notch fa-spin"></i> טוען פרטי מחבר...</div>`;
     root.classList.add('is-open');
     root.setAttribute('aria-hidden', 'false');
+    root.querySelector('.jdj-author-modal').scrollTop = 0;
     document.body.classList.add('jdj-author-modal-open');
     return root;
   }
@@ -274,10 +281,10 @@
       ? `<img class="jdj-author-photo" src="${esc(author.photo)}" alt="${esc(author.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="jdj-author-photo-fallback" style="display:none"><i class="fa-solid fa-feather-pointed"></i></div>`
       : `<div class="jdj-author-photo-fallback"><i class="fa-solid fa-feather-pointed"></i></div>`;
 
-    const linksHtml = links.length ? `<div class="jdj-author-links">${links.map(link => `
-      <a class="jdj-author-link" href="${esc(link.url)}" target="_blank" rel="noopener noreferrer">
+    const linksHtml = links.length ? `<div class="jdj-author-promo"><div class="jdj-author-promo-title">עקבו, הצטרפו והמשיכו עם ${esc(author.name)}</div><div class="jdj-author-links">${links.map(link => `
+      <a class="jdj-author-link" data-link-type="${esc(String(link.link_type || 'custom').toLowerCase())}" href="${esc(link.url)}" target="_blank" rel="noopener noreferrer">
         <i class="${iconFor(link.link_type, link.label)}"></i><span>${esc(link.label)}</span>
-      </a>`).join('')}</div>` : '';
+      </a>`).join('')}</div></div>` : '';
 
     const eventsHtml = events.length ? `
       <section class="jdj-author-section">
@@ -289,7 +296,7 @@
           </div>`).join('')}</div>
       </section>` : '';
 
-    const visibleStories = stories.slice(0, 6);
+    const visibleStories = stories.slice(0, 3);
     const storiesHtml = visibleStories.length ? `
       <section class="jdj-author-section">
         <h3 class="jdj-author-section-title"><i class="fa-solid fa-book-open text-amber-600"></i> הסיפורים באתר</h3>
@@ -321,7 +328,8 @@
     modal.querySelector('.jdj-author-close').addEventListener('click', () => close());
     const shareButton = modal.querySelector('.jdj-author-share');
     if (shareButton && author.slug) shareButton.addEventListener('click', () => copyDirectLink(author.slug, shareButton));
-    modal.querySelector('.jdj-author-close').focus();
+    modal.querySelector('.jdj-author-body')?.scrollTo({ top: 0, behavior: 'instant' });
+    modal.querySelector('.jdj-author-close').focus({ preventScroll: true });
   }
 
   function openFromHash() {
