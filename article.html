@@ -554,7 +554,7 @@ function cleanDashes(text) {
             const excerpt = cleanDashes(item.excerpt || item.subtitle || DEFAULT_ARTICLE.excerpt);
             const author = item.author || item.author_name || DEFAULT_ARTICLE.author;
             const readTime = item.read_time || DEFAULT_ARTICLE.read_time;
-            const rawDate = item.published_at || item.created_at;
+            const rawDate = item.created_at;
             const parsedDate = rawDate ? new Date(rawDate) : null;
             const dateStr = parsedDate && !Number.isNaN(parsedDate.getTime())
                 ? new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric' }).format(parsedDate)
@@ -588,7 +588,7 @@ function cleanDashes(text) {
                 "description": metaDesc,
                 "image": [resolvedShareImg],
                 "inLanguage": "he-IL",
-                "datePublished": item.created_at || "2026-08-19T00:00:00+03:00",
+                "datePublished": item.created_at || new Date().toISOString(),
                 ...(item.updated_at ? { "dateModified": item.updated_at } : {}),
                 "author": [{
                     "@type": "Person",
