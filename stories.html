@@ -316,12 +316,37 @@ function cleanDashes(text) {
             sortAndRender();
         }
 
+        function diversifyStoriesByAuthor(items) {
+            const remaining = [...items];
+            const result = [];
+            let previousAuthor = '';
+
+            while (remaining.length) {
+                let nextIndex = remaining.findIndex(item => {
+                    const author = (item.author || item.author_name || '').trim();
+                    return !previousAuthor || !author || author !== previousAuthor;
+                });
+                if (nextIndex < 0) nextIndex = 0;
+
+                const [next] = remaining.splice(nextIndex, 1);
+                result.push(next);
+                previousAuthor = (next.author || next.author_name || '').trim();
+            }
+            return result;
+        }
+
         function sortAndRender() {
             filteredArticles.sort((a, b) => {
                 if (currentSortMode === 'newest') return (b.id || 0) - (a.id || 0);
                 if (currentSortMode === 'oldest') return (a.id || 0) - (b.id || 0);
                 return 0;
             });
+
+            // כשמציגים את כלל המחברים, שומרים על סדר הזמן כבסיס
+            // אך מונעים ככל האפשר רצף של סיפורים מאותו מחבר.
+            if (!currentAuthor) {
+                filteredArticles = diversifyStoriesByAuthor(filteredArticles);
+            }
 
             renderGrid();
         }
