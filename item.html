@@ -1222,19 +1222,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const cleanTitle = cleanDashes(item.title);
             const regionName = item.region || 'מדבר יהודה';
 
-            const media = allImages.map((url, index) => ({
-                type: 'image',
-                url,
-                sort_order: index
-            }));
+            let media = Array.isArray(item.media)
+                ? [...item.media].filter(m => m && m.url).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0))
+                : [];
 
-            const videoUrl = String(item.video_url || '').trim();
-            if (videoUrl) {
-                media.push({
-                    type: 'video',
-                    url: videoUrl,
-                    sort_order: media.length
-                });
+            // Backward compatibility for legacy route records.
+            if (!media.length) {
+                media = allImages.map((url, index) => ({
+                    type: 'image',
+                    url,
+                    sort_order: (index + 1) * 10
+                }));
+                const videoUrl = String(item.video_url || '').trim();
+                if (videoUrl) {
+                    media.push({
+                        type: 'video',
+                        url: videoUrl,
+                        sort_order: (media.length + 1) * 10
+                    });
+                }
             }
 
             window.JDJMediaGallery.render({
