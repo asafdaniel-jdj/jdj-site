@@ -760,6 +760,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             });
         }
 
+        function pickDiverseHomeStories(items, limit = 3) {
+            const picked = [];
+            const usedAuthors = new Set();
+
+            // מעבר ראשון: הסיפור החדש ביותר מכל מחבר.
+            for (const story of items) {
+                const author = (story.author || story.author_name || '').trim();
+                if (author && usedAuthors.has(author)) continue;
+                picked.push(story);
+                if (author) usedAuthors.add(author);
+                if (picked.length === limit) return picked;
+            }
+
+            // אם אין מספיק מחברים שונים, משלימים לפי סדר העדכניות המקורי.
+            for (const story of items) {
+                if (picked.includes(story)) continue;
+                picked.push(story);
+                if (picked.length === limit) break;
+            }
+            return picked;
+        }
+
         async function loadDesertStories() {
             try {
                 const { data, error } = await supabaseClient
@@ -767,7 +789,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     .select('*')
                     .order('id', { ascending: false });
 
-                const visibleStories = (data || []).filter(isPubliclyVisible).slice(0, 3);
+                const publicStories = (data || []).filter(isPubliclyVisible);
+                const visibleStories = pickDiverseHomeStories(publicStories, 3);
 
                 if (!error && visibleStories.length > 0) {
                     renderDesertStories(visibleStories);
