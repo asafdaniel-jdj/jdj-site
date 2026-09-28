@@ -222,7 +222,7 @@
     const [linksRes, eventsRes, storiesRes] = await Promise.all([
       client.from('author_links').select('*').eq('author_id', author.id).eq('is_active', true).order('sort_order').order('id'),
       client.from('author_events').select('*').eq('author_id', author.id).eq('is_active', true).gte('event_date', today).order('event_date').order('sort_order'),
-      client.from('articles').select('id,title,cover_image,early_access_until').eq('author', author.name).order('id', { ascending: false }).limit(8)
+      client.from('articles').select('id,title,cover_image,early_access_until,created_at').eq('author', author.name).order('created_at', { ascending: false }).limit(8)
     ]);
     if (linksRes.error) throw linksRes.error;
     if (eventsRes.error) throw eventsRes.error;
