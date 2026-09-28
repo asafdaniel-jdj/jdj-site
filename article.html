@@ -172,7 +172,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <i class="fa-solid fa-feather-pointed"></i>
                         </div>
                         <div>
-                            <button type="button" class="text-slate-900 hover:text-indigo-700 font-black text-sm transition text-right" id="articleAuthor" title="מידע על המחבר">טוען...</button>
+                            <button type="button" class="group inline-flex items-center gap-1.5 text-slate-900 hover:text-indigo-700 font-black text-base sm:text-lg transition text-right underline decoration-dotted decoration-slate-400 underline-offset-4 hover:decoration-indigo-600 cursor-pointer" id="articleAuthor" title="לחצו לעמוד המחבר">טוען...</button>
                             <div class="text-slate-400 text-xs font-medium flex items-center gap-1.5">
                                 <span id="articleDate">אוגוסט 2026</span>
                                 <span>•</span>
@@ -235,13 +235,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
             </section>
 
-            <!-- 🖼️ גלריית תמונות עליונה (1200x500) -->
-            <div id="articleGalleryWrapper" class="w-full"></div>
+            <!-- 🖼️ תמונה ראשית - זהה לכרטיס הסיפור בקטלוג -->
+            <div id="articleCoverWrapper" class="w-full overflow-hidden rounded-2xl sm:rounded-3xl bg-slate-100">
+                <img id="articleCoverImage" src="" alt="" class="w-full aspect-[12/5] object-cover" loading="eager">
+            </div>
 
             <!-- 📖 גוף הכתבה -->
             <div id="articleContent" class="article-body font-normal text-slate-700 leading-relaxed space-y-4 pt-1">
                 <!-- תוכן הפסקאות ייטען דינמית -->
             </div>
+
+            <!-- 🖼️ גלריה נוספת מתוך הסיפור - נפרדת מהתמונה הראשית -->
+            <section id="articleGallerySection" class="hidden w-full mt-7 space-y-3" aria-label="גלריית תמונות מהסיפור">
+                <div class="flex items-center gap-2">
+                    <i class="fa-regular fa-images text-indigo-600"></i>
+                    <h2 class="text-base sm:text-lg font-black text-slate-900">תמונות נוספות מהסיפור</h2>
+                </div>
+                <div id="articleGalleryWrapper" class="w-full"></div>
+            </section>
 
             <!-- 🚙 בלוק מקטעים/מסלולי שטח מקושרים -->
             <div id="includedInRoutesSection" class="hidden w-full bg-slate-50/80 rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-3.5 mt-8">
@@ -430,13 +441,19 @@ function cleanDashes(text) {
         }
 
         function parseGalleryImages(item) {
-            let imgs = [];
-            if (item.gallery_images && item.gallery_images.trim() !== '') {
-                imgs = item.gallery_images.split(/[\n,;]+/).map(s => s.trim()).filter(s => s.length > 0);
-            } else if (item.cover_image) {
-                imgs = [item.cover_image];
-            }
-            return imgs;
+            const cover = String(item.cover_image || '').trim();
+            if (!item.gallery_images || !item.gallery_images.trim()) return [];
+
+            const seen = new Set();
+            return item.gallery_images
+                .split(/[\n,;]+/)
+                .map(value => value.trim())
+                .filter(Boolean)
+                .filter(url => {
+                    if (url === cover || seen.has(url)) return false;
+                    seen.add(url);
+                    return true;
+                });
         }
 
         function showArticleMessage(title, message, iconClass, setNoindex = false) {
@@ -619,30 +636,55 @@ function cleanDashes(text) {
                 authorWhatsAppBanner.classList.add('hidden');
             }
 
-            renderGallery(item);
+            renderArticleCover(item);
 
             const contentDiv = document.getElementById('articleContent');
             contentDiv.innerHTML = item.content_html || item.content || DEFAULT_ARTICLE.content_html;
+
+            renderGallery(item);
+        }
+
+        function renderArticleCover(item) {
+            const wrapper = document.getElementById('articleCoverWrapper');
+            const image = document.getElementById('articleCoverImage');
+            if (!wrapper || !image) return;
+
+            const cover = String(item.cover_image || '').trim();
+            if (!cover) {
+                wrapper.classList.add('hidden');
+                image.removeAttribute('src');
+                return;
+            }
+
+            wrapper.classList.remove('hidden');
+            image.src = window.JDJMediaGallery?.resolveAssetUrl(cover) || cover;
+            image.alt = cleanDashes(item.title || 'תמונה ראשית');
         }
 
         function renderGallery(item) {
+            const section = document.getElementById('articleGallerySection');
             const wrapper = document.getElementById('articleGalleryWrapper');
-            if (!wrapper) return;
+            if (!section || !wrapper) return;
 
-            const allImages = parseGalleryImages(item);
+            const galleryImages = parseGalleryImages(item);
+            if (!galleryImages.length) {
+                section.classList.add('hidden');
+                window.JDJMediaGallery?.remove('articleMediaGallery');
+                return;
+            }
 
             if (!window.JDJMediaGallery) {
-                wrapper.classList.add('hidden');
+                section.classList.add('hidden');
                 console.error('JDJMediaGallery is not available');
                 return;
             }
 
+            section.classList.remove('hidden');
             const cleanTitle = cleanDashes(item.title);
-
             window.JDJMediaGallery.render({
                 container: wrapper,
                 galleryId: 'articleMediaGallery',
-                media: allImages.map((url, index) => ({ type: 'image', url, sort_order: index })),
+                media: galleryImages.map((url, index) => ({ type: 'image', url, sort_order: index })),
                 altBase: cleanTitle,
                 maxVisible: 5
             });
