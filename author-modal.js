@@ -99,9 +99,9 @@
       .jdj-author-loading,.jdj-author-error{padding:56px 24px;text-align:center;font-weight:800;color:#64748b}
       body.jdj-author-modal-open{overflow:hidden}
       @media(max-width:640px){
-        .jdj-author-overlay{padding:0;align-items:flex-end}
-        .jdj-author-modal{width:100%;height:min(92vh,760px);max-height:92vh;border-radius:26px 26px 0 0;transform:translateY(26px)}
-        .jdj-author-head{padding:24px 20px 18px;align-items:flex-start;flex:none}
+        .jdj-author-overlay{padding:0;align-items:flex-end;height:100dvh;min-height:100dvh;overflow:hidden}
+        .jdj-author-modal{width:100%;height:calc(100dvh - max(12px, env(safe-area-inset-top)));max-height:none;border-radius:26px 26px 0 0;transform:translateY(26px);margin:0;min-height:0}
+        .jdj-author-head{padding:24px 20px 18px;align-items:flex-start;flex:none;position:relative;z-index:1}
         .jdj-author-photo,.jdj-author-photo-fallback{width:82px;height:82px;border-radius:22px}
         .jdj-author-name{font-size:23px;padding-left:34px}
         .jdj-author-body{padding:20px;gap:21px;min-height:0}
