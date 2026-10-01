@@ -1,15 +1,15 @@
 // JDJ environment configuration
 // Canonical file for this environment. Do not copy this file between DEV / TEST / PROD.
 //
-// Environment: TEST
-// Database: Supabase TEST (jdj-routes-test)
+// Environment: PROD
+// Database: Supabase PROD (jdj-routes)
 //
 // This file contains only public browser configuration. No service-role key or secret is stored here.
 
 window.JDJ_ENV = Object.freeze({
-  environment: "TEST",
-  supabaseUrl: "https://sdekeyakrtdwmykvpbwq.supabase.co",
-  supabaseKey: "sb_publishable_Zt1DlF4MDoNQcLvAybABZQ_FrKfqq5Z"
+  environment: "PROD",
+  supabaseUrl: "https://edjmwcnxsqnsxqrcsjxp.supabase.co",
+  supabaseKey: "sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i"
 });
 
 (() => {
