@@ -896,6 +896,17 @@ export default async function handler(request, context) {
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.set('x-jdj-seo-edge', '1');
+
+  // JDJ-41 TEST proof of concept: cache the fully SEO-enriched route HTML at Netlify's edge.
+  // Query parameters are part of the edge cache key, so each item?id=... is cached separately.
+  if (pagePath === '/item') {
+    const itemId = url.searchParams.get('id');
+    if (itemId && /^\d+$/.test(itemId) && !contentNotFound) {
+      headers.set('Netlify-CDN-Cache-Control', 'public, max-age=60, stale-while-revalidate=60');
+      headers.set('Netlify-Cache-Tag', `route:${itemId},route-html:${itemId},routes-products`);
+    }
+  }
+
   if (isTestSite) {
     headers.set('X-Robots-Tag', 'noindex, nofollow');
   } else if (contentNotFound) {
@@ -910,6 +921,7 @@ export default async function handler(request, context) {
 }
 
 export const config = {
+  cache: 'manual',
   path: [
     '/', '/index.html',
     '/about', '/about.html',
