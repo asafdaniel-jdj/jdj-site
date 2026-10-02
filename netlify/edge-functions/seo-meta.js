@@ -114,6 +114,8 @@ function primarySchemaType(schemaType, fallback = 'Thing') {
 const SEO_TEMPLATE_CACHE = new Map();
 const SEO_OVERRIDE_CACHE = new Map();
 const SEO_CACHE_TTL_MS = 60_000;
+const SEO_SHARED_CACHE_TTL_SECONDS = 60;
+const SEO_SHARED_CACHE_NAME = 'jdj-seo-data-v1';
 
 function getFreshCache(cache, key) {
   const entry = cache.get(key);
@@ -130,6 +132,33 @@ function setFreshCache(cache, key, value) {
     value,
     expiresAt: Date.now() + SEO_CACHE_TTL_MS
   });
+}
+
+async function fetchSupabaseWithSharedCache(url, { tags = [] } = {}) {
+  const cache = await caches.open(SEO_SHARED_CACHE_NAME);
+  const cacheKey = new Request(url, { method: 'GET' });
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+
+  const fresh = await fetch(url, {
+    headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
+  });
+
+  if (!fresh.ok) return fresh;
+
+  const body = await fresh.text();
+  const headers = new Headers(fresh.headers);
+  headers.set('Cache-Control', `public, s-maxage=${SEO_SHARED_CACHE_TTL_SECONDS}`);
+  if (tags.length) headers.set('Netlify-Cache-Tag', tags.join(','));
+
+  const cacheable = new Response(body, {
+    status: fresh.status,
+    statusText: fresh.statusText,
+    headers
+  });
+
+  await cache.put(cacheKey, cacheable.clone());
+  return cacheable;
 }
 
 function renderSeoTemplate(value, vars = {}) {
@@ -151,9 +180,10 @@ async function getSeoTemplate(templateKey) {
     is_active: 'eq.true',
     limit: '1'
   });
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/seo_templates?${params.toString()}`, {
-    headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
-  });
+  const response = await fetchSupabaseWithSharedCache(
+    `${SUPABASE_URL}/rest/v1/seo_templates?${params.toString()}`,
+    { tags: [`seo-template:${templateKey}`, 'seo-templates'] }
+  );
   if (!response.ok) throw new Error(`Supabase seo_templates request failed with ${response.status}`);
   const rows = await response.json();
   const row = Array.isArray(rows) && rows.length ? rows[0] : null;
@@ -171,9 +201,10 @@ async function getSeoOverride(seoKey) {
     is_active: 'eq.true',
     limit: '1'
   });
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/seo_overrides?${params.toString()}`, {
-    headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
-  });
+  const response = await fetchSupabaseWithSharedCache(
+    `${SUPABASE_URL}/rest/v1/seo_overrides?${params.toString()}`,
+    { tags: [`seo-override:${seoKey}`, 'seo-overrides'] }
+  );
   if (!response.ok) throw new Error(`Supabase seo_overrides request failed with ${response.status}`);
   const rows = await response.json();
   const row = Array.isArray(rows) && rows.length ? rows[0] : null;
@@ -529,12 +560,10 @@ async function getRow(table, id, extraFilters = []) {
     params.set(key, `${operator}.${value}`);
   }
 
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params.toString()}`, {
-    headers: {
-      apikey: SUPABASE_KEY,
-      Accept: 'application/json'
-    }
-  });
+  const response = await fetchSupabaseWithSharedCache(
+    `${SUPABASE_URL}/rest/v1/${table}?${params.toString()}`,
+    { tags: [`${table}:${id}`, `${table}-products`] }
+  );
 
   if (!response.ok) {
     throw new Error(`Supabase ${table} request failed with ${response.status}`);
@@ -921,7 +950,6 @@ export default async function handler(request, context) {
 }
 
 export const config = {
-  cache: 'manual',
   path: [
     '/', '/index.html',
     '/about', '/about.html',
