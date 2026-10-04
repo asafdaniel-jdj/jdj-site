@@ -1,9 +1,8 @@
 const SUPABASE_URL = process.env.JDJ_SUPABASE_URL;
 const SUPABASE_KEY = process.env.JDJ_SUPABASE_KEY;
 
-// TEST POC only. Production TTL will be decided before promotion.
-const CACHE_SECONDS = 60;
-const STALE_SECONDS = 60;
+const CACHE_SECONDS = 3_600; // 1 hour
+const STALE_SECONDS = 600; // 10 minutes grace
 
 function json(body, status = 200, headers = {}) {
   return new Response(JSON.stringify(body), {
