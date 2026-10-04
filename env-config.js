@@ -105,6 +105,14 @@ window.JDJ_ENV = Object.freeze({
       .trim();
   }
 
+  function hasToken(text, token) {
+    const normalizedToken = normalizeText(token);
+    return text === normalizedToken ||
+      text.startsWith(`${normalizedToken} `) ||
+      text.endsWith(` ${normalizedToken}`) ||
+      text.includes(` ${normalizedToken} `);
+  }
+
   function stripTemporalNoiseTerm(value) {
     const normalized = normalizeText(value);
     if (!normalized) return '';
@@ -155,8 +163,8 @@ window.JDJ_ENV = Object.freeze({
 
     let suitableForKids = null;
     if (isRoutes) {
-      if (/לא\s+מתאים\s+לילדים|בלי\s+ילדים/.test(text)) suitableForKids = false;
-      else if (/עם\s+ילדים|לילדים|משפחתי|משפחה/.test(text)) suitableForKids = true;
+      if (/לא\s+מתאים\s+(?:ל)?ילדים|בלי\s+(?:ה)?ילדים/.test(text)) suitableForKids = false;
+      else if (/עם\s+(?:ה)?ילדים|לילדים|מתאים\s+(?:ל)?ילדים|משפחתי|משפחה/.test(text)) suitableForKids = true;
     }
 
     let waterDip = null;
@@ -167,8 +175,8 @@ window.JDJ_ENV = Object.freeze({
 
     let lengthBucket = null;
     if (isRoutes) {
-      if (/\bקצר\b/.test(text)) lengthBucket = 'short';
-      else if (/\bארוך\b/.test(text)) lengthBucket = 'long';
+      if (hasToken(text, 'קצר')) lengthBucket = 'short';
+      else if (hasToken(text, 'ארוך')) lengthBucket = 'long';
       else if (/אורך\s+בינוני|בינוני\s+באורך/.test(text)) lengthBucket = 'medium';
     }
 
@@ -182,15 +190,15 @@ window.JDJ_ENV = Object.freeze({
     let difficulty = null;
     if (isTechnical) {
       if (/קשה\s+מאוד/.test(text)) difficulty = 'קשה מאוד';
-      else if (/\bקשה\b/.test(text)) difficulty = 'קשה';
-      else if (/\bקל\b/.test(text)) difficulty = 'קל';
+      else if (hasToken(text, 'קשה')) difficulty = 'קשה';
+      else if (hasToken(text, 'קל')) difficulty = 'קל';
       else if (/קושי\s+בינוני|בינוני\s+בקושי/.test(text)) difficulty = 'בינוני';
     }
 
     let isTechnicalValue = null;
     if (isTechnical) {
       if (/לא\s+טכני/.test(text)) isTechnicalValue = false;
-      else if (/\bטכני\b/.test(text)) isTechnicalValue = true;
+      else if (hasToken(text, 'טכני')) isTechnicalValue = true;
     }
 
     let hasBypass = null;
