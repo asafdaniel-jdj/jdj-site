@@ -1,10 +1,9 @@
 const SUPABASE_URL = process.env.JDJ_SUPABASE_URL;
 const SUPABASE_KEY = process.env.JDJ_SUPABASE_KEY;
 
-// TEST proof-of-concept values only.
-// Production TTL will be decided separately before promotion.
-const CACHE_SECONDS = 60;
-const STALE_SECONDS = 60;
+const CACHE_SECONDS = 2_592_000; // 30 days
+const STALE_SECONDS = 3_600; // 1 hour grace
+const NOT_FOUND_CACHE_SECONDS = 30;
 
 const ENTITY_CONFIG = Object.freeze({
   point: {
@@ -92,7 +91,7 @@ export default async (request) => {
 
     if (!row) {
       return json({ error: 'Content not found' }, 404, {
-        'Netlify-CDN-Cache-Control': 'public, durable, max-age=30',
+        'Netlify-CDN-Cache-Control': `public, durable, max-age=${NOT_FOUND_CACHE_SECONDS}`,
         'Netlify-Cache-Tag': tags
       });
     }
