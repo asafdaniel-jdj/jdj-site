@@ -42,32 +42,37 @@
     });
   }
 
-  async function getTemplate(client, templateKey) {
-    if (!templateKey) return null;
-    if (templateCache.has(templateKey)) return templateCache.get(templateKey);
-    const { data, error } = await client
-      .from('seo_templates')
-      .select('*')
-      .eq('template_key', templateKey)
-      .eq('is_active', true)
-      .maybeSingle();
-    if (error) throw error;
-    templateCache.set(templateKey, data || null);
-    return data || null;
-  }
+  async function getSeoData(templateKey, seoKey) {
+    const templateReady = !templateKey || templateCache.has(templateKey);
+    const overrideReady = !seoKey || overrideCache.has(seoKey);
 
-  async function getOverride(client, seoKey) {
-    if (!seoKey) return null;
-    if (overrideCache.has(seoKey)) return overrideCache.get(seoKey);
-    const { data, error } = await client
-      .from('seo_overrides')
-      .select('*')
-      .eq('seo_key', seoKey)
-      .eq('is_active', true)
-      .maybeSingle();
-    if (error) throw error;
-    overrideCache.set(seoKey, data || null);
-    return data || null;
+    if (templateReady && overrideReady) {
+      return {
+        template: templateKey ? templateCache.get(templateKey) : null,
+        override: seoKey ? overrideCache.get(seoKey) : null
+      };
+    }
+
+    const params = new URLSearchParams();
+    if (templateKey) params.set('templateKey', templateKey);
+    if (seoKey) params.set('seoKey', seoKey);
+
+    const response = await fetch(`/.netlify/functions/seo-data?${params.toString()}`, {
+      headers: { Accept: 'application/json' }
+    });
+
+    if (!response.ok) {
+      throw new Error(`SEO data endpoint failed with status ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const template = payload?.template || null;
+    const override = payload?.override || null;
+
+    if (templateKey) templateCache.set(templateKey, template);
+    if (seoKey) overrideCache.set(seoKey, override);
+
+    return { template, override };
   }
 
   function applyRobots(robots) {
@@ -84,7 +89,6 @@
     }
     el.setAttribute('content', effectiveRobots);
   }
-
 
   function setMeta(selector, attribute, value) {
     if (!value) return;
@@ -121,10 +125,7 @@
     };
 
     try {
-      const [template, override] = await Promise.all([
-        getTemplate(client, templateKey),
-        getOverride(client, seoKey)
-      ]);
+      const { template, override } = await getSeoData(templateKey, seoKey);
 
       const fromTemplate = {
         title: renderTemplate(template?.title_template, enrichedVars),
