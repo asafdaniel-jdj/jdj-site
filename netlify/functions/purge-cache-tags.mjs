@@ -7,6 +7,7 @@ const MAX_TAGS = 30;
 
 const ALLOWED_TAG_PREFIXES = [
   'route:', 'point:', 'khan:', 'article:',
+  'routes:', 'khans:', 'articles:',
   'routes-products', 'points-products', 'khans-products', 'articles-products',
   'collection:', 'collections', 'table:', 'recommended',
   'seo-template:', 'seo-templates', 'seo-override:', 'seo-overrides', 'seo-data'
