@@ -2,6 +2,15 @@
   const SITE_URL = 'https://jdj.co.il';
   const templateCache = new Map();
   const overrideCache = new Map();
+  const COLLECTION_TABLES = new Set([
+    'routes', 'khans', 'articles', 'pages', 'floods_page_config',
+    'flood_rivers', 'flood_river_points', 'route_points', 'authors'
+  ]);
+  const COLLECTION_OPS = new Set([
+    'select', 'eq', 'neq', 'in', 'not', 'order', 'limit', 'range',
+    'is', 'gt', 'gte', 'lt', 'lte', 'like', 'ilike', 'or', 'filter'
+  ]);
+  const MUTATION_OPS = new Set(['insert', 'update', 'upsert', 'delete']);
 
   function cleanDashes(value = '') {
     return String(value).replace(/\s*[–—־-]\s*/g, ' ').trim();
@@ -121,30 +130,84 @@
         };
       }
 
-      if (!response.ok) {
-        return {
-          data: null,
-          error: {
-            code: 'JDJ_CACHE_API',
-            message: `Content data endpoint failed with status ${response.status}`,
-            details: null,
-            hint: null
-          }
-        };
-      }
+      if (!response.ok) return null;
 
       const payload = await response.json();
       return { data: payload?.data || null, error: null };
     } catch (error) {
+      console.warn('JDJ content cache fallback:', error);
+      return null;
+    }
+  }
+
+  function collectionScope() {
+    const pathname = global.location?.pathname || '/';
+    const path = pathname.endsWith('.html') ? pathname.slice(0, -5) : pathname;
+    const search = new URLSearchParams(global.location?.search || '');
+
+    if (path === '/' || path === '/index') return 'home';
+    if (path === '/category') return `category:${search.get('type') || 'routes'}`;
+    if (path === '/stories') return 'stories';
+    if (path === '/khan-catalog') return 'khans';
+    if (['/item', '/point', '/khan', '/article'].includes(path)) {
+      const id = search.get('id') || 'unknown';
+      return `related:${path.slice(1)}:${id}`;
+    }
+    if (path.startsWith('/floods')) return `floods:${encodeURIComponent(path)}`;
+    return `page:${encodeURIComponent(path || '/')}`;
+  }
+
+  function canUseCollectionCache(state) {
+    return Boolean(
+      state.cacheable &&
+      COLLECTION_TABLES.has(state.table) &&
+      state.ops.some((op) => op.method === 'select')
+    );
+  }
+
+  async function fetchCachedCollection(state, mode = 'many') {
+    if (!canUseCollectionCache(state)) return null;
+
+    const params = new URLSearchParams({
+      table: state.table,
+      mode,
+      scope: collectionScope(),
+      ops: JSON.stringify(state.ops)
+    });
+
+    try {
+      const response = await fetch(`/.netlify/functions/collection-data?${params.toString()}`, {
+        headers: { Accept: 'application/json' }
+      });
+
+      if (response.status === 404 && mode === 'single') {
+        return {
+          data: null,
+          error: {
+            code: 'PGRST116',
+            message: 'The result contains 0 rows',
+            details: null,
+            hint: null
+          },
+          count: null,
+          status: 404,
+          statusText: 'Not Found'
+        };
+      }
+
+      if (!response.ok) return null;
+
+      const payload = await response.json();
       return {
-        data: null,
-        error: {
-          code: 'JDJ_CACHE_API',
-          message: error?.message || 'Content data endpoint failed',
-          details: null,
-          hint: null
-        }
+        data: payload?.data ?? (mode === 'many' ? [] : null),
+        error: null,
+        count: null,
+        status: response.status,
+        statusText: response.statusText
       };
+    } catch (error) {
+      console.warn('JDJ collection cache fallback:', error);
+      return null;
     }
   }
 
@@ -153,14 +216,27 @@
 
     proxy = new Proxy(builder, {
       get(target, prop) {
-        if (prop === 'then') return target.then.bind(target);
+        if (prop === 'then') {
+          return (onFulfilled, onRejected) => {
+            if (!canUseCollectionCache(state)) {
+              return target.then(onFulfilled, onRejected);
+            }
+            return fetchCachedCollection(state, 'many')
+              .then((cached) => cached === null ? target : cached)
+              .then(onFulfilled, onRejected);
+          };
+        }
         if (prop === 'catch' && typeof target.catch === 'function') return target.catch.bind(target);
         if (prop === 'finally' && typeof target.finally === 'function') return target.finally.bind(target);
 
         if ((prop === 'single' || prop === 'maybeSingle') && typeof target[prop] === 'function') {
           return async (...args) => {
-            const cached = await fetchCachedContent(state, prop);
-            if (cached) return cached;
+            const productCached = await fetchCachedContent(state, prop);
+            if (productCached !== null) return productCached;
+
+            const collectionCached = await fetchCachedCollection(state, prop);
+            if (collectionCached !== null) return collectionCached;
+
             return target[prop](...args);
           };
         }
@@ -171,6 +247,18 @@
         return (...args) => {
           if ((prop === 'eq' || prop === 'neq') && args.length >= 2) {
             state.filters.push({ method: prop, column: args[0], value: args[1] });
+          }
+
+          if (MUTATION_OPS.has(prop)) {
+            state.cacheable = false;
+          } else if (COLLECTION_OPS.has(prop)) {
+            if (prop === 'select' && args[1] && Object.keys(args[1]).length > 0) {
+              state.cacheable = false;
+            } else {
+              state.ops.push({ method: prop, args });
+            }
+          } else if (!['throwOnError', 'returns', 'overrideTypes', 'abortSignal'].includes(prop)) {
+            state.cacheable = false;
           }
 
           const next = value.apply(target, args);
@@ -198,7 +286,12 @@
 
       const originalFrom = client.from.bind(client);
       client.from = function fromWithContentCache(table) {
-        return wrapQueryBuilder(originalFrom(table), { table, filters: [] });
+        return wrapQueryBuilder(originalFrom(table), {
+          table,
+          filters: [],
+          ops: [],
+          cacheable: true
+        });
       };
 
       Object.defineProperty(client, '__jdjContentDataProxyInstalled', {
