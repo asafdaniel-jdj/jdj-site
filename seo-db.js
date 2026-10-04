@@ -75,6 +75,148 @@
     return { template, override };
   }
 
+  function contentRequestType(state) {
+    const idFilter = state.filters.find((filter) => filter.method === 'eq' && filter.column === 'id');
+    if (!idFilter || !/^\d+$/.test(String(idFilter.value))) return null;
+
+    if (state.table === 'khans') return { type: 'khan', id: String(idFilter.value) };
+    if (state.table === 'articles') return { type: 'article', id: String(idFilter.value) };
+
+    if (state.table === 'routes') {
+      const pointFilter = state.filters.some((filter) => (
+        filter.method === 'neq' &&
+        filter.column === 'route_type' &&
+        filter.value === 'מסלול טיול'
+      ));
+      if (pointFilter) return { type: 'point', id: String(idFilter.value) };
+    }
+
+    return null;
+  }
+
+  async function fetchCachedContent(state, terminalMethod) {
+    const requestInfo = contentRequestType(state);
+    if (!requestInfo) return null;
+
+    const params = new URLSearchParams({
+      type: requestInfo.type,
+      id: requestInfo.id
+    });
+
+    try {
+      const response = await fetch(`/.netlify/functions/content-data?${params.toString()}`, {
+        headers: { Accept: 'application/json' }
+      });
+
+      if (response.status === 404) {
+        if (terminalMethod === 'maybeSingle') return { data: null, error: null };
+        return {
+          data: null,
+          error: {
+            code: 'PGRST116',
+            message: 'The result contains 0 rows',
+            details: null,
+            hint: null
+          }
+        };
+      }
+
+      if (!response.ok) {
+        return {
+          data: null,
+          error: {
+            code: 'JDJ_CACHE_API',
+            message: `Content data endpoint failed with status ${response.status}`,
+            details: null,
+            hint: null
+          }
+        };
+      }
+
+      const payload = await response.json();
+      return { data: payload?.data || null, error: null };
+    } catch (error) {
+      return {
+        data: null,
+        error: {
+          code: 'JDJ_CACHE_API',
+          message: error?.message || 'Content data endpoint failed',
+          details: null,
+          hint: null
+        }
+      };
+    }
+  }
+
+  function wrapQueryBuilder(builder, state) {
+    let proxy = null;
+
+    proxy = new Proxy(builder, {
+      get(target, prop) {
+        if (prop === 'then') return target.then.bind(target);
+        if (prop === 'catch' && typeof target.catch === 'function') return target.catch.bind(target);
+        if (prop === 'finally' && typeof target.finally === 'function') return target.finally.bind(target);
+
+        if ((prop === 'single' || prop === 'maybeSingle') && typeof target[prop] === 'function') {
+          return async (...args) => {
+            const cached = await fetchCachedContent(state, prop);
+            if (cached) return cached;
+            return target[prop](...args);
+          };
+        }
+
+        const value = target[prop];
+        if (typeof value !== 'function') return value;
+
+        return (...args) => {
+          if ((prop === 'eq' || prop === 'neq') && args.length >= 2) {
+            state.filters.push({ method: prop, column: args[0], value: args[1] });
+          }
+
+          const next = value.apply(target, args);
+          if (next && typeof next === 'object' && typeof next.then === 'function') {
+            return wrapQueryBuilder(next, state);
+          }
+          return next;
+        };
+      }
+    });
+
+    return proxy;
+  }
+
+  function installContentDataProxy() {
+    const supabaseGlobal = global.supabase;
+    if (!supabaseGlobal || typeof supabaseGlobal.createClient !== 'function') return;
+    if (supabaseGlobal.createClient.__jdjContentDataProxyInstalled) return;
+
+    const originalCreateClient = supabaseGlobal.createClient;
+
+    function createClientWithContentCache(...args) {
+      const client = originalCreateClient.apply(this, args);
+      if (!client || client.__jdjContentDataProxyInstalled) return client;
+
+      const originalFrom = client.from.bind(client);
+      client.from = function fromWithContentCache(table) {
+        return wrapQueryBuilder(originalFrom(table), { table, filters: [] });
+      };
+
+      Object.defineProperty(client, '__jdjContentDataProxyInstalled', {
+        value: true,
+        enumerable: false
+      });
+
+      return client;
+    }
+
+    Object.defineProperty(createClientWithContentCache, '__jdjContentDataProxyInstalled', {
+      value: true,
+      enumerable: false
+    });
+
+    supabaseGlobal.createClient = createClientWithContentCache;
+  }
+
   function applyRobots(robots) {
     const hostname = window.location.hostname;
     const isTestSite = hostname === 'jdj-test.netlify.app' || hostname.endsWith('--jdj-test.netlify.app');
@@ -167,6 +309,8 @@
     templateCache.clear();
     overrideCache.clear();
   }
+
+  installContentDataProxy();
 
   global.JDJSeoDB = {
     SITE_URL,
