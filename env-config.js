@@ -1,15 +1,15 @@
 // JDJ environment configuration
 // Canonical file for this environment. Do not copy this file between DEV / TEST / PROD.
 //
-// Environment: TEST
-// Database: Supabase TEST (jdj-routes-test)
+// Environment: PROD
+// Database: Supabase PROD (jdj-routes)
 //
 // This file contains only public browser configuration. No service-role key or secret is stored here.
 
 window.JDJ_ENV = Object.freeze({
-  environment: "TEST",
-  supabaseUrl: "https://sdekeyakrtdwmykvpbwq.supabase.co",
-  supabaseKey: "sb_publishable_Zt1DlF4MDoNQcLvAybABZQ_FrKfqq5Z"
+  environment: "PROD",
+  supabaseUrl: "https://edjmwcnxsqnsxqrcsjxp.supabase.co",
+  supabaseKey: "sb_publishable_FElRjSrrcMn2qadsyDDLPA_08YQsz2i"
 });
 
 (() => {
@@ -26,7 +26,7 @@ window.JDJ_ENV = Object.freeze({
   }
 })();
 
-// JDJ-41 TEST: site-shell still performs one direct REST read for home_season_mode.
+// JDJ-41: site-shell still performs one direct REST read for home_season_mode.
 // Keep its existing response contract (Supabase array) while routing that one GET
 // through the shared Netlify collection cache. Any failure falls back to Supabase.
 (() => {
@@ -78,7 +78,7 @@ window.JDJ_ENV = Object.freeze({
   };
 })();
 
-// JDJ-43 TEST: make natural-language search resilient.
+// JDJ-43: make natural-language search resilient.
 // 1) Strip generic time words from AI must_match/any_of even if the model returns them.
 // 2) If ai-search is unavailable, return deterministic basic filters instead of forcing
 //    the frontend into a literal full-sentence text search that commonly returns 0 results.
