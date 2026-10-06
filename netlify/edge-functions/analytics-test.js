@@ -11,33 +11,14 @@ const DIRECT_GTAG_RE = new RegExp(
   String.raw`(?:\s*<!--\s*[^>]*Google tag \(gtag\.js\)\s*-->\s*)?` +
   String.raw`<script\b[^>]*\bsrc=["']https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=${MEASUREMENT_ID}["'][^>]*><\/script>\s*` +
   String.raw`<script>\s*[\s\S]*?gtag\(\s*["']config["']\s*,\s*["']${MEASUREMENT_ID}["'][\s\S]*?<\/script>\s*`,
-  'i'
+  'gi'
 );
 
-function stripGtm(html) {
+function stripAnalytics(html) {
   return html
     .replace(GTM_SCRIPT_RE, '\n')
-    .replace(GTM_NOSCRIPT_RE, '\n');
-}
-
-function moveDirectGtagAfterTitle(html) {
-  const match = html.match(DIRECT_GTAG_RE);
-  if (!match) return stripGtm(html);
-
-  const directGtagBlock = match[0].trim();
-  const withoutDuplicateSource = stripGtm(html.replace(DIRECT_GTAG_RE, '\n'));
-  const titleEnd = /<\/title\s*>/i.exec(withoutDuplicateSource);
-
-  if (!titleEnd) {
-    return stripGtm(html);
-  }
-
-  const insertAt = titleEnd.index + titleEnd[0].length;
-  return (
-    withoutDuplicateSource.slice(0, insertAt) +
-    `\n${directGtagBlock}\n` +
-    withoutDuplicateSource.slice(insertAt)
-  );
+    .replace(GTM_NOSCRIPT_RE, '\n')
+    .replace(DIRECT_GTAG_RE, '\n');
 }
 
 export default async function handler(request, context) {
@@ -50,11 +31,11 @@ export default async function handler(request, context) {
   if (!contentType.includes('text/html')) return response;
 
   const originalHtml = await response.text();
-  const html = moveDirectGtagAfterTitle(originalHtml);
+  const html = stripAnalytics(originalHtml);
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.delete('etag');
-  headers.set('X-JDJ-Analytics-Mode', 'direct-gtag-only-after-title');
+  headers.set('X-JDJ-Analytics-Mode', 'disabled-on-test');
 
   return new Response(html, {
     status: response.status,
