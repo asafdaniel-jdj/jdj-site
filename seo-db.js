@@ -313,7 +313,7 @@
   function applyRobots(robots) {
     const hostname = window.location.hostname;
     const isTestSite = hostname === 'jdj-test.netlify.app' || hostname.endsWith('--jdj-test.netlify.app');
-    const effectiveRobots = isTestSite ? 'noindex,follow' : robots;
+    const effectiveRobots = isTestSite ? 'noindex,nofollow' : robots;
 
     if (!effectiveRobots) return;
     let el = document.querySelector('meta[name="robots"]');
