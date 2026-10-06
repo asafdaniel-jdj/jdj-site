@@ -2,7 +2,7 @@ import { purgeCache } from "@netlify/functions";
 
 const SUPABASE_URL = process.env.JDJ_SUPABASE_URL;
 const SUPABASE_KEY = process.env.JDJ_SUPABASE_KEY;
-const ALLOWED_ORIGIN = "https://xadmin-test.netlify.app";
+const ALLOWED_ORIGIN = "https://xadmin.jdj.co.il";
 
 function corsHeaders(origin) {
   if (origin !== ALLOWED_ORIGIN) return {};
@@ -76,7 +76,7 @@ export default async (request) => {
     return json({
       ok: true,
       scope: "public-site",
-      environment: "TEST",
+      environment: "PROD",
       purgedAt: new Date().toISOString(),
     }, 202, origin);
   } catch (error) {
