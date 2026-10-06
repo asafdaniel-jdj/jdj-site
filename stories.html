@@ -175,13 +175,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- 👤 מודאל מחבר גלובלי -->
     <script src="/author-modal.js"></script>
 
-    <!-- 📜 JS שליפה מ-Supabase ורינדור -->
+    <!-- 📜 JS שליפה דרך שכבת ה-Collection Cache ורינדור -->
     <script>
-        const SUPABASE_URL = window.JDJ_ENV?.supabaseUrl;
-        const SUPABASE_KEY = window.JDJ_ENV?.supabaseKey;
-        if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('JDJ environment config is missing');
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         let rawArticles = [];
         let filteredArticles = [];
         let currentSortMode = 'newest';
@@ -208,14 +203,33 @@ function cleanDashes(text) {
             return !isEarlyAccessActive(item);
         }
 
+        async function fetchCollectionData({ table, scope, mode = 'many', ops = [] }) {
+            const params = new URLSearchParams({
+                table,
+                scope,
+                mode,
+                ops: JSON.stringify(ops)
+            });
+            const response = await fetch(`/.netlify/functions/collection-data?${params.toString()}`, {
+                headers: { Accept: 'application/json' }
+            });
+            if (!response.ok) {
+                throw new Error(`Collection data request failed: ${response.status}`);
+            }
+            const payload = await response.json();
+            return payload?.data;
+        }
+
         async function initStoriesPage() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('articles')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
+                const data = await fetchCollectionData({
+                    table: 'articles',
+                    scope: 'stories',
+                    ops: [
+                        { method: 'select', args: ['*'] },
+                        { method: 'order', args: ['created_at', { ascending: false }] }
+                    ]
+                });
 
                 rawArticles = (data || []).filter(isPubliclyVisible);
                 populateAuthorFilter(rawArticles);
@@ -483,6 +497,5 @@ function cleanDashes(text) {
     <script src="accessibility.js"></script>
 </body>
 </html>
-
 
 
