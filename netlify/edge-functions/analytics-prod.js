@@ -6,7 +6,7 @@ function isProdHostname(hostname = '') {
 }
 
 const GTM_SCRIPT_RE = /\s*<!--\s*Google Tag Manager\s*-->[\s\S]*?<!--\s*End Google Tag Manager\s*-->\s*/gi;
-const GTM_NOSCRIPT_RE = /\s*<!--\s*Google Tag Manager \(noscript\)\s*-->[\s\S]*?<!--\s*End Google Tag Manager \(noscript\)\s*-->\s*/gi;
+const GTM_NOSCRIPT_RE = /\s*<!--\s*Google Tag Manager \(noscript\)\s*-->\s*<noscript>[\s\S]*?<\/noscript>\s*(?:<!--\s*End Google Tag Manager \(noscript\)\s*-->\s*)?/gi;
 const DIRECT_GTAG_RE = new RegExp(
   String.raw`(?:\s*<!--\s*[^>]*Google tag \(gtag\.js\)\s*-->\s*)?` +
   String.raw`<script\b[^>]*\bsrc=["']https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=${MEASUREMENT_ID}["'][^>]*><\/script>\s*` +
