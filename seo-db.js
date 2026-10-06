@@ -2,6 +2,15 @@
   const SITE_URL = 'https://jdj.co.il';
   const templateCache = new Map();
   const overrideCache = new Map();
+  const COLLECTION_TABLES = new Set([
+    'routes', 'khans', 'articles', 'pages', 'floods_page_config',
+    'flood_rivers', 'flood_river_points', 'route_points', 'authors'
+  ]);
+  const COLLECTION_OPS = new Set([
+    'select', 'eq', 'neq', 'in', 'not', 'order', 'limit', 'range',
+    'is', 'gt', 'gte', 'lt', 'lte', 'like', 'ilike', 'or', 'filter'
+  ]);
+  const MUTATION_OPS = new Set(['insert', 'update', 'upsert', 'delete']);
 
   function cleanDashes(value = '') {
     return String(value).replace(/\s*[–—־-]\s*/g, ' ').trim();
@@ -42,38 +51,269 @@
     });
   }
 
-  async function getTemplate(client, templateKey) {
-    if (!templateKey) return null;
-    if (templateCache.has(templateKey)) return templateCache.get(templateKey);
-    const { data, error } = await client
-      .from('seo_templates')
-      .select('*')
-      .eq('template_key', templateKey)
-      .eq('is_active', true)
-      .maybeSingle();
-    if (error) throw error;
-    templateCache.set(templateKey, data || null);
-    return data || null;
+  async function getSeoData(templateKey, seoKey) {
+    const templateReady = !templateKey || templateCache.has(templateKey);
+    const overrideReady = !seoKey || overrideCache.has(seoKey);
+
+    if (templateReady && overrideReady) {
+      return {
+        template: templateKey ? templateCache.get(templateKey) : null,
+        override: seoKey ? overrideCache.get(seoKey) : null
+      };
+    }
+
+    const params = new URLSearchParams();
+    if (templateKey) params.set('templateKey', templateKey);
+    if (seoKey) params.set('seoKey', seoKey);
+
+    const response = await fetch(`/.netlify/functions/seo-data?${params.toString()}`, {
+      headers: { Accept: 'application/json' }
+    });
+
+    if (!response.ok) {
+      throw new Error(`SEO data endpoint failed with status ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const template = payload?.template || null;
+    const override = payload?.override || null;
+
+    if (templateKey) templateCache.set(templateKey, template);
+    if (seoKey) overrideCache.set(seoKey, override);
+
+    return { template, override };
   }
 
-  async function getOverride(client, seoKey) {
-    if (!seoKey) return null;
-    if (overrideCache.has(seoKey)) return overrideCache.get(seoKey);
-    const { data, error } = await client
-      .from('seo_overrides')
-      .select('*')
-      .eq('seo_key', seoKey)
-      .eq('is_active', true)
-      .maybeSingle();
-    if (error) throw error;
-    overrideCache.set(seoKey, data || null);
-    return data || null;
+  function contentRequestType(state) {
+    const idFilter = state.filters.find((filter) => filter.method === 'eq' && filter.column === 'id');
+    if (!idFilter || !/^\d+$/.test(String(idFilter.value))) return null;
+
+    if (state.table === 'khans') return { type: 'khan', id: String(idFilter.value) };
+    if (state.table === 'articles') return { type: 'article', id: String(idFilter.value) };
+
+    if (state.table === 'routes') {
+      const pointFilter = state.filters.some((filter) => (
+        filter.method === 'neq' &&
+        filter.column === 'route_type' &&
+        filter.value === 'מסלול טיול'
+      ));
+      if (pointFilter) return { type: 'point', id: String(idFilter.value) };
+    }
+
+    return null;
+  }
+
+  async function fetchCachedContent(state, terminalMethod) {
+    const requestInfo = contentRequestType(state);
+    if (!requestInfo) return null;
+
+    const params = new URLSearchParams({
+      type: requestInfo.type,
+      id: requestInfo.id
+    });
+
+    try {
+      const response = await fetch(`/.netlify/functions/content-data?${params.toString()}`, {
+        headers: { Accept: 'application/json' }
+      });
+
+      if (response.status === 404) {
+        if (terminalMethod === 'maybeSingle') return { data: null, error: null };
+        return {
+          data: null,
+          error: {
+            code: 'PGRST116',
+            message: 'The result contains 0 rows',
+            details: null,
+            hint: null
+          }
+        };
+      }
+
+      if (!response.ok) return null;
+
+      const payload = await response.json();
+      return { data: payload?.data || null, error: null };
+    } catch (error) {
+      console.warn('JDJ content cache fallback:', error);
+      return null;
+    }
+  }
+
+  function collectionScope() {
+    const pathname = global.location?.pathname || '/';
+    const path = pathname.endsWith('.html') ? pathname.slice(0, -5) : pathname;
+    const search = new URLSearchParams(global.location?.search || '');
+
+    if (path === '/' || path === '/index') return 'home';
+    if (path === '/category') return `category:${search.get('type') || 'routes'}`;
+    if (path === '/stories') return 'stories';
+    if (path === '/khan-catalog') return 'khans';
+    if (['/item', '/point', '/khan', '/article'].includes(path)) {
+      const id = search.get('id') || 'unknown';
+      return `related:${path.slice(1)}:${id}`;
+    }
+    if (path.startsWith('/floods')) return `floods:${encodeURIComponent(path)}`;
+    return `page:${encodeURIComponent(path || '/')}`;
+  }
+
+  function canUseCollectionCache(state) {
+    return Boolean(
+      state.cacheable &&
+      COLLECTION_TABLES.has(state.table) &&
+      state.ops.some((op) => op.method === 'select')
+    );
+  }
+
+  async function fetchCachedCollection(state, mode = 'many') {
+    if (!canUseCollectionCache(state)) return null;
+
+    const params = new URLSearchParams({
+      table: state.table,
+      mode,
+      scope: collectionScope(),
+      ops: JSON.stringify(state.ops)
+    });
+
+    try {
+      const response = await fetch(`/.netlify/functions/collection-data?${params.toString()}`, {
+        headers: { Accept: 'application/json' }
+      });
+
+      if (response.status === 404 && mode === 'single') {
+        return {
+          data: null,
+          error: {
+            code: 'PGRST116',
+            message: 'The result contains 0 rows',
+            details: null,
+            hint: null
+          },
+          count: null,
+          status: 404,
+          statusText: 'Not Found'
+        };
+      }
+
+      if (!response.ok) return null;
+
+      const payload = await response.json();
+      return {
+        data: payload?.data ?? (mode === 'many' ? [] : null),
+        error: null,
+        count: null,
+        status: response.status,
+        statusText: response.statusText
+      };
+    } catch (error) {
+      console.warn('JDJ collection cache fallback:', error);
+      return null;
+    }
+  }
+
+  function wrapQueryBuilder(builder, state) {
+    let proxy = null;
+
+    proxy = new Proxy(builder, {
+      get(target, prop) {
+        if (prop === 'then') {
+          return (onFulfilled, onRejected) => {
+            if (!canUseCollectionCache(state)) {
+              return target.then(onFulfilled, onRejected);
+            }
+            return fetchCachedCollection(state, 'many')
+              .then((cached) => cached === null ? target : cached)
+              .then(onFulfilled, onRejected);
+          };
+        }
+        if (prop === 'catch' && typeof target.catch === 'function') return target.catch.bind(target);
+        if (prop === 'finally' && typeof target.finally === 'function') return target.finally.bind(target);
+
+        if ((prop === 'single' || prop === 'maybeSingle') && typeof target[prop] === 'function') {
+          return async (...args) => {
+            const productCached = await fetchCachedContent(state, prop);
+            if (productCached !== null) return productCached;
+
+            const collectionCached = await fetchCachedCollection(state, prop);
+            if (collectionCached !== null) return collectionCached;
+
+            return target[prop](...args);
+          };
+        }
+
+        const value = target[prop];
+        if (typeof value !== 'function') return value;
+
+        return (...args) => {
+          if ((prop === 'eq' || prop === 'neq') && args.length >= 2) {
+            state.filters.push({ method: prop, column: args[0], value: args[1] });
+          }
+
+          if (MUTATION_OPS.has(prop)) {
+            state.cacheable = false;
+          } else if (COLLECTION_OPS.has(prop)) {
+            if (prop === 'select' && args[1] && Object.keys(args[1]).length > 0) {
+              state.cacheable = false;
+            } else {
+              state.ops.push({ method: prop, args });
+            }
+          } else if (!['throwOnError', 'returns', 'overrideTypes', 'abortSignal'].includes(prop)) {
+            state.cacheable = false;
+          }
+
+          const next = value.apply(target, args);
+          if (next && typeof next === 'object' && typeof next.then === 'function') {
+            return wrapQueryBuilder(next, state);
+          }
+          return next;
+        };
+      }
+    });
+
+    return proxy;
+  }
+
+  function installContentDataProxy() {
+    const supabaseGlobal = global.supabase;
+    if (!supabaseGlobal || typeof supabaseGlobal.createClient !== 'function') return;
+    if (supabaseGlobal.createClient.__jdjContentDataProxyInstalled) return;
+
+    const originalCreateClient = supabaseGlobal.createClient;
+
+    function createClientWithContentCache(...args) {
+      const client = originalCreateClient.apply(this, args);
+      if (!client || client.__jdjContentDataProxyInstalled) return client;
+
+      const originalFrom = client.from.bind(client);
+      client.from = function fromWithContentCache(table) {
+        return wrapQueryBuilder(originalFrom(table), {
+          table,
+          filters: [],
+          ops: [],
+          cacheable: true
+        });
+      };
+
+      Object.defineProperty(client, '__jdjContentDataProxyInstalled', {
+        value: true,
+        enumerable: false
+      });
+
+      return client;
+    }
+
+    Object.defineProperty(createClientWithContentCache, '__jdjContentDataProxyInstalled', {
+      value: true,
+      enumerable: false
+    });
+
+    supabaseGlobal.createClient = createClientWithContentCache;
   }
 
   function applyRobots(robots) {
     const hostname = window.location.hostname;
     const isTestSite = hostname === 'jdj-test.netlify.app' || hostname.endsWith('--jdj-test.netlify.app');
-    const effectiveRobots = isTestSite ? 'noindex,follow' : robots;
+    const effectiveRobots = isTestSite ? 'noindex,nofollow' : robots;
 
     if (!effectiveRobots) return;
     let el = document.querySelector('meta[name="robots"]');
@@ -84,7 +324,6 @@
     }
     el.setAttribute('content', effectiveRobots);
   }
-
 
   function setMeta(selector, attribute, value) {
     if (!value) return;
@@ -121,10 +360,7 @@
     };
 
     try {
-      const [template, override] = await Promise.all([
-        getTemplate(client, templateKey),
-        getOverride(client, seoKey)
-      ]);
+      const { template, override } = await getSeoData(templateKey, seoKey);
 
       const fromTemplate = {
         title: renderTemplate(template?.title_template, enrichedVars),
@@ -166,6 +402,8 @@
     templateCache.clear();
     overrideCache.clear();
   }
+
+  installContentDataProxy();
 
   global.JDJSeoDB = {
     SITE_URL,

@@ -278,13 +278,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </div>
 
-    <!-- 📜 JS שליפה מ-Supabase וסינון חאנים -->
+    <!-- 📜 JS שליפה דרך שכבת ה-Collection Cache וסינון חאנים -->
     <script>
-        const SUPABASE_URL = window.JDJ_ENV?.supabaseUrl;
-        const SUPABASE_KEY = window.JDJ_ENV?.supabaseKey;
-        if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('JDJ environment config is missing');
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         let rawKhans = [];
         let filteredKhans = [];
         let currentRegionFilter = 'הכל';
@@ -336,6 +331,24 @@ function toggleFilterDrawer(open) {
             return !isEarlyAccessActive(item);
         }
 
+        async function fetchCollectionData({ table, scope, mode = 'many', ops = [], allowNotFound = false }) {
+            const params = new URLSearchParams({
+                table,
+                scope,
+                mode,
+                ops: JSON.stringify(ops)
+            });
+            const response = await fetch(`/.netlify/functions/collection-data?${params.toString()}`, {
+                headers: { Accept: 'application/json' }
+            });
+            if (allowNotFound && response.status === 404) return null;
+            if (!response.ok) {
+                throw new Error(`Collection data request failed: ${response.status}`);
+            }
+            const payload = await response.json();
+            return payload?.data;
+        }
+
         async function initKhansPage() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlRegion = urlParams.get('region');
@@ -344,18 +357,17 @@ function toggleFilterDrawer(open) {
             }
 
             try {
-                const { data, error } = await supabaseClient
-                    .from('khans')
-                    .select('*')
-                    .order('id', { ascending: false });
-
-                if (!error && data) {
-                    rawKhans = (data || []).filter(isPubliclyVisible);
-                } else {
-                    rawKhans = [];
-                }
+                const data = await fetchCollectionData({
+                    table: 'khans',
+                    scope: 'khan-catalog',
+                    ops: [
+                        { method: 'select', args: ['*'] },
+                        { method: 'order', args: ['id', { ascending: false }] }
+                    ]
+                });
+                rawKhans = (data || []).filter(isPubliclyVisible);
             } catch (err) {
-                console.error('Error fetching khans from Supabase:', err);
+                console.error('Error fetching khans from collection cache:', err);
                 rawKhans = [];
             }
 
@@ -365,14 +377,19 @@ function toggleFilterDrawer(open) {
 
         async function loadFaqKhansData() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('pages')
-                    .select('faq_data')
-                    .eq('id', 'faq_khans')
-                    .single();
+                const data = await fetchCollectionData({
+                    table: 'pages',
+                    scope: 'khan-catalog-faq',
+                    mode: 'single',
+                    allowNotFound: true,
+                    ops: [
+                        { method: 'select', args: ['faq_data'] },
+                        { method: 'eq', args: ['id', 'faq_khans'] }
+                    ]
+                });
 
                 const faqContainer = document.getElementById('faqKhansContainer');
-                if (error || !data || !data.faq_data || !Array.isArray(data.faq_data) || data.faq_data.length === 0) {
+                if (!data || !data.faq_data || !Array.isArray(data.faq_data) || data.faq_data.length === 0) {
                     document.getElementById('faqKhansSection').classList.add('hidden');
                     return;
                 }
@@ -395,6 +412,7 @@ function toggleFilterDrawer(open) {
 
             } catch (err) {
                 console.error('Error loading Khans FAQ:', err);
+                document.getElementById('faqKhansSection').classList.add('hidden');
             }
         }
 

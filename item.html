@@ -779,21 +779,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
 
             try {
-                const { data, error } = await supabaseClient
-                    .from('routes')
-                    .select('*')
-                    .eq('status', 'פורסם')
-                    .eq('route_type', 'מסלול טיול')
-                    .eq('id', itemId)
-                    .single();
+                const routeResponse = await fetch('/.netlify/functions/route-data?id=' + encodeURIComponent(itemId), {
+                    headers: { 'Accept': 'application/json' }
+                });
 
-                if (error) {
-                    if (error.code === 'PGRST116') {
-                        showItemNotFound();
-                        return;
-                    }
-                    throw error;
+                if (routeResponse.status === 404) {
+                    showItemNotFound();
+                    return;
                 }
+
+                if (!routeResponse.ok) {
+                    throw new Error(`Route API failed with status ${routeResponse.status}`);
+                }
+
+                const payload = await routeResponse.json();
+                const data = payload?.data;
 
                 if (!data) {
                     showItemNotFound();
