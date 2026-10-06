@@ -96,7 +96,23 @@ function buildSitemap(routes, khans, articles) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>\n`;
 }
 
-exports.handler = async function handler() {
+function isTestHost(host = '') {
+  const normalized = String(host || '').toLowerCase().split(':')[0];
+  return normalized === 'jdj-test.netlify.app' || normalized.endsWith('--jdj-test.netlify.app');
+}
+
+function responseHeaders(event, cacheControl) {
+  const headers = {
+    'Content-Type': 'application/xml; charset=utf-8',
+    'Cache-Control': cacheControl
+  };
+  if (isTestHost(event?.headers?.host || event?.headers?.Host || '')) {
+    headers['X-Robots-Tag'] = 'noindex, nofollow';
+  }
+  return headers;
+}
+
+exports.handler = async function handler(event) {
   try {
     const [routes, khans, articles] = await Promise.all([
       supabaseSelect('routes', 'id,route_type,early_access_until', [['status', 'eq.פורסם']]),
@@ -108,24 +124,20 @@ exports.handler = async function handler() {
 
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600'
-      },
+      headers: responseHeaders(event, 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600'),
       body: xml
     };
   } catch (error) {
     console.error('Sitemap generation failed:', error);
+    const headers = responseHeaders(event, 'no-store');
+    headers['Content-Type'] = 'text/plain; charset=utf-8';
     return {
       statusCode: 503,
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-store'
-      },
+      headers,
       body: 'Sitemap temporarily unavailable'
     };
   }
 };
 
 // Exported only to make local validation possible; Netlify uses handler above.
-exports._test = { buildSitemap, xmlEscape, isPubliclyVisible };
+exports._test = { buildSitemap, xmlEscape, isPubliclyVisible, isTestHost };
