@@ -25,19 +25,22 @@ function json(body, status = 200, origin = "") {
   });
 }
 
-async function validateUserAccessToken(token) {
-  if (!SUPABASE_URL || !SUPABASE_KEY || !token) return null;
+async function isAdminAccessToken(token) {
+  if (!SUPABASE_URL || !SUPABASE_KEY || !token) return false;
 
-  const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_jdj_admin`, {
+    method: "POST",
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
       Accept: "application/json",
     },
+    body: "{}",
   });
 
-  if (!response.ok) return null;
-  return response.json();
+  if (!response.ok) return false;
+  return (await response.json()) === true;
 }
 
 export default async (request) => {
@@ -63,12 +66,11 @@ export default async (request) => {
 
   const authHeader = request.headers.get("authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+  if (!token) return json({ error: "Unauthorized" }, 401, origin);
 
   try {
-    const user = await validateUserAccessToken(token);
-
-    if (!user?.id) {
-      return json({ error: "Unauthorized" }, 401, origin);
+    if (!(await isAdminAccessToken(token))) {
+      return json({ error: "Admin access required" }, 403, origin);
     }
 
     await purgeCache();
