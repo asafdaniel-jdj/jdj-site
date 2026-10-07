@@ -1,10 +1,14 @@
 const PAGE_CACHE_SECONDS = 2_592_000; // 30 days
 const PAGE_STALE_SECONDS = 3_600; // 1 hour
-const PAGE_CACHE_VERSION = Netlify.env.get('COMMIT_REF') || Netlify.env.get('DEPLOY_ID') || 'runtime';
-const PAGE_CACHE_NAME = `jdj-rendered-pages-v2-${PAGE_CACHE_VERSION}`;
+const PAGE_CACHE_PREFIX = 'jdj-rendered-pages-v3';
 
 function normalizePath(pathname = '/') {
   return pathname.endsWith('.html') ? pathname.slice(0, -5) : pathname;
+}
+
+function cacheVersion(context) {
+  const deployId = context?.deploy?.id;
+  return deployId ? String(deployId) : 'runtime';
 }
 
 function contentTag(url) {
@@ -37,7 +41,7 @@ function cacheTags(url) {
   } else if (path === '/stories') {
     tags.push('collections', 'table:articles', 'collection:stories');
   } else if (path === '/khan-catalog') {
-    tags.push('collections', 'table:khans', 'table:pages', 'collection:khans');
+    tags.push('collections', 'table:khans', 'table:pages', 'collection:khans', 'collection:khan-catalog');
   } else if (path === '/floods') {
     tags.push('collections', 'table:floods_page_config', 'table:flood_rivers', 'table:articles');
   } else if (path.startsWith('/floods/')) {
@@ -47,10 +51,10 @@ function cacheTags(url) {
   return [...new Set(tags)].join(',');
 }
 
-function withHeader(response, name, value) {
+function withHeader(response, name, value, version) {
   const headers = new Headers(response.headers);
   headers.set(name, value);
-  headers.set('X-JDJ-Page-Cache-Version', PAGE_CACHE_VERSION.slice(0, 12));
+  headers.set('X-JDJ-Page-Cache-Version', version.slice(0, 12));
   if (name === 'X-JDJ-Page-Cache' && value === 'HIT') {
     headers.set('Server-Timing', 'jdj_page_cache;desc="HIT";dur=0');
   }
@@ -67,18 +71,19 @@ export default async function handler(request, context) {
 
   const started = performance.now();
   const url = new URL(request.url);
-  const cache = await caches.open(PAGE_CACHE_NAME);
+  const version = cacheVersion(context);
+  const cache = await caches.open(`${PAGE_CACHE_PREFIX}-${version}`);
   const cacheKey = new Request(url.toString(), { method: 'GET' });
 
   const cached = await cache.match(cacheKey);
-  if (cached) return withHeader(cached, 'X-JDJ-Page-Cache', 'HIT');
+  if (cached) return withHeader(cached, 'X-JDJ-Page-Cache', 'HIT', version);
 
   const response = await context.next();
   const contentType = response.headers.get('content-type') || '';
   const earlyAccess = response.headers.get('X-JDJ-Early-Access') === '1';
 
   if (!response.ok || !contentType.includes('text/html') || earlyAccess) {
-    const bypass = withHeader(response, 'X-JDJ-Page-Cache', earlyAccess ? 'BYPASS-EARLY-ACCESS' : 'BYPASS');
+    const bypass = withHeader(response, 'X-JDJ-Page-Cache', earlyAccess ? 'BYPASS-EARLY-ACCESS' : 'BYPASS', version);
     const headers = new Headers(bypass.headers);
     const existingTiming = headers.get('Server-Timing');
     const pageTiming = `jdj_page_cache;desc="BYPASS";dur=${(performance.now() - started).toFixed(1)}`;
@@ -91,7 +96,7 @@ export default async function handler(request, context) {
   headers.set('Cache-Control', `public, max-age=0, s-maxage=${PAGE_CACHE_SECONDS}, stale-while-revalidate=${PAGE_STALE_SECONDS}`);
   headers.set('Netlify-Cache-Tag', cacheTags(url));
   headers.set('X-JDJ-Page-Cache', 'MISS-STORED');
-  headers.set('X-JDJ-Page-Cache-Version', PAGE_CACHE_VERSION.slice(0, 12));
+  headers.set('X-JDJ-Page-Cache-Version', version.slice(0, 12));
   const existingTiming = headers.get('Server-Timing');
   const pageTiming = `jdj_page_cache;desc="MISS";dur=${(performance.now() - started).toFixed(1)}`;
   headers.set('Server-Timing', existingTiming ? `${existingTiming}, ${pageTiming}` : pageTiming);
