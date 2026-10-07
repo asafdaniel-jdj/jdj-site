@@ -7,6 +7,10 @@ function esc(value = '') {
     .replace(/'/g, '&#39;');
 }
 
+function isTestHost(hostname) {
+  return hostname === 'jdj-test.netlify.app' || hostname.endsWith('--jdj-test.netlify.app');
+}
+
 function isPubliclyVisible(row, nowMs = Date.now()) {
   if (!row || !row.early_access_until) return true;
   const until = Date.parse(row.early_access_until);
@@ -16,6 +20,20 @@ function isPubliclyVisible(row, nowMs = Date.now()) {
 function replaceElementInnerHtml(html, id, innerHtml) {
   const re = new RegExp(`(<[^>]+id=["']${id}["'][^>]*>)[\\s\\S]*?(<\\/[^>]+>)`, 'i');
   return html.replace(re, `$1${innerHtml}$2`);
+}
+
+function setRobotsMeta(html, value) {
+  const escaped = esc(value);
+  const re = /<meta\b([^>]*\bname=["']robots["'][^>]*)>/i;
+  if (re.test(html)) {
+    return html.replace(re, (tag) => {
+      if (/\bcontent=(["'])[\s\S]*?\1/i.test(tag)) {
+        return tag.replace(/\bcontent=(["'])[\s\S]*?\1/i, `content="${escaped}"`);
+      }
+      return tag.replace(/>$/, ` content="${escaped}">`);
+    });
+  }
+  return html.replace(/<\/head>/i, `    <meta name="robots" content="${escaped}">\n</head>`);
 }
 
 async function fetchCollection(requestUrl, table, scope, ops) {
@@ -53,7 +71,6 @@ function renderCategoryLinks(rows, url) {
     .filter(isPubliclyVisible)
     .filter(row => allowed.has(row.route_type))
     .filter(row => !region || row.region === region)
-    .slice(0, 18)
     .map(row => discoveryCard(
       `${row.route_type === 'מסלול טיול' ? '/item' : '/point'}?id=${encodeURIComponent(row.id)}`,
       row.title,
@@ -65,7 +82,6 @@ function renderCategoryLinks(rows, url) {
 function renderStoryLinks(rows) {
   return rows
     .filter(isPubliclyVisible)
-    .slice(0, 18)
     .map(row => discoveryCard(`/article?id=${encodeURIComponent(row.id)}`, row.title, row.excerpt))
     .join('');
 }
@@ -73,14 +89,12 @@ function renderStoryLinks(rows) {
 function renderKhanLinks(rows) {
   return rows
     .filter(isPubliclyVisible)
-    .slice(0, 18)
     .map(row => discoveryCard(`/khan?id=${encodeURIComponent(row.id)}`, row.title, row.short_description))
     .join('');
 }
 
 function renderRiverLinks(rows) {
   return rows
-    .slice(0, 24)
     .map(row => discoveryCard(
       `/floods/${encodeURIComponent(row.region_slug)}/${encodeURIComponent(row.slug)}`,
       row.name,
@@ -119,8 +133,10 @@ export default async function handler(request, context) {
     render = renderStoryLinks;
   } else if (path === '/khan-catalog') {
     targetId = 'khanCatalogGrid';
-    dataPromise = fetchCollection(request.url, 'khans', 'khans', [
-      { method: 'select', args: ['id,title,region,short_description,early_access_until'] },
+    // Keep this request identical to the browser request so server HTML and hydrated UI
+    // share the exact same cached collection snapshot.
+    dataPromise = fetchCollection(request.url, 'khans', 'khan-catalog', [
+      { method: 'select', args: ['*'] },
       { method: 'order', args: ['id', { ascending: false }] }
     ]);
     render = renderKhanLinks;
@@ -155,6 +171,12 @@ export default async function handler(request, context) {
   let html = await response.text();
   const discoveryHtml = render(rows);
   if (discoveryHtml) html = replaceElementInnerHtml(html, targetId, discoveryHtml);
+
+  // TEST must be internally consistent: both HTTP header and raw HTML robots are noindex,nofollow.
+  // PROD remains index,follow for these public Floods catalog pages.
+  if (path === '/floods' || path === '/floods/judean-desert' || path === '/floods/negev-arava') {
+    html = setRobotsMeta(html, isTestHost(url.hostname) ? 'noindex,nofollow' : 'index,follow');
+  }
 
   const headers = new Headers(response.headers);
   headers.delete('content-length');
