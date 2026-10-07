@@ -1,6 +1,7 @@
-const PAGE_CACHE_NAME = 'jdj-rendered-pages-v1';
 const PAGE_CACHE_SECONDS = 2_592_000; // 30 days
 const PAGE_STALE_SECONDS = 3_600; // 1 hour
+const PAGE_CACHE_VERSION = Netlify.env.get('COMMIT_REF') || Netlify.env.get('DEPLOY_ID') || 'runtime';
+const PAGE_CACHE_NAME = `jdj-rendered-pages-v2-${PAGE_CACHE_VERSION}`;
 
 function normalizePath(pathname = '/') {
   return pathname.endsWith('.html') ? pathname.slice(0, -5) : pathname;
@@ -49,6 +50,7 @@ function cacheTags(url) {
 function withHeader(response, name, value) {
   const headers = new Headers(response.headers);
   headers.set(name, value);
+  headers.set('X-JDJ-Page-Cache-Version', PAGE_CACHE_VERSION.slice(0, 12));
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
@@ -80,6 +82,7 @@ export default async function handler(request, context) {
   headers.set('Cache-Control', `public, max-age=0, s-maxage=${PAGE_CACHE_SECONDS}, stale-while-revalidate=${PAGE_STALE_SECONDS}`);
   headers.set('Netlify-Cache-Tag', cacheTags(url));
   headers.set('X-JDJ-Page-Cache', 'MISS-STORED');
+  headers.set('X-JDJ-Page-Cache-Version', PAGE_CACHE_VERSION.slice(0, 12));
 
   const cacheable = new Response(await response.text(), {
     status: response.status,
