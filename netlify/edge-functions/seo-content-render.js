@@ -1,3 +1,6 @@
+const SUPABASE_URL = Netlify.env.get('JDJ_SUPABASE_URL');
+const SEO_SHARED_CACHE_NAME = 'jdj-seo-data-v1';
+
 function isTestHost(hostname) {
   return hostname === 'jdj-test.netlify.app' || hostname.endsWith('--jdj-test.netlify.app');
 }
@@ -66,12 +69,50 @@ function entityRequest(url, type, id) {
   return endpoint;
 }
 
-async function fetchCachedEntity(requestUrl, type, id) {
+async function fetchCachedEntityFallback(requestUrl, type, id) {
   const endpoint = entityRequest(requestUrl, type, id);
   const response = await fetch(endpoint, { headers: { Accept: 'application/json' } });
   if (!response.ok) return null;
   const payload = await response.json();
   return payload?.data || null;
+}
+
+function seoEntityCacheUrl(type, id) {
+  if (!SUPABASE_URL) return null;
+
+  let table = 'routes';
+  const params = new URLSearchParams();
+  params.set('select', '*');
+  params.set('id', `eq.${id}`);
+  params.set('limit', '1');
+
+  if (type === 'item') {
+    params.set('status', 'eq.פורסם');
+    params.set('route_type', 'eq.מסלול טיול');
+  } else if (type === 'point') {
+    params.set('status', 'eq.פורסם');
+    params.set('route_type', 'neq.מסלול טיול');
+  } else if (type === 'khan') {
+    table = 'khans';
+  } else if (type === 'article') {
+    table = 'articles';
+  } else {
+    return null;
+  }
+
+  return `${SUPABASE_URL}/rest/v1/${table}?${params.toString()}`;
+}
+
+async function readEntityFromSeoCache(type, id) {
+  const cacheUrl = seoEntityCacheUrl(type, id);
+  if (!cacheUrl) return null;
+
+  const cache = await caches.open(SEO_SHARED_CACHE_NAME);
+  const cached = await cache.match(new Request(cacheUrl, { method: 'GET' }));
+  if (!cached || !cached.ok) return null;
+
+  const rows = await cached.json();
+  return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
 function pageType(pathname) {
@@ -137,30 +178,30 @@ export default async function handler(request, context) {
   if (!type || !id || !/^\d+$/.test(id)) return context.next();
 
   const totalStarted = performance.now();
-  let downstreamMs = 0;
-  let entityMs = 0;
-
-  const [response, row] = await Promise.all([
-    (async () => {
-      const started = performance.now();
-      const result = await context.next();
-      downstreamMs = performance.now() - started;
-      return result;
-    })(),
-    (async () => {
-      const started = performance.now();
-      try {
-        return await fetchCachedEntity(request.url, type, id);
-      } catch (error) {
-        console.error('seo-content-render entity lookup failed', error);
-        return null;
-      } finally {
-        entityMs = performance.now() - started;
-      }
-    })()
-  ]);
+  const downstreamStarted = performance.now();
+  const response = await context.next();
+  const downstreamMs = performance.now() - downstreamStarted;
 
   if (!response.ok || !(response.headers.get('content-type') || '').includes('text/html')) return response;
+
+  // seo-meta already resolved this entity before returning downstream HTML.
+  // Reuse the exact Cache API entry it populated instead of starting another
+  // same-site Function request. Fall back to the public cached endpoint only
+  // if the shared SEO cache entry is unexpectedly unavailable.
+  const entityStarted = performance.now();
+  let row = null;
+  let entitySource = 'seo-cache';
+  try {
+    row = await readEntityFromSeoCache(type, id);
+    if (!row) {
+      entitySource = 'function-fallback';
+      row = await fetchCachedEntityFallback(request.url, type, id);
+    }
+  } catch (error) {
+    console.error('seo-content-render entity lookup failed', error);
+    row = null;
+  }
+  const entityMs = performance.now() - entityStarted;
 
   let html = await response.text();
   const earlyAccess = !!(row && isEarlyAccessActive(row));
@@ -180,6 +221,7 @@ export default async function handler(request, context) {
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.set('X-JDJ-SEO-Content-Render', row ? 'server-rendered-cache' : 'no-row');
+  headers.set('X-JDJ-Entity-Source', row ? entitySource : 'none');
   headers.set('X-JDJ-Early-Access', earlyAccess ? '1' : '0');
 
   const totalMs = performance.now() - totalStarted;
