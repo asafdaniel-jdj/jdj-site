@@ -51,6 +51,9 @@ function withHeader(response, name, value) {
   const headers = new Headers(response.headers);
   headers.set(name, value);
   headers.set('X-JDJ-Page-Cache-Version', PAGE_CACHE_VERSION.slice(0, 12));
+  if (name === 'X-JDJ-Page-Cache' && value === 'HIT') {
+    headers.set('Server-Timing', 'jdj_page_cache;desc="HIT";dur=0');
+  }
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
@@ -62,6 +65,7 @@ export default async function handler(request, context) {
   if (request.method !== 'GET') return context.next();
   if (request.headers.get('authorization')) return context.next();
 
+  const started = performance.now();
   const url = new URL(request.url);
   const cache = await caches.open(PAGE_CACHE_NAME);
   const cacheKey = new Request(url.toString(), { method: 'GET' });
@@ -74,7 +78,12 @@ export default async function handler(request, context) {
   const earlyAccess = response.headers.get('X-JDJ-Early-Access') === '1';
 
   if (!response.ok || !contentType.includes('text/html') || earlyAccess) {
-    return withHeader(response, 'X-JDJ-Page-Cache', earlyAccess ? 'BYPASS-EARLY-ACCESS' : 'BYPASS');
+    const bypass = withHeader(response, 'X-JDJ-Page-Cache', earlyAccess ? 'BYPASS-EARLY-ACCESS' : 'BYPASS');
+    const headers = new Headers(bypass.headers);
+    const existingTiming = headers.get('Server-Timing');
+    const pageTiming = `jdj_page_cache;desc="BYPASS";dur=${(performance.now() - started).toFixed(1)}`;
+    headers.set('Server-Timing', existingTiming ? `${existingTiming}, ${pageTiming}` : pageTiming);
+    return new Response(bypass.body, { status: bypass.status, statusText: bypass.statusText, headers });
   }
 
   const headers = new Headers(response.headers);
@@ -83,6 +92,9 @@ export default async function handler(request, context) {
   headers.set('Netlify-Cache-Tag', cacheTags(url));
   headers.set('X-JDJ-Page-Cache', 'MISS-STORED');
   headers.set('X-JDJ-Page-Cache-Version', PAGE_CACHE_VERSION.slice(0, 12));
+  const existingTiming = headers.get('Server-Timing');
+  const pageTiming = `jdj_page_cache;desc="MISS";dur=${(performance.now() - started).toFixed(1)}`;
+  headers.set('Server-Timing', existingTiming ? `${existingTiming}, ${pageTiming}` : pageTiming);
 
   const cacheable = new Response(await response.text(), {
     status: response.status,
