@@ -1,6 +1,3 @@
-const SUPABASE_URL = Netlify.env.get('JDJ_SUPABASE_URL');
-const SUPABASE_KEY = Netlify.env.get('JDJ_SUPABASE_KEY');
-
 function isTestHost(hostname) {
   return hostname === 'jdj-test.netlify.app' || hostname.endsWith('--jdj-test.netlify.app');
 }
@@ -43,14 +40,22 @@ function revealContentShell(html) {
   return html;
 }
 
-async function fetchOne(table, id, select) {
-  const params = new URLSearchParams({ select, id: `eq.${id}`, limit: '1' });
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params.toString()}`, {
-    headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
+async function fetchCachedEntity(requestUrl, type, id) {
+  const endpoint = new URL(
+    type === 'item' ? '/.netlify/functions/route-data' : '/.netlify/functions/content-data',
+    requestUrl
+  );
+
+  endpoint.searchParams.set('id', id);
+  if (type !== 'item') endpoint.searchParams.set('type', type);
+
+  const response = await fetch(endpoint, {
+    headers: { Accept: 'application/json' }
   });
+
   if (!response.ok) return null;
-  const rows = await response.json();
-  return Array.isArray(rows) && rows.length ? rows[0] : null;
+  const payload = await response.json();
+  return payload?.data || null;
 }
 
 function renderArticle(html, row) {
@@ -93,7 +98,6 @@ export default async function handler(request, context) {
 
   // TEST-only safety gate for the implementation phase of JDJ-49.
   if (!isTestHost(url.hostname)) return response;
-  if (!SUPABASE_URL || !SUPABASE_KEY) return response;
   if (!response.ok || !(response.headers.get('content-type') || '').includes('text/html')) return response;
 
   const id = url.searchParams.get('id');
@@ -104,16 +108,16 @@ export default async function handler(request, context) {
 
   try {
     if (url.pathname === '/article' || url.pathname === '/article.html') {
-      row = await fetchOne('articles', id, 'id,title,excerpt,content_html,author,early_access_until');
+      row = await fetchCachedEntity(request.url, 'article', id);
       if (row) html = renderArticle(html, row);
     } else if (url.pathname === '/item' || url.pathname === '/item.html') {
-      row = await fetchOne('routes', id, 'id,title,region,difficulty,nature,short_description,route_story,waypoint_highlights,early_access_until');
+      row = await fetchCachedEntity(request.url, 'item', id);
       if (row) html = renderRoute(html, row, false);
     } else if (url.pathname === '/point' || url.pathname === '/point.html') {
-      row = await fetchOne('routes', id, 'id,title,region,difficulty,nature,short_description,route_story,waypoint_highlights,early_access_until');
+      row = await fetchCachedEntity(request.url, 'point', id);
       if (row) html = renderRoute(html, row, true);
     } else if (url.pathname === '/khan' || url.pathname === '/khan.html') {
-      row = await fetchOne('khans', id, 'id,title,location_name,region,short_description,review_liked,review_disliked,review_jeep_angle,early_access_until');
+      row = await fetchCachedEntity(request.url, 'khan', id);
       if (row) html = renderKhan(html, row);
     }
   } catch (error) {
@@ -122,7 +126,7 @@ export default async function handler(request, context) {
   }
 
   const headers = new Headers(response.headers);
-  headers.set('X-JDJ-SEO-Content-Render', row ? 'test-server-rendered' : 'test-no-row');
+  headers.set('X-JDJ-SEO-Content-Render', row ? 'test-server-rendered-cache' : 'test-no-row');
   return new Response(html, {
     status: response.status,
     statusText: response.statusText,
