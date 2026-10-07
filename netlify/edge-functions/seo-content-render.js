@@ -37,6 +37,19 @@ function replaceElementHtml(html, id, value) {
   return html.replace(re, `$1${safeHtml(value)}$2`);
 }
 
+function setRobotsIndexFollow(html) {
+  const robotsRe = /<meta\b([^>]*\bname=["']robots["'][^>]*)>/i;
+  if (robotsRe.test(html)) {
+    return html.replace(robotsRe, (tag) => {
+      if (/\bcontent=(["'])[\s\S]*?\1/i.test(tag)) {
+        return tag.replace(/\bcontent=(["'])[\s\S]*?\1/i, 'content="index,follow"');
+      }
+      return tag.replace(/>$/, ' content="index,follow">');
+    });
+  }
+  return html.replace(/<\/head>/i, '    <meta name="robots" content="index,follow">\n</head>');
+}
+
 function revealContentShell(html) {
   html = html.replace(/(<[^>]+id=["']loadingState["'][^>]*class=["'][^"']*)([^"']*["'][^>]*>)/i, '$1 hidden$2');
   html = html.replace(/(<[^>]+id=["']itemContainer["'][^>]*class=["'][^"']*)\bhidden\b([^"']*["'][^>]*>)/i, '$1$2');
@@ -136,6 +149,7 @@ export default async function handler(request, context) {
   if (!response.ok || !(response.headers.get('content-type') || '').includes('text/html')) return response;
 
   let html = await response.text();
+  const earlyAccess = !!(row && isEarlyAccessActive(row));
 
   if (row) {
     if (type === 'article') html = renderArticle(html, row);
@@ -145,15 +159,21 @@ export default async function handler(request, context) {
     html = injectEmbeddedEntity(html, type, id, row);
   }
 
+  // Early Access remains hidden from catalogs/search/sitemap, but is indexable in PROD.
+  // TEST stays globally noindex/nofollow regardless of content state.
+  if (earlyAccess && !isTestHost(url.hostname)) {
+    html = setRobotsIndexFollow(html);
+  }
+
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.set('X-JDJ-SEO-Content-Render', row ? 'server-rendered-cache' : 'no-row');
-  headers.set('X-JDJ-Early-Access', row && isEarlyAccessActive(row) ? '1' : '0');
+  headers.set('X-JDJ-Early-Access', earlyAccess ? '1' : '0');
 
-  // TEST remains globally noindex/nofollow. PROD Early Access is intentionally indexable;
-  // the page-cache layer simply bypasses caching it until the 48h window has ended.
   if (isTestHost(url.hostname)) {
     headers.set('X-Robots-Tag', 'noindex, nofollow');
+  } else if (earlyAccess) {
+    headers.delete('X-Robots-Tag');
   }
 
   return new Response(html, {
