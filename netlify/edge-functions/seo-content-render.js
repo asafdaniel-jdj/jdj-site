@@ -136,14 +136,28 @@ export default async function handler(request, context) {
 
   if (!type || !id || !/^\d+$/.test(id)) return context.next();
 
-  // Run the legacy SEO enrichment and the cached entity lookup in parallel.
-  // This removes the sequential server-side wait that caused the 1.025 regression.
+  const totalStarted = performance.now();
+  let downstreamMs = 0;
+  let entityMs = 0;
+
   const [response, row] = await Promise.all([
-    context.next(),
-    fetchCachedEntity(request.url, type, id).catch((error) => {
-      console.error('seo-content-render entity lookup failed', error);
-      return null;
-    })
+    (async () => {
+      const started = performance.now();
+      const result = await context.next();
+      downstreamMs = performance.now() - started;
+      return result;
+    })(),
+    (async () => {
+      const started = performance.now();
+      try {
+        return await fetchCachedEntity(request.url, type, id);
+      } catch (error) {
+        console.error('seo-content-render entity lookup failed', error);
+        return null;
+      } finally {
+        entityMs = performance.now() - started;
+      }
+    })()
   ]);
 
   if (!response.ok || !(response.headers.get('content-type') || '').includes('text/html')) return response;
@@ -159,8 +173,6 @@ export default async function handler(request, context) {
     html = injectEmbeddedEntity(html, type, id, row);
   }
 
-  // Early Access remains hidden from catalogs/search/sitemap, but is indexable in PROD.
-  // TEST stays globally noindex/nofollow regardless of content state.
   if (earlyAccess && !isTestHost(url.hostname)) {
     html = setRobotsIndexFollow(html);
   }
@@ -169,6 +181,15 @@ export default async function handler(request, context) {
   headers.delete('content-length');
   headers.set('X-JDJ-SEO-Content-Render', row ? 'server-rendered-cache' : 'no-row');
   headers.set('X-JDJ-Early-Access', earlyAccess ? '1' : '0');
+
+  const totalMs = performance.now() - totalStarted;
+  const timing = [
+    `jdj_downstream;dur=${downstreamMs.toFixed(1)}`,
+    `jdj_entity;dur=${entityMs.toFixed(1)}`,
+    `jdj_content_render;dur=${totalMs.toFixed(1)}`
+  ].join(', ');
+  const existingTiming = headers.get('Server-Timing');
+  headers.set('Server-Timing', existingTiming ? `${existingTiming}, ${timing}` : timing);
 
   if (isTestHost(url.hostname)) {
     headers.set('X-Robots-Tag', 'noindex, nofollow');
