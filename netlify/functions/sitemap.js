@@ -19,6 +19,9 @@ const STATIC_URLS = [
   '/category?type=poi',
   '/khan-catalog',
   '/stories',
+  '/floods',
+  '/floods/judean-desert',
+  '/floods/negev-arava',
   '/access',
   '/mview',
   '/camp',
@@ -69,7 +72,7 @@ function isPubliclyVisible(row, nowMs = Date.now()) {
   return !Number.isFinite(until) || until <= nowMs;
 }
 
-function buildSitemap(routes, khans, articles) {
+function buildSitemap(routes, khans, articles, floodRivers = []) {
   const urls = new Set(STATIC_URLS.map(path => `${SITE_URL}${path}`));
   const nowMs = Date.now();
 
@@ -87,6 +90,11 @@ function buildSitemap(routes, khans, articles) {
   for (const article of articles) {
     if (article?.id == null || !isPubliclyVisible(article, nowMs)) continue;
     urls.add(`${SITE_URL}/article?id=${encodeURIComponent(article.id)}`);
+  }
+
+  for (const river of floodRivers) {
+    if (!river?.slug || !river?.region_slug) continue;
+    urls.add(`${SITE_URL}/floods/${encodeURIComponent(river.region_slug)}/${encodeURIComponent(river.slug)}`);
   }
 
   const entries = [...urls]
@@ -114,13 +122,14 @@ function responseHeaders(event, cacheControl) {
 
 exports.handler = async function handler(event) {
   try {
-    const [routes, khans, articles] = await Promise.all([
+    const [routes, khans, articles, floodRivers] = await Promise.all([
       supabaseSelect('routes', 'id,route_type,early_access_until', [['status', 'eq.פורסם']]),
       supabaseSelect('khans', 'id,early_access_until'),
-      supabaseSelect('articles', 'id,early_access_until')
+      supabaseSelect('articles', 'id,early_access_until'),
+      supabaseSelect('flood_rivers', 'slug,region_slug', [['status', 'eq.published']])
     ]);
 
-    const xml = buildSitemap(routes, khans, articles);
+    const xml = buildSitemap(routes, khans, articles, floodRivers);
 
     return {
       statusCode: 200,
@@ -139,5 +148,4 @@ exports.handler = async function handler(event) {
   }
 };
 
-// Exported only to make local validation possible; Netlify uses handler above.
 exports._test = { buildSitemap, xmlEscape, isPubliclyVisible, isTestHost };

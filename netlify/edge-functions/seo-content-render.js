@@ -2,6 +2,12 @@ function isTestHost(hostname) {
   return hostname === 'jdj-test.netlify.app' || hostname.endsWith('--jdj-test.netlify.app');
 }
 
+function isEarlyAccessActive(row, nowMs = Date.now()) {
+  if (!row || !row.early_access_until) return false;
+  const until = Date.parse(row.early_access_until);
+  return Number.isFinite(until) && until > nowMs;
+}
+
 function esc(value = '') {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -12,8 +18,6 @@ function esc(value = '') {
 }
 
 function safeHtml(value = '') {
-  // Content HTML is authored in the JDJ admin and already rendered on the page by the client.
-  // Strip executable/embedded content before server rendering it into the initial response.
   return String(value)
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<iframe\b[^>]*>[\s\S]*?<\/iframe>/gi, '')
@@ -34,28 +38,48 @@ function replaceElementHtml(html, id, value) {
 }
 
 function revealContentShell(html) {
-  html = html.replace(/(<[^>]+id=["']loadingState["'][^>]*class=["'][^"']*)\bhidden\b([^"']*["'][^>]*>)/i, '$1$2');
   html = html.replace(/(<[^>]+id=["']loadingState["'][^>]*class=["'][^"']*)([^"']*["'][^>]*>)/i, '$1 hidden$2');
   html = html.replace(/(<[^>]+id=["']itemContainer["'][^>]*class=["'][^"']*)\bhidden\b([^"']*["'][^>]*>)/i, '$1$2');
   return html;
 }
 
-async function fetchCachedEntity(requestUrl, type, id) {
+function entityRequest(url, type, id) {
   const endpoint = new URL(
     type === 'item' ? '/.netlify/functions/route-data' : '/.netlify/functions/content-data',
-    requestUrl
+    url
   );
-
   endpoint.searchParams.set('id', id);
   if (type !== 'item') endpoint.searchParams.set('type', type);
+  return endpoint;
+}
 
-  const response = await fetch(endpoint, {
-    headers: { Accept: 'application/json' }
-  });
-
+async function fetchCachedEntity(requestUrl, type, id) {
+  const endpoint = entityRequest(requestUrl, type, id);
+  const response = await fetch(endpoint, { headers: { Accept: 'application/json' } });
   if (!response.ok) return null;
   const payload = await response.json();
   return payload?.data || null;
+}
+
+function pageType(pathname) {
+  const path = pathname.endsWith('.html') ? pathname.slice(0, -5) : pathname;
+  if (path === '/article') return 'article';
+  if (path === '/item') return 'item';
+  if (path === '/point') return 'point';
+  if (path === '/khan') return 'khan';
+  return null;
+}
+
+function injectEmbeddedEntity(html, type, id, row) {
+  if (!row) return html;
+  const safeJson = JSON.stringify({ type, id: String(id), data: row })
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+
+  const script = `<script id="jdj-server-page-data">\n(() => {\n  const embedded = ${safeJson};\n  window.__JDJ_PAGE_DATA__ = embedded;\n  const originalFetch = window.fetch.bind(window);\n  window.fetch = function(input, init) {\n    try {\n      const raw = typeof input === 'string' ? input : input?.url;\n      const target = new URL(raw, window.location.href);\n      const sameId = target.searchParams.get('id') === embedded.id;\n      const routeMatch = embedded.type === 'item' && target.pathname === '/.netlify/functions/route-data' && sameId;\n      const contentMatch = embedded.type !== 'item' && target.pathname === '/.netlify/functions/content-data' && sameId && target.searchParams.get('type') === embedded.type;\n      if (routeMatch || contentMatch) {\n        return Promise.resolve(new Response(JSON.stringify({ data: embedded.data }), {\n          status: 200,\n          headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-JDJ-Embedded-Data': '1' }\n        }));\n      }\n    } catch (_) {}\n    return originalFetch(input, init);\n  };\n})();\n</script>`;
+
+  return html.replace(/<\/head>/i, `${script}\n</head>`);
 }
 
 function renderArticle(html, row) {
@@ -94,39 +118,44 @@ function renderKhan(html, row) {
 
 export default async function handler(request, context) {
   const url = new URL(request.url);
-  const response = await context.next();
+  const id = url.searchParams.get('id');
+  const type = pageType(url.pathname);
 
-  // TEST-only safety gate for the implementation phase of JDJ-49.
-  if (!isTestHost(url.hostname)) return response;
+  if (!type || !id || !/^\d+$/.test(id)) return context.next();
+
+  // Run the legacy SEO enrichment and the cached entity lookup in parallel.
+  // This removes the sequential server-side wait that caused the 1.025 regression.
+  const [response, row] = await Promise.all([
+    context.next(),
+    fetchCachedEntity(request.url, type, id).catch((error) => {
+      console.error('seo-content-render entity lookup failed', error);
+      return null;
+    })
+  ]);
+
   if (!response.ok || !(response.headers.get('content-type') || '').includes('text/html')) return response;
 
-  const id = url.searchParams.get('id');
-  if (!id || !/^\d+$/.test(id)) return response;
-
   let html = await response.text();
-  let row = null;
 
-  try {
-    if (url.pathname === '/article' || url.pathname === '/article.html') {
-      row = await fetchCachedEntity(request.url, 'article', id);
-      if (row) html = renderArticle(html, row);
-    } else if (url.pathname === '/item' || url.pathname === '/item.html') {
-      row = await fetchCachedEntity(request.url, 'item', id);
-      if (row) html = renderRoute(html, row, false);
-    } else if (url.pathname === '/point' || url.pathname === '/point.html') {
-      row = await fetchCachedEntity(request.url, 'point', id);
-      if (row) html = renderRoute(html, row, true);
-    } else if (url.pathname === '/khan' || url.pathname === '/khan.html') {
-      row = await fetchCachedEntity(request.url, 'khan', id);
-      if (row) html = renderKhan(html, row);
-    }
-  } catch (error) {
-    console.error('seo-content-render failed', error);
-    return new Response(html, { status: response.status, statusText: response.statusText, headers: response.headers });
+  if (row) {
+    if (type === 'article') html = renderArticle(html, row);
+    if (type === 'item') html = renderRoute(html, row, false);
+    if (type === 'point') html = renderRoute(html, row, true);
+    if (type === 'khan') html = renderKhan(html, row);
+    html = injectEmbeddedEntity(html, type, id, row);
   }
 
   const headers = new Headers(response.headers);
-  headers.set('X-JDJ-SEO-Content-Render', row ? 'test-server-rendered-cache' : 'test-no-row');
+  headers.delete('content-length');
+  headers.set('X-JDJ-SEO-Content-Render', row ? 'server-rendered-cache' : 'no-row');
+  headers.set('X-JDJ-Early-Access', row && isEarlyAccessActive(row) ? '1' : '0');
+
+  // TEST remains globally noindex/nofollow. PROD Early Access is intentionally indexable;
+  // the page-cache layer simply bypasses caching it until the 48h window has ended.
+  if (isTestHost(url.hostname)) {
+    headers.set('X-Robots-Tag', 'noindex, nofollow');
+  }
+
   return new Response(html, {
     status: response.status,
     statusText: response.statusText,
