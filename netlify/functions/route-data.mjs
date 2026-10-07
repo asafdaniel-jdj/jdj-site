@@ -1,8 +1,6 @@
 const SUPABASE_URL = process.env.JDJ_SUPABASE_URL;
 const SUPABASE_KEY = process.env.JDJ_SUPABASE_KEY;
 
-const CACHE_SECONDS = 2_592_000; // 30 days
-const STALE_SECONDS = 3_600; // 1 hour grace
 const NOT_FOUND_CACHE_SECONDS = 30;
 
 function json(body, status = 200, extraHeaders = {}) {
@@ -66,12 +64,16 @@ export default async (request) => {
       });
     }
 
+    // Emergency correctness-first behavior: route records may be edited in Admin,
+    // but route saves currently do not invalidate the route:<id> cache tag.
+    // Do not cache successful route responses until targeted invalidation is wired
+    // into the route save flow. This prevents stale galleries/media from persisting.
     return json({ data: route }, 200, {
-      "Netlify-CDN-Cache-Control": `public, durable, max-age=${CACHE_SECONDS}, stale-while-revalidate=${STALE_SECONDS}`,
+      "Netlify-CDN-Cache-Control": "no-store",
       "Netlify-Cache-Tag": `route:${id},routes-products`,
     });
   } catch (error) {
-    console.error("Route cache function failed", error);
+    console.error("Route data function failed", error);
     return json({ error: "Temporary route service error" }, 500);
   }
 };
