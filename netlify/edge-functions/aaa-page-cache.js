@@ -37,6 +37,8 @@ function cacheTags(url) {
     tags.push('collections', 'table:articles', 'collection:stories');
   } else if (path === '/khan-catalog') {
     tags.push('collections', 'table:khans', 'table:pages', 'collection:khans');
+  } else if (path === '/floods') {
+    tags.push('collections', 'table:floods_page_config', 'table:flood_rivers', 'table:articles');
   } else if (path.startsWith('/floods/')) {
     tags.push('collections', 'table:flood_rivers', 'table:flood_river_points', 'table:floods_page_config');
   }
@@ -105,6 +107,9 @@ export const config = {
     '/mview', '/mview.html',
     '/point', '/point.html',
     '/stories', '/stories.html',
+    '/floods',
+    '/floods/judean-desert',
+    '/floods/negev-arava',
     '/floods/:region/:slug'
   ]
 };
