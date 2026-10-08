@@ -13,9 +13,19 @@ function cacheVersion(context) {
   return deployId ? String(deployId) : 'runtime';
 }
 
+function isDiscoveryPath(path) {
+  return path === '/' ||
+    path === '/category' ||
+    path === '/stories' ||
+    path === '/khan-catalog' ||
+    path === '/floods' ||
+    path === '/floods/judean-desert' ||
+    path === '/floods/negev-arava';
+}
+
 function cachePolicy(url) {
   const path = normalizePath(url.pathname);
-  if (path === '/' || path === '/category' || path === '/stories' || path === '/khan-catalog') {
+  if (isDiscoveryPath(path)) {
     return {
       seconds: DISCOVERY_CACHE_SECONDS,
       staleSeconds: DISCOVERY_STALE_SECONDS,
