@@ -49,11 +49,11 @@ async function fetchCollection(requestUrl, table, scope, ops) {
 }
 
 const CATEGORY_TYPES = {
-  routes: new Set(['מסלול טיול']),
-  technical: new Set(['מקטע טכני']),
-  viewpoints: new Set(['נקודת תצפית', 'נקודות תצפית']),
-  water: new Set(['מעין', 'מעיין', 'גב מים', 'מעיין/גב', 'מעיינות וגבים']),
-  poi: new Set(['נקודת עניין', 'נקודות עניין', 'מקום היסטורי'])
+  routes: ['מסלול טיול'],
+  technical: ['מקטע טכני'],
+  viewpoints: ['נקודת תצפית', 'נקודות תצפית'],
+  water: ['מעין', 'מעיין', 'גב מים', 'מעיין/גב', 'מעיינות וגבים'],
+  poi: ['נקודת עניין', 'נקודות עניין', 'מקום היסטורי']
 };
 
 function discoveryCard(href, title, description = '') {
@@ -63,12 +63,16 @@ function discoveryCard(href, title, description = '') {
   </a>`;
 }
 
-function renderCategoryLinks(rows, url) {
-  const type = CATEGORY_TYPES[url.searchParams.get('type')] ? url.searchParams.get('type') : 'routes';
-  const allowed = CATEGORY_TYPES[type];
+function publicRows(rows, nowMs) {
+  return rows.filter(row => isPubliclyVisible(row, nowMs));
+}
+
+function renderCategoryLinks(rows, url, nowMs) {
+  const requestedType = url.searchParams.get('type');
+  const type = CATEGORY_TYPES[requestedType] ? requestedType : 'routes';
+  const allowed = new Set(CATEGORY_TYPES[type]);
   const region = type === 'routes' ? url.searchParams.get('region') : null;
-  return rows
-    .filter(isPubliclyVisible)
+  return publicRows(rows, nowMs)
     .filter(row => allowed.has(row.route_type))
     .filter(row => !region || row.region === region)
     .map(row => discoveryCard(
@@ -79,16 +83,14 @@ function renderCategoryLinks(rows, url) {
     .join('');
 }
 
-function renderStoryLinks(rows) {
-  return rows
-    .filter(isPubliclyVisible)
+function renderStoryLinks(rows, _url, nowMs) {
+  return publicRows(rows, nowMs)
     .map(row => discoveryCard(`/article?id=${encodeURIComponent(row.id)}`, row.title, row.excerpt))
     .join('');
 }
 
-function renderKhanLinks(rows) {
-  return rows
-    .filter(isPubliclyVisible)
+function renderKhanLinks(rows, _url, nowMs) {
+  return publicRows(rows, nowMs)
     .map(row => discoveryCard(`/khan?id=${encodeURIComponent(row.id)}`, row.title, row.short_description))
     .join('');
 }
@@ -117,13 +119,18 @@ export default async function handler(request, context) {
   let render = null;
 
   if (path === '/category') {
+    const requestedType = url.searchParams.get('type');
+    const type = CATEGORY_TYPES[requestedType] ? requestedType : 'routes';
     targetId = 'categoryGrid';
-    dataPromise = fetchCollection(request.url, 'routes', `category:${url.searchParams.get('type') || 'routes'}`, [
-      { method: 'select', args: ['id,title,route_type,region,status,early_access_until,short_description'] },
+    // Keep the server-side catalog query aligned with the browser query so both layers
+    // consume the same collection snapshot. Early Access is filtered only after retrieval.
+    dataPromise = fetchCollection(request.url, 'routes', `category:${type}`, [
+      { method: 'select', args: ['*'] },
       { method: 'eq', args: ['status', 'פורסם'] },
-      { method: 'order', args: ['id', { ascending: false }] }
+      { method: 'order', args: ['id', { ascending: false }] },
+      { method: 'in', args: ['route_type', CATEGORY_TYPES[type]] }
     ]);
-    render = rows => renderCategoryLinks(rows, url);
+    render = renderCategoryLinks;
   } else if (path === '/stories') {
     targetId = 'storiesGrid';
     dataPromise = fetchCollection(request.url, 'articles', 'stories', [
@@ -133,8 +140,6 @@ export default async function handler(request, context) {
     render = renderStoryLinks;
   } else if (path === '/khan-catalog') {
     targetId = 'khanCatalogGrid';
-    // Keep this request identical to the browser request so server HTML and hydrated UI
-    // share the exact same cached collection snapshot.
     dataPromise = fetchCollection(request.url, 'khans', 'khan-catalog', [
       { method: 'select', args: ['*'] },
       { method: 'order', args: ['id', { ascending: false }] }
@@ -168,8 +173,15 @@ export default async function handler(request, context) {
 
   if (!response.ok || !(response.headers.get('content-type') || '').includes('text/html')) return response;
 
+  const responseDate = Date.parse(response.headers.get('date') || '');
+  const discoveryNowMs = Number.isFinite(responseDate) ? responseDate : Date.now();
+  const activeEarlyAccessIds = rows
+    .filter(row => !isPubliclyVisible(row, discoveryNowMs))
+    .map(row => row.id)
+    .filter(id => id !== null && id !== undefined);
+
   let html = await response.text();
-  const discoveryHtml = render(rows);
+  const discoveryHtml = render(rows, url, discoveryNowMs);
   if (discoveryHtml) html = replaceElementInnerHtml(html, targetId, discoveryHtml);
 
   // TEST must be internally consistent: both HTTP header and raw HTML robots are noindex,nofollow.
@@ -181,6 +193,11 @@ export default async function handler(request, context) {
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.set('X-JDJ-Discovery-Render', discoveryHtml ? 'server-links' : 'no-links');
+  headers.set('X-JDJ-Discovery-Input-Rows', String(rows.length));
+  headers.set('X-JDJ-Discovery-Link-Count', String((discoveryHtml.match(/<a\b/gi) || []).length));
+  headers.set('X-JDJ-Discovery-Now', new Date(discoveryNowMs).toISOString());
+  headers.set('X-JDJ-Discovery-Time-Source', Number.isFinite(responseDate) ? 'response-date' : 'runtime');
+  headers.set('X-JDJ-Discovery-Filtered-Early-Access', activeEarlyAccessIds.length ? activeEarlyAccessIds.join(',') : 'none');
 
   return new Response(html, {
     status: response.status,
