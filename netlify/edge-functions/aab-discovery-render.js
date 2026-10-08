@@ -140,7 +140,8 @@ export default async function handler(request, context) {
     render = renderStoryLinks;
   } else if (path === '/khan-catalog') {
     targetId = 'khanCatalogGrid';
-    dataPromise = fetchCollection(request.url, 'khans', 'khan-catalog', [
+    // Browser collectionScope() uses "khans" for this page; keep the server request identical.
+    dataPromise = fetchCollection(request.url, 'khans', 'khans', [
       { method: 'select', args: ['*'] },
       { method: 'order', args: ['id', { ascending: false }] }
     ]);
