@@ -1,8 +1,8 @@
 const PAGE_CACHE_SECONDS = 2_592_000; // 30 days
 const PAGE_STALE_SECONDS = 3_600; // 1 hour
-const DISCOVERY_CACHE_SECONDS = 600; // 10 minutes - time-sensitive catalog visibility
-const DISCOVERY_STALE_SECONDS = 60;
-const PAGE_CACHE_PREFIX = 'jdj-rendered-pages-v4';
+const DISCOVERY_CACHE_SECONDS = 86_400; // 24 hours
+const DISCOVERY_STALE_SECONDS = 3_600; // 1 hour
+const PAGE_CACHE_PREFIX = 'jdj-rendered-pages-v5';
 
 function normalizePath(pathname = '/') {
   return pathname.endsWith('.html') ? pathname.slice(0, -5) : pathname;
@@ -19,7 +19,7 @@ function cachePolicy(url) {
     return {
       seconds: DISCOVERY_CACHE_SECONDS,
       staleSeconds: DISCOVERY_STALE_SECONDS,
-      name: 'discovery-10m'
+      name: 'discovery-24h'
     };
   }
   return {
