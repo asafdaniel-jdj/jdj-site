@@ -23,13 +23,13 @@ function replaceElementInnerHtml(html, id, innerHtml) {
   if (!openMatch) return html;
 
   const contentStart = openMatch.index + openMatch[0].length;
-  const divTagRe = /<\\/?div\\b[^>]*>/gi;
+  const divTagRe = /<\/?div\b[^>]*>/gi;
   divTagRe.lastIndex = contentStart;
 
   let depth = 1;
   let match;
   while ((match = divTagRe.exec(html))) {
-    if (/^<\\/div/i.test(match[0])) {
+    if (/^<\/div/i.test(match[0])) {
       depth -= 1;
       if (depth === 0) {
         return `${html.slice(0, contentStart)}${innerHtml}${html.slice(match.index)}`;
@@ -45,16 +45,16 @@ function replaceElementInnerHtml(html, id, innerHtml) {
 
 function setRobotsMeta(html, value) {
   const escaped = esc(value);
-  const re = /<meta\\b([^>]*\\bname=["']robots["'][^>]*)>/i;
+  const re = /<meta\b([^>]*\bname=["']robots["'][^>]*)>/i;
   if (re.test(html)) {
     return html.replace(re, (tag) => {
-      if (/\\bcontent=(["'])[\\s\\S]*?\\1/i.test(tag)) {
-        return tag.replace(/\\bcontent=(["'])[\\s\\S]*?\\1/i, `content="${escaped}"`);
+      if (/\bcontent=(["'])[\s\S]*?\1/i.test(tag)) {
+        return tag.replace(/\bcontent=(["'])[\s\S]*?\1/i, `content="${escaped}"`);
       }
       return tag.replace(/>$/, ` content="${escaped}">`);
     });
   }
-  return html.replace(/<\\/head>/i, `    <meta name="robots" content="${escaped}">\\n</head>`);
+  return html.replace(/<\/head>/i, `    <meta name="robots" content="${escaped}">\n</head>`);
 }
 
 async function fetchCollection(requestUrl, table, scope, ops) {
@@ -211,7 +211,7 @@ export default async function handler(request, context) {
   headers.delete('content-length');
   headers.set('X-JDJ-Discovery-Render', discoveryHtml ? 'server-links' : 'no-links');
   headers.set('X-JDJ-Discovery-Input-Rows', String(rows.length));
-  headers.set('X-JDJ-Discovery-Link-Count', String((discoveryHtml.match(/<a\\b/gi) || []).length));
+  headers.set('X-JDJ-Discovery-Link-Count', String((discoveryHtml.match(/<a\b/gi) || []).length));
   headers.set('X-JDJ-Discovery-Now', new Date(discoveryNowMs).toISOString());
   headers.set('X-JDJ-Discovery-Time-Source', Number.isFinite(responseDate) ? 'response-date' : 'runtime');
   headers.set('X-JDJ-Discovery-Filtered-Early-Access', activeEarlyAccessIds.length ? activeEarlyAccessIds.join(',') : 'none');
