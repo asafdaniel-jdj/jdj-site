@@ -1,6 +1,8 @@
 const PAGE_CACHE_SECONDS = 2_592_000; // 30 days
 const PAGE_STALE_SECONDS = 3_600; // 1 hour
-const PAGE_CACHE_PREFIX = 'jdj-rendered-pages-v3';
+const DISCOVERY_CACHE_SECONDS = 600; // 10 minutes - time-sensitive catalog visibility
+const DISCOVERY_STALE_SECONDS = 60;
+const PAGE_CACHE_PREFIX = 'jdj-rendered-pages-v4';
 
 function normalizePath(pathname = '/') {
   return pathname.endsWith('.html') ? pathname.slice(0, -5) : pathname;
@@ -9,6 +11,22 @@ function normalizePath(pathname = '/') {
 function cacheVersion(context) {
   const deployId = context?.deploy?.id;
   return deployId ? String(deployId) : 'runtime';
+}
+
+function cachePolicy(url) {
+  const path = normalizePath(url.pathname);
+  if (path === '/' || path === '/category' || path === '/stories' || path === '/khan-catalog') {
+    return {
+      seconds: DISCOVERY_CACHE_SECONDS,
+      staleSeconds: DISCOVERY_STALE_SECONDS,
+      name: 'discovery-10m'
+    };
+  }
+  return {
+    seconds: PAGE_CACHE_SECONDS,
+    staleSeconds: PAGE_STALE_SECONDS,
+    name: 'standard-30d'
+  };
 }
 
 function contentTag(url) {
@@ -72,6 +90,7 @@ export default async function handler(request, context) {
   const started = performance.now();
   const url = new URL(request.url);
   const version = cacheVersion(context);
+  const policy = cachePolicy(url);
   const cache = await caches.open(`${PAGE_CACHE_PREFIX}-${version}`);
   const cacheKey = new Request(url.toString(), { method: 'GET' });
 
@@ -93,10 +112,11 @@ export default async function handler(request, context) {
 
   const headers = new Headers(response.headers);
   headers.delete('content-length');
-  headers.set('Cache-Control', `public, max-age=0, s-maxage=${PAGE_CACHE_SECONDS}, stale-while-revalidate=${PAGE_STALE_SECONDS}`);
+  headers.set('Cache-Control', `public, max-age=0, s-maxage=${policy.seconds}, stale-while-revalidate=${policy.staleSeconds}`);
   headers.set('Netlify-Cache-Tag', cacheTags(url));
   headers.set('X-JDJ-Page-Cache', 'MISS-STORED');
   headers.set('X-JDJ-Page-Cache-Version', version.slice(0, 12));
+  headers.set('X-JDJ-Page-Cache-Policy', policy.name);
   const existingTiming = headers.get('Server-Timing');
   const pageTiming = `jdj_page_cache;desc="MISS";dur=${(performance.now() - started).toFixed(1)}`;
   headers.set('Server-Timing', existingTiming ? `${existingTiming}, ${pageTiming}` : pageTiming);
