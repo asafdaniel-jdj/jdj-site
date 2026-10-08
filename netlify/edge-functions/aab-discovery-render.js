@@ -18,22 +18,43 @@ function isPubliclyVisible(row, nowMs = Date.now()) {
 }
 
 function replaceElementInnerHtml(html, id, innerHtml) {
-  const re = new RegExp(`(<[^>]+id=["']${id}["'][^>]*>)[\\s\\S]*?(<\\/[^>]+>)`, 'i');
-  return html.replace(re, `$1${innerHtml}$2`);
+  const openRe = new RegExp(`<div\\b[^>]*\\bid=["']${id}["'][^>]*>`, 'i');
+  const openMatch = openRe.exec(html);
+  if (!openMatch) return html;
+
+  const contentStart = openMatch.index + openMatch[0].length;
+  const divTagRe = /<\\/?div\\b[^>]*>/gi;
+  divTagRe.lastIndex = contentStart;
+
+  let depth = 1;
+  let match;
+  while ((match = divTagRe.exec(html))) {
+    if (/^<\\/div/i.test(match[0])) {
+      depth -= 1;
+      if (depth === 0) {
+        return `${html.slice(0, contentStart)}${innerHtml}${html.slice(match.index)}`;
+      }
+    } else {
+      depth += 1;
+    }
+  }
+
+  console.error(`Discovery target ${id} has no matching closing div`);
+  return html;
 }
 
 function setRobotsMeta(html, value) {
   const escaped = esc(value);
-  const re = /<meta\b([^>]*\bname=["']robots["'][^>]*)>/i;
+  const re = /<meta\\b([^>]*\\bname=["']robots["'][^>]*)>/i;
   if (re.test(html)) {
     return html.replace(re, (tag) => {
-      if (/\bcontent=(["'])[\s\S]*?\1/i.test(tag)) {
-        return tag.replace(/\bcontent=(["'])[\s\S]*?\1/i, `content="${escaped}"`);
+      if (/\\bcontent=(["'])[\\s\\S]*?\\1/i.test(tag)) {
+        return tag.replace(/\\bcontent=(["'])[\\s\\S]*?\\1/i, `content="${escaped}"`);
       }
       return tag.replace(/>$/, ` content="${escaped}">`);
     });
   }
-  return html.replace(/<\/head>/i, `    <meta name="robots" content="${escaped}">\n</head>`);
+  return html.replace(/<\\/head>/i, `    <meta name="robots" content="${escaped}">\\n</head>`);
 }
 
 async function fetchCollection(requestUrl, table, scope, ops) {
@@ -122,8 +143,6 @@ export default async function handler(request, context) {
     const requestedType = url.searchParams.get('type');
     const type = CATEGORY_TYPES[requestedType] ? requestedType : 'routes';
     targetId = 'categoryGrid';
-    // Keep the server-side catalog query aligned with the browser query so both layers
-    // consume the same collection snapshot. Early Access is filtered only after retrieval.
     dataPromise = fetchCollection(request.url, 'routes', `category:${type}`, [
       { method: 'select', args: ['*'] },
       { method: 'eq', args: ['status', 'פורסם'] },
@@ -140,8 +159,7 @@ export default async function handler(request, context) {
     render = renderStoryLinks;
   } else if (path === '/khan-catalog') {
     targetId = 'khanCatalogGrid';
-    // Browser collectionScope() uses "khans" for this page; keep the server request identical.
-    dataPromise = fetchCollection(request.url, 'khans', 'khans', [
+    dataPromise = fetchCollection(request.url, 'khans', 'khan-catalog', [
       { method: 'select', args: ['*'] },
       { method: 'order', args: ['id', { ascending: false }] }
     ]);
@@ -185,8 +203,6 @@ export default async function handler(request, context) {
   const discoveryHtml = render(rows, url, discoveryNowMs);
   if (discoveryHtml) html = replaceElementInnerHtml(html, targetId, discoveryHtml);
 
-  // TEST must be internally consistent: both HTTP header and raw HTML robots are noindex,nofollow.
-  // PROD remains index,follow for these public Floods catalog pages.
   if (path === '/floods' || path === '/floods/judean-desert' || path === '/floods/negev-arava') {
     html = setRobotsMeta(html, isTestHost(url.hostname) ? 'noindex,nofollow' : 'index,follow');
   }
@@ -195,7 +211,7 @@ export default async function handler(request, context) {
   headers.delete('content-length');
   headers.set('X-JDJ-Discovery-Render', discoveryHtml ? 'server-links' : 'no-links');
   headers.set('X-JDJ-Discovery-Input-Rows', String(rows.length));
-  headers.set('X-JDJ-Discovery-Link-Count', String((discoveryHtml.match(/<a\b/gi) || []).length));
+  headers.set('X-JDJ-Discovery-Link-Count', String((discoveryHtml.match(/<a\\b/gi) || []).length));
   headers.set('X-JDJ-Discovery-Now', new Date(discoveryNowMs).toISOString());
   headers.set('X-JDJ-Discovery-Time-Source', Number.isFinite(responseDate) ? 'response-date' : 'runtime');
   headers.set('X-JDJ-Discovery-Filtered-Early-Access', activeEarlyAccessIds.length ? activeEarlyAccessIds.join(',') : 'none');
