@@ -5,6 +5,9 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
   throw new Error('Missing JDJ_SUPABASE_URL / JDJ_SUPABASE_KEY environment variables');
 }
 const SITE_URL = 'https://jdj.co.il';
+const SITEMAP_CACHE_SECONDS = 86_400; // 24 hours
+const SITEMAP_STALE_SECONDS = 3_600; // 1 hour
+const SITEMAP_CACHE_TAGS = 'table:routes,table:khans,table:articles,table:flood_rivers';
 
 const STATIC_URLS = [
   '/',
@@ -109,11 +112,13 @@ function isTestHost(host = '') {
   return normalized === 'jdj-test.netlify.app' || normalized.endsWith('--jdj-test.netlify.app');
 }
 
-function responseHeaders(event, cacheControl) {
+function responseHeaders(event, cacheControl, cdnCacheControl = null, cacheTags = null) {
   const headers = {
     'Content-Type': 'application/xml; charset=utf-8',
     'Cache-Control': cacheControl
   };
+  if (cdnCacheControl) headers['Netlify-CDN-Cache-Control'] = cdnCacheControl;
+  if (cacheTags) headers['Netlify-Cache-Tag'] = cacheTags;
   if (isTestHost(event?.headers?.host || event?.headers?.Host || '')) {
     headers['X-Robots-Tag'] = 'noindex, nofollow';
   }
@@ -133,7 +138,12 @@ exports.handler = async function handler(event) {
 
     return {
       statusCode: 200,
-      headers: responseHeaders(event, 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600'),
+      headers: responseHeaders(
+        event,
+        'public, max-age=0, must-revalidate',
+        `public, durable, max-age=${SITEMAP_CACHE_SECONDS}, stale-while-revalidate=${SITEMAP_STALE_SECONDS}`,
+        SITEMAP_CACHE_TAGS
+      ),
       body: xml
     };
   } catch (error) {
