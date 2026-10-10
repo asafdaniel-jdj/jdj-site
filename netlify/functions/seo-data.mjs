@@ -1,8 +1,8 @@
 const SUPABASE_URL = process.env.JDJ_SUPABASE_URL;
 const SUPABASE_KEY = process.env.JDJ_SUPABASE_KEY;
 
-const CACHE_SECONDS = 3_600; // 1 hour
-const STALE_SECONDS = 600; // 10 minutes grace
+const CACHE_SECONDS = 2_592_000; // 30 days, invalidated explicitly by SEO cache tags
+const STALE_SECONDS = 3_600; // 1 hour grace
 
 function json(body, status = 200, headers = {}) {
   return new Response(JSON.stringify(body), {
