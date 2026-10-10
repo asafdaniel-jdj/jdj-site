@@ -5,6 +5,9 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
   throw new Error('Missing JDJ_SUPABASE_URL / JDJ_SUPABASE_KEY environment variables');
 }
 const SITE_URL = 'https://jdj.co.il';
+const SITEMAP_CACHE_SECONDS = 86_400; // 24 hours
+const SITEMAP_STALE_SECONDS = 3_600; // 1 hour
+const SITEMAP_CACHE_TAGS = 'table:routes,table:khans,table:articles,table:flood_rivers';
 
 const STATIC_URLS = [
   '/',
@@ -19,6 +22,9 @@ const STATIC_URLS = [
   '/category?type=poi',
   '/khan-catalog',
   '/stories',
+  '/floods',
+  '/floods/judean-desert',
+  '/floods/negev-arava',
   '/access',
   '/mview',
   '/camp',
@@ -69,7 +75,7 @@ function isPubliclyVisible(row, nowMs = Date.now()) {
   return !Number.isFinite(until) || until <= nowMs;
 }
 
-function buildSitemap(routes, khans, articles) {
+function buildSitemap(routes, khans, articles, floodRivers = []) {
   const urls = new Set(STATIC_URLS.map(path => `${SITE_URL}${path}`));
   const nowMs = Date.now();
 
@@ -89,6 +95,11 @@ function buildSitemap(routes, khans, articles) {
     urls.add(`${SITE_URL}/article?id=${encodeURIComponent(article.id)}`);
   }
 
+  for (const river of floodRivers) {
+    if (!river?.slug || !river?.region_slug) continue;
+    urls.add(`${SITE_URL}/floods/${encodeURIComponent(river.region_slug)}/${encodeURIComponent(river.slug)}`);
+  }
+
   const entries = [...urls]
     .map(url => `  <url>\n    <loc>${xmlEscape(url)}</loc>\n  </url>`)
     .join('\n');
@@ -101,11 +112,13 @@ function isTestHost(host = '') {
   return normalized === 'jdj-test.netlify.app' || normalized.endsWith('--jdj-test.netlify.app');
 }
 
-function responseHeaders(event, cacheControl) {
+function responseHeaders(event, cacheControl, cdnCacheControl = null, cacheTags = null) {
   const headers = {
     'Content-Type': 'application/xml; charset=utf-8',
     'Cache-Control': cacheControl
   };
+  if (cdnCacheControl) headers['Netlify-CDN-Cache-Control'] = cdnCacheControl;
+  if (cacheTags) headers['Netlify-Cache-Tag'] = cacheTags;
   if (isTestHost(event?.headers?.host || event?.headers?.Host || '')) {
     headers['X-Robots-Tag'] = 'noindex, nofollow';
   }
@@ -114,17 +127,23 @@ function responseHeaders(event, cacheControl) {
 
 exports.handler = async function handler(event) {
   try {
-    const [routes, khans, articles] = await Promise.all([
+    const [routes, khans, articles, floodRivers] = await Promise.all([
       supabaseSelect('routes', 'id,route_type,early_access_until', [['status', 'eq.פורסם']]),
       supabaseSelect('khans', 'id,early_access_until'),
-      supabaseSelect('articles', 'id,early_access_until')
+      supabaseSelect('articles', 'id,early_access_until'),
+      supabaseSelect('flood_rivers', 'slug,region_slug', [['status', 'eq.published']])
     ]);
 
-    const xml = buildSitemap(routes, khans, articles);
+    const xml = buildSitemap(routes, khans, articles, floodRivers);
 
     return {
       statusCode: 200,
-      headers: responseHeaders(event, 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600'),
+      headers: responseHeaders(
+        event,
+        'public, max-age=0, must-revalidate',
+        `public, durable, max-age=${SITEMAP_CACHE_SECONDS}, stale-while-revalidate=${SITEMAP_STALE_SECONDS}`,
+        SITEMAP_CACHE_TAGS
+      ),
       body: xml
     };
   } catch (error) {
@@ -139,5 +158,4 @@ exports.handler = async function handler(event) {
   }
 };
 
-// Exported only to make local validation possible; Netlify uses handler above.
 exports._test = { buildSitemap, xmlEscape, isPubliclyVisible, isTestHost };

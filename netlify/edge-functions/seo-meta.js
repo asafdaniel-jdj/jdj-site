@@ -890,7 +890,6 @@ export default async function handler(request, context) {
             fallback: { ...seo, h1: cleanTitle }
           });
           html = applySeo(html, seo);
-          if (isEarlyAccessActive(row)) html = setRobotsNoindex(html);
           if (seo.h1 && cfg.h1Id) html = replaceElementTextById(html, cfg.h1Id, seo.h1);
           if (seo.h1 && pagePath === '/item') html = replaceElementTextById(html, 'topPageHeading', seo.h1);
           if (pagePath === '/article' && row.author) html = replaceElementTextById(html, 'articleAuthor', `מאת ${row.author}`);

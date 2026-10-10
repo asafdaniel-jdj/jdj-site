@@ -1,0 +1,165 @@
+const PAGE_CACHE_SECONDS = 2_592_000; // 30 days
+const PAGE_STALE_SECONDS = 3_600; // 1 hour
+const DISCOVERY_CACHE_SECONDS = 86_400; // 24 hours
+const DISCOVERY_STALE_SECONDS = 3_600; // 1 hour
+const PAGE_CACHE_PREFIX = 'jdj-rendered-pages-v5';
+
+function normalizePath(pathname = '/') {
+  return pathname.endsWith('.html') ? pathname.slice(0, -5) : pathname;
+}
+
+function cacheVersion(context) {
+  const deployId = context?.deploy?.id;
+  return deployId ? String(deployId) : 'runtime';
+}
+
+function isDiscoveryPath(path) {
+  return path === '/' ||
+    path === '/category' ||
+    path === '/stories' ||
+    path === '/khan-catalog' ||
+    path === '/floods' ||
+    path === '/floods/judean-desert' ||
+    path === '/floods/negev-arava';
+}
+
+function cachePolicy(url) {
+  const path = normalizePath(url.pathname);
+  if (isDiscoveryPath(path)) {
+    return {
+      seconds: DISCOVERY_CACHE_SECONDS,
+      staleSeconds: DISCOVERY_STALE_SECONDS,
+      name: 'discovery-24h'
+    };
+  }
+  return {
+    seconds: PAGE_CACHE_SECONDS,
+    staleSeconds: PAGE_STALE_SECONDS,
+    name: 'standard-30d'
+  };
+}
+
+function contentTag(url) {
+  const path = normalizePath(url.pathname);
+  const id = (url.searchParams.get('id') || '').trim();
+  if (!/^\d+$/.test(id)) return null;
+  if (path === '/item') return `route:${id}`;
+  if (path === '/point') return `point:${id}`;
+  if (path === '/khan') return `khan:${id}`;
+  if (path === '/article') return `article:${id}`;
+  return null;
+}
+
+function cacheTags(url) {
+  const path = normalizePath(url.pathname);
+  const tags = ['seo-data'];
+  const entityTag = contentTag(url);
+  if (entityTag) tags.push(entityTag);
+
+  if (path === '/item') tags.push('routes-products');
+  if (path === '/point') tags.push('points-products');
+  if (path === '/khan') tags.push('khans-products');
+  if (path === '/article') tags.push('articles-products');
+
+  if (path === '/') {
+    tags.push('collections', 'recommended', 'table:routes', 'table:articles', 'table:khans', 'table:pages');
+  } else if (path === '/category') {
+    const type = url.searchParams.get('type') || 'routes';
+    tags.push('collections', 'table:routes', `collection:category:${type}`);
+  } else if (path === '/stories') {
+    tags.push('collections', 'table:articles', 'collection:stories');
+  } else if (path === '/khan-catalog') {
+    tags.push('collections', 'table:khans', 'table:pages', 'collection:khans', 'collection:khan-catalog');
+  } else if (path === '/floods') {
+    tags.push('collections', 'table:floods_page_config', 'table:flood_rivers', 'table:articles');
+  } else if (path.startsWith('/floods/')) {
+    tags.push('collections', 'table:flood_rivers', 'table:flood_river_points', 'table:floods_page_config');
+  }
+
+  return [...new Set(tags)].join(',');
+}
+
+function withHeader(response, name, value, version) {
+  const headers = new Headers(response.headers);
+  headers.set(name, value);
+  headers.set('X-JDJ-Page-Cache-Version', version.slice(0, 12));
+  if (name === 'X-JDJ-Page-Cache' && value === 'HIT') {
+    headers.set('Server-Timing', 'jdj_page_cache;desc="HIT";dur=0');
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
+}
+
+export default async function handler(request, context) {
+  if (request.method !== 'GET') return context.next();
+  if (request.headers.get('authorization')) return context.next();
+
+  const started = performance.now();
+  const url = new URL(request.url);
+  const version = cacheVersion(context);
+  const policy = cachePolicy(url);
+  const cache = await caches.open(`${PAGE_CACHE_PREFIX}-${version}`);
+  const cacheKey = new Request(url.toString(), { method: 'GET' });
+
+  const cached = await cache.match(cacheKey);
+  if (cached) return withHeader(cached, 'X-JDJ-Page-Cache', 'HIT', version);
+
+  const response = await context.next();
+  const contentType = response.headers.get('content-type') || '';
+  const earlyAccess = response.headers.get('X-JDJ-Early-Access') === '1';
+
+  if (!response.ok || !contentType.includes('text/html') || earlyAccess) {
+    const bypass = withHeader(response, 'X-JDJ-Page-Cache', earlyAccess ? 'BYPASS-EARLY-ACCESS' : 'BYPASS', version);
+    const headers = new Headers(bypass.headers);
+    const existingTiming = headers.get('Server-Timing');
+    const pageTiming = `jdj_page_cache;desc="BYPASS";dur=${(performance.now() - started).toFixed(1)}`;
+    headers.set('Server-Timing', existingTiming ? `${existingTiming}, ${pageTiming}` : pageTiming);
+    return new Response(bypass.body, { status: bypass.status, statusText: bypass.statusText, headers });
+  }
+
+  const headers = new Headers(response.headers);
+  headers.delete('content-length');
+  headers.set('Cache-Control', `public, max-age=0, s-maxage=${policy.seconds}, stale-while-revalidate=${policy.staleSeconds}`);
+  headers.set('Netlify-Cache-Tag', cacheTags(url));
+  headers.set('X-JDJ-Page-Cache', 'MISS-STORED');
+  headers.set('X-JDJ-Page-Cache-Version', version.slice(0, 12));
+  headers.set('X-JDJ-Page-Cache-Policy', policy.name);
+  const existingTiming = headers.get('Server-Timing');
+  const pageTiming = `jdj_page_cache;desc="MISS";dur=${(performance.now() - started).toFixed(1)}`;
+  headers.set('Server-Timing', existingTiming ? `${existingTiming}, ${pageTiming}` : pageTiming);
+
+  const cacheable = new Response(await response.text(), {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
+
+  await cache.put(cacheKey, cacheable.clone());
+  return cacheable;
+}
+
+export const config = {
+  path: [
+    '/', '/index.html',
+    '/about', '/about.html',
+    '/access', '/access.html',
+    '/accessibility', '/accessibility.html',
+    '/article', '/article.html',
+    '/camp', '/camp.html',
+    '/category', '/category.html',
+    '/disclaimer', '/disclaimer.html',
+    '/item', '/item.html',
+    '/khan-catalog', '/khan-catalog.html',
+    '/khan', '/khan.html',
+    '/mview', '/mview.html',
+    '/point', '/point.html',
+    '/stories', '/stories.html',
+    '/floods',
+    '/floods/judean-desert',
+    '/floods/negev-arava',
+    '/floods/:region/:slug'
+  ]
+};
