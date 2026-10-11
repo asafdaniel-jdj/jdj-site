@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>לוח טיולים ואירועים</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap');
+    body{font-family:'Rubik',sans-serif}
+    .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+    .day{min-height:118px;border-left:1px solid #e7e5e4;border-bottom:1px solid #e7e5e4;padding:.45rem;background:white}
+    .day:nth-child(7n){border-left:0}.muted{background:#fafaf9;color:#a8a29e}.today{box-shadow:inset 0 0 0 2px #7c3aed}
+    .item{font-size:.72rem;line-height:1.15;border-radius:.55rem;padding:.3rem .4rem;margin-top:.25rem;cursor:pointer;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .trip{background:#ede9fe;color:#5b21b6}.event{background:#fef3c7;color:#92400e}.full{background:#fee2e2;color:#991b1b}.cancelled{background:#e7e5e4;color:#57534e;text-decoration:line-through}.finished{opacity:.6}
+    @media(max-width:767px){#calendarWrap{display:none}#mobileList{display:block!important}}
+  </style>
+</head>
+<body class="bg-stone-100 text-stone-800 min-h-screen">
+
+<div id="loginView" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-stone-900 via-stone-800 to-violet-950">
+  <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-7 md:p-9">
+    <div class="text-center mb-6">
+      <div class="w-14 h-14 rounded-2xl bg-violet-700 text-white grid place-items-center mx-auto text-2xl mb-3"><i class="fa-regular fa-calendar-days"></i></div>
+      <h1 class="text-2xl font-black">לוח טיולים ואירועים</h1>
+      <p class="text-sm text-stone-500 mt-2">גישה למוזמנים בלבד</p>
+    </div>
+    <form id="loginForm" class="space-y-4">
+      <div><label class="block text-xs font-bold mb-1">סיסמה</label><input id="password" type="password" required class="w-full px-4 py-3 rounded-xl border border-stone-300 bg-stone-50 focus:outline-none focus:ring-2 focus:ring-violet-300" autocomplete="current-password"></div>
+      <div id="loginError" class="hidden text-sm font-bold text-rose-700 bg-rose-50 border border-rose-200 rounded-xl p-3"></div>
+      <button class="w-full py-3 rounded-xl bg-violet-700 hover:bg-violet-800 text-white font-black">כניסה ללוח</button>
+    </form>
+  </div>
+</div>
+
+<div id="appView" class="hidden">
+  <header class="bg-stone-900 text-white border-b border-violet-500 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
+      <div><h1 class="font-black text-lg md:text-xl">לוח טיולים ואירועים</h1><p class="text-xs text-stone-400 mt-1">לוח פרטי למוזמנים</p></div>
+      <button id="logoutBtn" class="text-xs font-bold px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-700"><i class="fa-solid fa-right-from-bracket ml-1"></i> יציאה</button>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-4 md:p-6 space-y-5">
+    <section class="bg-white rounded-2xl border border-stone-200 shadow-sm p-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <button id="prevBtn" class="w-10 h-10 rounded-xl bg-stone-100 hover:bg-stone-200"><i class="fa-solid fa-chevron-right"></i></button>
+        <button id="todayBtn" class="px-4 h-10 rounded-xl bg-violet-100 text-violet-900 font-black text-sm">היום</button>
+        <button id="nextBtn" class="w-10 h-10 rounded-xl bg-stone-100 hover:bg-stone-200"><i class="fa-solid fa-chevron-left"></i></button>
+      </div>
+      <h2 id="monthTitle" class="text-xl font-black"></h2>
+      <div class="text-xs text-stone-500 flex items-center gap-3"><span><i class="fa-solid fa-truck-monster text-violet-700 ml-1"></i>טיול</span><span><i class="fa-regular fa-calendar text-amber-700 ml-1"></i>אירוע</span></div>
+    </section>
+
+    <section id="calendarWrap" class="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+      <div class="calendar-grid bg-stone-50 border-b border-stone-200 text-xs font-black text-stone-600 text-center">
+        <div class="py-2">א׳</div><div class="py-2">ב׳</div><div class="py-2">ג׳</div><div class="py-2">ד׳</div><div class="py-2">ה׳</div><div class="py-2">ו׳</div><div class="py-2">ש׳</div>
+      </div>
+      <div id="calendarGrid" class="calendar-grid"></div>
+    </section>
+
+    <section id="mobileList" class="hidden space-y-3"></section>
+  </main>
+</div>
+
+<div id="modal" class="hidden fixed inset-0 bg-black/60 z-50 p-4 items-center justify-center">
+  <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden">
+    <div class="flex items-center justify-between p-5 border-b border-stone-100"><h3 id="modalTitle" class="font-black text-xl"></h3><button id="closeModal" class="w-9 h-9 rounded-full bg-stone-100"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="modalBody" class="p-5 space-y-4 text-sm"></div>
+  </div>
+</div>
+
+<script>
+const API='/.netlify/functions/private-calendar';
+const monthNames=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+let items=[];let cursor=new Date();cursor=new Date(cursor.getFullYear(),cursor.getMonth(),1);
+const $=id=>document.getElementById(id);
+function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+function fmt(d){return new Date(d+'T12:00:00').toLocaleDateString('he-IL')}
+function itemClass(i){let c=i.item_type==='trip'?'trip':'event';if(i.status==='מלא')c='full';if(i.status==='בוטל')c='cancelled';if(i.status==='הסתיים')c+=' finished';return c}
+function icon(i){return i.item_type==='trip'?'fa-solid fa-truck-monster':'fa-regular fa-calendar'}
+function showApp(){ $('loginView').classList.add('hidden');$('appView').classList.remove('hidden') }
+function showLogin(){ $('appView').classList.add('hidden');$('loginView').classList.remove('hidden') }
+async function load(){const r=await fetch(API,{credentials:'include'});if(r.status===401){showLogin();return false}const p=await r.json().catch(()=>({}));if(!r.ok){$('loginError').textContent=p.error||'שגיאה בטעינת הלוח';$('loginError').classList.remove('hidden');showLogin();return false}items=p.items||[];showApp();render();openFromUrl();return true}
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginError').classList.add('hidden');const r=await fetch(API,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'login',password:$('password').value})});const p=await r.json().catch(()=>({}));if(!r.ok){$('loginError').textContent=p.error||'הכניסה נכשלה';$('loginError').classList.remove('hidden');return}$('password').value='';await load()});
+$('logoutBtn').onclick=async()=>{await fetch(API,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'logout'})});showLogin()};
+$('prevBtn').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);render()};$('nextBtn').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);render()};$('todayBtn').onclick=()=>{const n=new Date();cursor=new Date(n.getFullYear(),n.getMonth(),1);render()};
+function occursOn(i,date){const d=date.toISOString().slice(0,10);const end=i.end_date||i.start_date;return d>=i.start_date&&d<=end}
+function render(){ $('monthTitle').textContent=`${monthNames[cursor.getMonth()]} ${cursor.getFullYear()}`;const y=cursor.getFullYear(),m=cursor.getMonth();const first=new Date(y,m,1),start=new Date(y,m,1-first.getDay());let html='';for(let n=0;n<42;n++){const d=new Date(start);d.setDate(start.getDate()+n);const iso=d.toISOString().slice(0,10);const inMonth=d.getMonth()===m;const today=new Date().toDateString()===d.toDateString();const dayItems=items.filter(i=>occursOn(i,d));html+=`<div class="day ${inMonth?'':'muted'} ${today?'today':''}"><div class="text-xs font-black mb-1">${d.getDate()}</div>${dayItems.map(i=>`<div class="item ${itemClass(i)}" onclick="openItem('${i.slug}')"><i class="${icon(i)} ml-1"></i>${esc(i.title)}</div>`).join('')}</div>`}$('calendarGrid').innerHTML=html;renderMobile()}
+function renderMobile(){const start=new Date(cursor.getFullYear(),cursor.getMonth(),1),end=new Date(cursor.getFullYear(),cursor.getMonth()+1,0);const visible=items.filter(i=>{const e=new Date((i.end_date||i.start_date)+'T12:00:00'),s=new Date(i.start_date+'T12:00:00');return e>=start&&s<=end}).sort((a,b)=>a.start_date.localeCompare(b.start_date));$('mobileList').innerHTML=visible.length?visible.map(i=>`<button onclick="openItem('${i.slug}')" class="w-full text-right bg-white rounded-2xl border border-stone-200 shadow-sm p-4"><div class="flex items-start gap-3"><span class="w-10 h-10 rounded-xl ${i.item_type==='trip'?'bg-violet-100 text-violet-700':'bg-amber-100 text-amber-700'} grid place-items-center"><i class="${icon(i)}"></i></span><span class="min-w-0"><strong class="block">${esc(i.title)}</strong><span class="text-xs text-stone-500 block mt-1">${fmt(i.start_date)}${i.end_date&&i.end_date!==i.start_date?' – '+fmt(i.end_date):''}</span>${i.item_type==='trip'&&i.status?`<span class="inline-block mt-2 text-[11px] font-black px-2 py-1 rounded-full bg-stone-100">${esc(i.status)}</span>`:''}</span></div></button>`).join(''):'<div class="bg-white rounded-2xl p-6 text-center text-stone-500">אין פריטים בחודש הזה.</div>'}
+function openItem(slug,push=true){const i=items.find(x=>x.slug===slug);if(!i)return;$('modalTitle').textContent=i.title;let rows=[];rows.push(`<div><span class="font-black">תאריך:</span> ${fmt(i.start_date)}${i.end_date&&i.end_date!==i.start_date?' – '+fmt(i.end_date):''}</div>`);if(i.item_type==='trip'){if(i.region)rows.push(`<div><span class="font-black">אזור:</span> ${esc(i.region)}</div>`);if(i.summary)rows.push(`<div class="leading-relaxed">${esc(i.summary)}</div>`);if(i.status)rows.push(`<div><span class="font-black">סטטוס:</span> ${esc(i.status)}</div>`);if(i.whatsapp_url)rows.push(`<a target="_blank" rel="noopener" href="${esc(i.whatsapp_url)}" class="block text-center bg-emerald-600 text-white font-black rounded-xl py-3"><i class="fa-brands fa-whatsapp ml-1"></i> קבוצת WhatsApp</a>`)}else{if(i.summary)rows.push(`<div class="leading-relaxed">${esc(i.summary)}</div>`);if(i.event_url)rows.push(`<a target="_blank" rel="noopener" href="${esc(i.event_url)}" class="block text-center bg-amber-500 text-stone-900 font-black rounded-xl py-3">לפרטי האירוע</a>`);if(i.location_url)rows.push(`<a target="_blank" rel="noopener" href="${esc(i.location_url)}" class="block text-center bg-stone-800 text-white font-black rounded-xl py-3">ניווט / מיקום</a>`)}$('modalBody').innerHTML=rows.join('');$('modal').classList.remove('hidden');$('modal').classList.add('flex');if(push)history.pushState({},'',`/trips/${encodeURIComponent(i.slug)}`)}
+function closeModal(){ $('modal').classList.add('hidden');$('modal').classList.remove('flex');if(location.pathname.startsWith('/trips/'))history.pushState({},'', '/trips') }
+$('closeModal').onclick=closeModal;$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal()});window.addEventListener('popstate',()=>{const slug=decodeURIComponent(location.pathname.split('/trips/')[1]||'');if(slug)openItem(slug,false);else closeModal()});
+function openFromUrl(){const slug=decodeURIComponent(location.pathname.split('/trips/')[1]||'');if(slug)setTimeout(()=>openItem(slug,false),0)}
+load();
+</script>
+</body>
+</html>
