@@ -1,5 +1,5 @@
 const SUPABASE_URL = process.env.JDJ_SUPABASE_URL;
-const SUPABASE_KEY = process.env.JDJ_SUPABASE_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.JDJ_SUPABASE_SERVICE_ROLE_KEY;
 const CALENDAR_PASSWORD = process.env.JDJ_PRIVATE_CALENDAR_PASSWORD;
 const COOKIE_NAME = 'jdj_private_calendar';
 
@@ -48,8 +48,8 @@ async function fetchItems() {
   });
   const response = await fetch(`${SUPABASE_URL}/rest/v1/private_calendar_items?${params.toString()}`, {
     headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
+      apikey: SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
       Accept: 'application/json'
     }
   });
@@ -62,7 +62,7 @@ async function fetchItems() {
 }
 
 export default async (request) => {
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     return json({ ok: false, error: 'Server configuration error' }, 500);
   }
 
