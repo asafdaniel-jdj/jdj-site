@@ -3,7 +3,7 @@ const SUPABASE_KEY = process.env.JDJ_SUPABASE_KEY;
 
 const COLLECTION_CACHE_SECONDS = 86_400; // 24 hours
 const COLLECTION_STALE_SECONDS = 3_600; // 1 hour
-const RECOMMENDED_CACHE_SECONDS = 86_400; // 24 hours
+const RECOMMENDED_CACHE_SECONDS = 3_600; // 1 hour
 const NOT_FOUND_CACHE_SECONDS = 30;
 
 const ALLOWED_TABLES = new Set([
@@ -179,6 +179,7 @@ export default async (request) => {
     const list = Array.isArray(rows) ? rows : [];
     const recommended = isRecommendedQuery(table, ops);
     const ttl = recommended ? RECOMMENDED_CACHE_SECONDS : COLLECTION_CACHE_SECONDS;
+    const stale = recommended ? 0 : COLLECTION_STALE_SECONDS;
     const tags = cacheTags(table, scope, recommended);
 
     if (mode === 'single') {
@@ -189,7 +190,7 @@ export default async (request) => {
         });
       }
       return json({ data: list[0] }, 200, {
-        'Netlify-CDN-Cache-Control': `public, durable, max-age=${ttl}, stale-while-revalidate=${COLLECTION_STALE_SECONDS}`,
+        'Netlify-CDN-Cache-Control': `public, durable, max-age=${ttl}, stale-while-revalidate=${stale}`,
         'Netlify-Cache-Tag': tags
       });
     }
@@ -199,13 +200,13 @@ export default async (request) => {
         return json({ data: null, errorCode: 'PGRST116' }, 409);
       }
       return json({ data: list[0] || null }, 200, {
-        'Netlify-CDN-Cache-Control': `public, durable, max-age=${ttl}, stale-while-revalidate=${COLLECTION_STALE_SECONDS}`,
+        'Netlify-CDN-Cache-Control': `public, durable, max-age=${ttl}, stale-while-revalidate=${stale}`,
         'Netlify-Cache-Tag': tags
       });
     }
 
     return json({ data: list }, 200, {
-      'Netlify-CDN-Cache-Control': `public, durable, max-age=${ttl}, stale-while-revalidate=${COLLECTION_STALE_SECONDS}`,
+      'Netlify-CDN-Cache-Control': `public, durable, max-age=${ttl}, stale-while-revalidate=${stale}`,
       'Netlify-Cache-Tag': tags
     });
   } catch (error) {
