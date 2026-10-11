@@ -49,7 +49,6 @@ async function fetchItems() {
   const response = await fetch(`${SUPABASE_URL}/rest/v1/private_calendar_items?${params.toString()}`, {
     headers: {
       apikey: SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
       Accept: 'application/json'
     }
   });
