@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>לוח הטיולים שלנו</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/trips-v2.css">
+</head>
+<body>
+  <div id="loginView" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">
+    <div style="width:min(440px,100%);background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);padding:30px;">
+      <div style="text-align:center;margin-bottom:24px;">
+        <img src="/newlogo.png" alt="מסלולי הג'יפים של מדבר יהודה" style="width:220px;max-width:70%;height:auto;margin:0 auto 18px;display:block;">
+        <h1 style="font-size:30px;margin:0;">לוח הטיולים שלנו</h1>
+        <p style="color:var(--muted);margin:8px 0 0;">גישה למוזמנים בלבד</p>
+      </div>
+      <form id="loginForm">
+        <label for="password" style="display:block;font-size:13px;font-weight:800;margin-bottom:7px;">סיסמה</label>
+        <input id="password" type="password" required autocomplete="current-password" style="width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:#faf9f7;outline:none;">
+        <div id="loginError" style="display:none;margin-top:10px;padding:10px 12px;background:var(--red-soft);color:#a03d3d;border-radius:12px;font-weight:800;font-size:13px;"></div>
+        <button type="submit" style="width:100%;border:0;margin-top:14px;padding:13px;border-radius:14px;background:var(--purple);color:#fff;font-weight:900;cursor:pointer;">כניסה ללוח</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="appView" style="display:none;">
+    <main class="page">
+      <div class="topbar">
+        <div class="brand"><img src="/newlogo.png" alt="מסלולי הג'יפים של מדבר יהודה"></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="private-badge">לוח פרטי למוזמנים</div>
+          <button id="logoutBtn" class="nav-btn" type="button">יציאה</button>
+        </div>
+      </div>
+
+      <section class="hero">
+        <div class="hero-main">
+          <div class="eyebrow">מסלולים פרטיים • אירועים • חברים</div>
+          <h1>לוח הטיולים שלנו</h1>
+          <p class="lead">כל מה שמתוכנן קדימה במקום אחד. טיולי שטח, סופי שבוע, מפגשים ואירועים. הלוח פרטי ומיועד למי שקיבל את הקישור.</p>
+        </div>
+        <aside class="hero-side">
+          <div>
+            <div class="next-label">הטיול הקרוב</div>
+            <div class="next-title" id="nextTripTitle">אין טיול קרוב</div>
+            <div class="next-meta" id="nextTripMeta"></div>
+          </div>
+          <a href="#" class="cta" id="nextTripCta" style="display:none;">לפרטים</a>
+        </aside>
+      </section>
+
+      <div class="controls">
+        <div class="month-title"><h2 id="monthTitle"></h2><span class="count" id="monthCount"></span></div>
+        <div class="control-actions">
+          <div class="view-switch" aria-label="בחירת תצוגה">
+            <button class="switch-btn active" id="calendarBtn" type="button">לוח</button>
+            <button class="switch-btn" id="listBtn" type="button">רשימה</button>
+          </div>
+          <div class="nav-group">
+            <button class="nav-btn" id="prevBtn" type="button">‹</button>
+            <button class="nav-btn today" id="todayBtn" type="button">היום</button>
+            <button class="nav-btn" id="nextBtn" type="button">›</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="content-grid">
+        <div>
+          <div class="calendar-wrap">
+            <div class="weekdays"><div>א׳</div><div>ב׳</div><div>ג׳</div><div>ד׳</div><div>ה׳</div><div>ו׳</div><div>ש׳</div></div>
+            <div id="calendarGrid" class="calendar-grid"></div>
+          </div>
+          <div class="list-wrap" id="desktopList"></div>
+        </div>
+
+        <aside class="side">
+          <div class="side-card">
+            <h3>מקרא</h3>
+            <div class="legend">
+              <div class="legend-row"><span class="legend-left"><i class="dot" style="background:#d9ccff"></i>טיול</span><span>🚙</span></div>
+              <div class="legend-row"><span class="legend-left"><i class="dot" style="background:#ffd8aa"></i>אירוע</span><span>📅</span></div>
+              <div class="legend-row"><span class="legend-left"><i class="dot" style="background:#f4c8c8"></i>מלא / בוטל</span><span>!</span></div>
+            </div>
+          </div>
+          <div class="side-card"><h3>בקרוב</h3><div class="upcoming" id="upcomingList"></div></div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-top"><h3 id="modalTitle"></h3><button class="close" id="closeModal" type="button">×</button></div>
+      <div class="modal-meta" id="modalMeta"></div>
+      <p id="modalText"></p>
+      <div class="modal-actions">
+        <a id="modalWhatsapp" target="_blank" rel="noopener">קבוצת WhatsApp</a>
+        <a id="modalEvent" target="_blank" rel="noopener">לפרטי האירוע</a>
+        <a id="modalLocation" target="_blank" rel="noopener">ניווט למיקום</a>
+        <a href="#" class="secondary" id="modalCloseSecondary">סגור</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/trips-v2.js"></script>
+</body>
+</html>
