@@ -17,11 +17,14 @@ https://camp.jdj.co.il/*      https://jdj.co.il/camp      301!
 /mview.html          /mview          301!
 /point.html          /point          301!
 /stories.html        /stories        301!
+/trips.html          /trips          301!
 
 /sitemap.xml    /.netlify/functions/sitemap    200!
 
-/floods/judean-desert        /floods_region_judean_desert.html   200
-/floods/negev-arava          /floods_region_negev_arava.html     200
-/floods/judean-desert/*      /flood-river.html                    200
-/floods/negev-arava/*        /flood-river.html                    200
-/floods                      /floods.html                         200
+/trips/*                    /trips-v2.html                       200!
+/trips                      /trips-v2.html                       200!
+/floods/judean-desert       /floods_region_judean_desert.html   200
+/floods/negev-arava         /floods_region_negev_arava.html     200
+/floods/judean-desert/*     /flood-river.html                    200
+/floods/negev-arava/*       /flood-river.html                    200
+/floods                     /floods.html                         200
