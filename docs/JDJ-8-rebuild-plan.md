@@ -28,3 +28,7 @@ Safe rebuild approach for the private trips calendar.
 ## Rollback point
 
 Stable TEST baseline before the rebuild: `abd4d33ba6967b67d715532c2c853d40c102d6bc`.
+
+## Validation note
+
+2026-10-11: TEST private calendar secret key corrected to the `jdj-routes-test` project. This documentation-only commit intentionally triggers a fresh Deploy Preview so the isolated backend can be revalidated without merging to `test`.
