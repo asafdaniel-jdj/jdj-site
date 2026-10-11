@@ -40,6 +40,17 @@ async function isAuthorized(request) {
   return Boolean(expected) && readCookie(request, COOKIE_NAME) === expected;
 }
 
+function supabaseHeaders() {
+  const headers = {
+    apikey: SUPABASE_SERVICE_ROLE_KEY,
+    Accept: 'application/json'
+  };
+  if (SUPABASE_SERVICE_ROLE_KEY && !SUPABASE_SERVICE_ROLE_KEY.startsWith('sb_secret_')) {
+    headers.Authorization = `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`;
+  }
+  return headers;
+}
+
 async function fetchItems() {
   const params = new URLSearchParams({
     select: 'id,item_type,title,start_date,end_date,region,summary,status,whatsapp_url,event_url,location_url,is_visible,slug',
@@ -47,10 +58,7 @@ async function fetchItems() {
     order: 'start_date.asc,title.asc'
   });
   const response = await fetch(`${SUPABASE_URL}/rest/v1/private_calendar_items?${params.toString()}`, {
-    headers: {
-      apikey: SUPABASE_SERVICE_ROLE_KEY,
-      Accept: 'application/json'
-    }
+    headers: supabaseHeaders()
   });
   if (!response.ok) {
     const details = await response.text();
