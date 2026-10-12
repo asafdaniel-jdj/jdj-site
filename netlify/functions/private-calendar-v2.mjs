@@ -70,7 +70,13 @@ async function fetchItems() {
     throw new Error('Calendar data unavailable');
   }
 
-  return response.json();
+  const items = await response.json();
+  if (!Array.isArray(items)) return [];
+
+  return items.map((item) => ({
+    ...item,
+    whatsapp_url: item?.item_type === 'trip' && item?.status === 'פתוח' ? item.whatsapp_url : null,
+  }));
 }
 
 export default async (request) => {
