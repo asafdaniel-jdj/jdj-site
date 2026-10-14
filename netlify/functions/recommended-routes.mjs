@@ -1,5 +1,5 @@
-const SUPABASE_URL = process.env.JDJ_SUPABASE_URL;
-const SUPABASE_KEY = process.env.JDJ_SUPABASE_KEY;
+import { getSupabasePublicConfig, publicSupabaseHeaders } from './_supabase-public.mjs';
+
 const CACHE_SECONDS = 3_600;
 
 function json(body, status = 200, extraHeaders = {}) {
@@ -24,12 +24,13 @@ export default async (request) => {
     return json({ error: 'Method not allowed' }, 405, { Allow: 'GET' });
   }
 
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error('Missing JDJ_SUPABASE_URL / JDJ_SUPABASE_KEY');
+  const { url: supabaseUrl, key: supabaseKey, environment, source } = getSupabasePublicConfig(request);
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('Missing JDJ Supabase public configuration');
     return json({ error: 'Server configuration error' }, 500);
   }
 
-  const url = new URL(`${SUPABASE_URL}/rest/v1/routes`);
+  const url = new URL(`${supabaseUrl}/rest/v1/routes`);
   url.searchParams.set('select', '*');
   url.searchParams.set('status', 'eq.פורסם');
   url.searchParams.set('route_type', 'eq.מסלול טיול');
@@ -38,16 +39,12 @@ export default async (request) => {
 
   try {
     const response = await fetch(url, {
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        Accept: 'application/json'
-      }
+      headers: publicSupabaseHeaders(supabaseKey)
     });
 
     if (!response.ok) {
       const details = await response.text().catch(() => '');
-      console.error('Recommended routes lookup failed', response.status, details);
+      console.error('Recommended routes lookup failed', response.status, details, { environment, source });
       return json({ error: 'Recommended routes lookup failed' }, 502);
     }
 
@@ -58,7 +55,8 @@ export default async (request) => {
     return json({ data }, 200, {
       'Netlify-CDN-Cache-Control': `public, durable, max-age=${CACHE_SECONDS}`,
       'Netlify-Cache-Tag': 'recommended,table:routes,routes-products',
-      'X-JDJ-Recommended-Cache': 'shared-1h'
+      'X-JDJ-Recommended-Cache': 'shared-1h',
+      'X-JDJ-Data-Environment': environment
     });
   } catch (error) {
     console.error('Recommended routes cache failed', error);
