@@ -1,0 +1,12 @@
+# JDJ environment guardrails
+# TEST branch deploys and Deploy Previews must always use Supabase TEST.
+# The key below is a public/publishable Supabase key, identical in sensitivity
+# to the key already exposed to browsers through env-config.js.
+
+[context.test.environment]
+  JDJ_SUPABASE_URL = "https://sdekeyakrtdwmykvpbwq.supabase.co"
+  JDJ_SUPABASE_KEY = "sb_publishable_Zt1DlF4MDoNQcLvAybABZQ_FrKfqq5Z"
+
+[context.deploy-preview.environment]
+  JDJ_SUPABASE_URL = "https://sdekeyakrtdwmykvpbwq.supabase.co"
+  JDJ_SUPABASE_KEY = "sb_publishable_Zt1DlF4MDoNQcLvAybABZQ_FrKfqq5Z"
