@@ -84,10 +84,27 @@ requireText(
   "description: '',",
   'Flood outlet automatic description must be suppressed'
 );
+requireText(
+  'cache-observability.js',
+  '/.netlify/functions/cache-fallback-log',
+  'Fallback events must be persisted to server logs'
+);
+requireText(
+  'netlify/functions/cache-fallback-log.mjs',
+  'JDJ_DATA_CACHE_FALLBACK_TO_SUPABASE',
+  'Server fallback logger must use the canonical event name'
+);
+requireText(
+  'qa-cache.html',
+  'PUBLIC_SWEEP',
+  'Deploy Preview QA runner must sweep public pages for direct DB calls'
+);
 
 if (disclaimerRuntimeProxy) pass('Disclaimer Data Cache Proxy is injected at runtime');
 pass('Recommended cache contract files inspected');
 pass('Public Supabase client pages inspected for Data Cache Proxy coverage');
+pass('Fallback logging contract inspected');
+pass('Deploy Preview QA runner present');
 
 if (failures.length) {
   console.error('\nJDJ cache contract QA FAILED\n');
@@ -97,4 +114,4 @@ if (failures.length) {
 
 console.log('\nJDJ cache contract QA PASSED\n');
 notes.forEach(item => console.log(`- ${item}`));
-console.log('- Manual Deploy Preview QA is still required for browser Network/HIT/MISS behavior.');
+console.log('- Deploy Preview browser QA remains required before promotion.');
