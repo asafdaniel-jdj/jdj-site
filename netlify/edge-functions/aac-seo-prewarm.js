@@ -1,8 +1,34 @@
-import { getEdgeSupabasePublicConfig, edgeSupabaseHeaders } from '../lib/edge-supabase-public.js';
+const TEST_SUPABASE_URL = 'https://sdekeyakrtdwmykvpbwq.supabase.co';
+const TEST_SUPABASE_KEY = 'sb_publishable_Zt1DlF4MDoNQcLvAybABZQ_FrKfqq5Z';
 
 const SEO_SHARED_CACHE_NAME = 'jdj-seo-data-v1';
 const SEO_CACHE_SECONDS = 86_400; // 24 hours; Admin mutations purge the relevant tags immediately.
 const SEO_STALE_SECONDS = 3_600;
+
+function isTestHost(hostname = '') {
+  const host = String(hostname).toLowerCase();
+  return host === 'jdj-test.netlify.app' || host.endsWith('--jdj-test.netlify.app');
+}
+
+function getSupabaseConfig(request) {
+  const url = new URL(request.url);
+  if (isTestHost(url.hostname)) {
+    return { url: TEST_SUPABASE_URL, key: TEST_SUPABASE_KEY, environment: 'TEST/PREVIEW' };
+  }
+  return {
+    url: Netlify.env.get('JDJ_SUPABASE_URL') || '',
+    key: Netlify.env.get('JDJ_SUPABASE_KEY') || '',
+    environment: 'ENV'
+  };
+}
+
+function supabaseHeaders(key) {
+  return {
+    apikey: key,
+    Authorization: `Bearer ${key}`,
+    Accept: 'application/json'
+  };
+}
 
 function normalizePath(pathname = '/') {
   return pathname.endsWith('.html') ? pathname.slice(0, -5) : pathname;
@@ -89,7 +115,7 @@ async function warmOne(cache, url, tags, supabaseKey) {
   if (cached) return 'HIT';
 
   const fresh = await fetch(url, {
-    headers: edgeSupabaseHeaders(supabaseKey)
+    headers: supabaseHeaders(supabaseKey)
   });
 
   if (!fresh.ok) return `BYPASS-${fresh.status}`;
@@ -141,7 +167,7 @@ export default async function handler(request, context) {
   if (request.method !== 'GET') return context.next();
 
   const url = new URL(request.url);
-  const supabase = getEdgeSupabasePublicConfig(request);
+  const supabase = getSupabaseConfig(request);
   const descriptor = requestDescriptor(url, supabase.url);
   if (!descriptor) return context.next();
 
