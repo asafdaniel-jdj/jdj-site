@@ -16,14 +16,24 @@
 
   async function waitForCategoryState() {
     for (let attempt = 0; attempt < MAX_WAIT_ATTEMPTS; attempt += 1) {
-      const ready = typeof supabaseClient !== 'undefined' &&
-        typeof rawCategoryItems !== 'undefined' &&
+      const ready = typeof rawCategoryItems !== 'undefined' &&
         Array.isArray(rawCategoryItems) &&
         typeof applyAllCategoryFilters === 'function';
       if (ready) return true;
       await delay(WAIT_MS);
     }
     return false;
+  }
+
+  async function fetchSharedRecommended() {
+    const response = await fetch('/.netlify/functions/recommended-routes', {
+      headers: { Accept: 'application/json' }
+    });
+    if (!response.ok) {
+      throw new Error(`recommended-routes returned ${response.status}`);
+    }
+    const payload = await response.json();
+    return Array.isArray(payload?.data) ? payload.data : [];
   }
 
   async function syncRecommendedState() {
@@ -34,25 +44,13 @@
     }
 
     try {
-      const { data, error } = await supabaseClient
-        .from('routes')
-        .select('id')
-        .eq('status', 'פורסם')
-        .eq('route_type', 'מסלול טיול')
-        .eq('is_recommended', true)
-        .order('id', { ascending: false });
-
-      if (error) throw error;
-
-      const recommendedIds = new Set((data || []).map(row => String(row.id)));
+      const data = await fetchSharedRecommended();
+      const recommendedIds = new Set(data.map(row => String(row.id)));
 
       rawCategoryItems.forEach(item => {
         item.is_recommended = recommendedIds.has(String(item.id));
       });
 
-      // baseSearchItems and filteredCategoryItems contain the same item objects in the
-      // normal category flow, so updating rawCategoryItems refreshes recommendation flags
-      // without replacing search/filter state.
       if (typeof updateCategorySeoState === 'function') {
         updateCategorySeoState(rawCategoryItems);
       }
