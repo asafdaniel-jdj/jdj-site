@@ -1,5 +1,8 @@
 {
   "private": true,
+  "scripts": {
+    "qa:cache": "node scripts/cache-contract-check.mjs"
+  },
   "dependencies": {
     "@netlify/functions": "6.0.2"
   }

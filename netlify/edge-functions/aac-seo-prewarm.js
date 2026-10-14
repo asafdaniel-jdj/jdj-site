@@ -1,15 +1,40 @@
-const SUPABASE_URL = Netlify.env.get('JDJ_SUPABASE_URL');
-const SUPABASE_KEY = Netlify.env.get('JDJ_SUPABASE_KEY');
+const TEST_SUPABASE_URL = 'https://sdekeyakrtdwmykvpbwq.supabase.co';
+const TEST_SUPABASE_KEY = 'sb_publishable_Zt1DlF4MDoNQcLvAybABZQ_FrKfqq5Z';
 
 const SEO_SHARED_CACHE_NAME = 'jdj-seo-data-v1';
 const SEO_CACHE_SECONDS = 86_400; // 24 hours; Admin mutations purge the relevant tags immediately.
 const SEO_STALE_SECONDS = 3_600;
 
+function isTestHost(hostname = '') {
+  const host = String(hostname).toLowerCase();
+  return host === 'jdj-test.netlify.app' || host.endsWith('--jdj-test.netlify.app');
+}
+
+function getSupabaseConfig(request) {
+  const url = new URL(request.url);
+  if (isTestHost(url.hostname)) {
+    return { url: TEST_SUPABASE_URL, key: TEST_SUPABASE_KEY, environment: 'TEST/PREVIEW' };
+  }
+  return {
+    url: Netlify.env.get('JDJ_SUPABASE_URL') || '',
+    key: Netlify.env.get('JDJ_SUPABASE_KEY') || '',
+    environment: 'ENV'
+  };
+}
+
+function supabaseHeaders(key) {
+  return {
+    apikey: key,
+    Authorization: `Bearer ${key}`,
+    Accept: 'application/json'
+  };
+}
+
 function normalizePath(pathname = '/') {
   return pathname.endsWith('.html') ? pathname.slice(0, -5) : pathname;
 }
 
-function requestDescriptor(url) {
+function requestDescriptor(url, supabaseUrl) {
   const path = normalizePath(url.pathname);
   const id = (url.searchParams.get('id') || '').trim();
 
@@ -43,7 +68,7 @@ function requestDescriptor(url) {
 
     return {
       ...meta,
-      entityUrl: `${SUPABASE_URL}/rest/v1/${table}?${params.toString()}`,
+      entityUrl: `${supabaseUrl}/rest/v1/${table}?${params.toString()}`,
       entityTags: [`${table}:${id}`, `${table}-products`]
     };
   }
@@ -62,27 +87,27 @@ function requestDescriptor(url) {
   return null;
 }
 
-function templateUrl(templateKey) {
+function templateUrl(supabaseUrl, templateKey) {
   const params = new URLSearchParams({
     select: '*',
     template_key: `eq.${templateKey}`,
     is_active: 'eq.true',
     limit: '1'
   });
-  return `${SUPABASE_URL}/rest/v1/seo_templates?${params.toString()}`;
+  return `${supabaseUrl}/rest/v1/seo_templates?${params.toString()}`;
 }
 
-function overrideUrl(seoKey) {
+function overrideUrl(supabaseUrl, seoKey) {
   const params = new URLSearchParams({
     select: '*',
     seo_key: `eq.${seoKey}`,
     is_active: 'eq.true',
     limit: '1'
   });
-  return `${SUPABASE_URL}/rest/v1/seo_overrides?${params.toString()}`;
+  return `${supabaseUrl}/rest/v1/seo_overrides?${params.toString()}`;
 }
 
-async function warmOne(cache, url, tags) {
+async function warmOne(cache, url, tags, supabaseKey) {
   if (!url) return 'N/A';
 
   const cacheKey = new Request(url, { method: 'GET' });
@@ -90,7 +115,7 @@ async function warmOne(cache, url, tags) {
   if (cached) return 'HIT';
 
   const fresh = await fetch(url, {
-    headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
+    headers: supabaseHeaders(supabaseKey)
   });
 
   if (!fresh.ok) return `BYPASS-${fresh.status}`;
@@ -113,23 +138,25 @@ async function warmOne(cache, url, tags) {
   return 'MISS-STORED';
 }
 
-async function warmInputs(descriptor) {
-  if (!SUPABASE_URL || !SUPABASE_KEY || !descriptor) {
+async function warmInputs(descriptor, supabaseUrl, supabaseKey) {
+  if (!supabaseUrl || !supabaseKey || !descriptor) {
     return { entity: 'BYPASS-CONFIG', template: 'BYPASS-CONFIG', override: 'BYPASS-CONFIG' };
   }
 
   const cache = await caches.open(SEO_SHARED_CACHE_NAME);
   const [entity, template, override] = await Promise.all([
-    warmOne(cache, descriptor.entityUrl, descriptor.entityTags),
+    warmOne(cache, descriptor.entityUrl, descriptor.entityTags, supabaseKey),
     warmOne(
       cache,
-      templateUrl(descriptor.templateKey),
-      [`seo-template:${descriptor.templateKey}`, 'seo-templates']
+      templateUrl(supabaseUrl, descriptor.templateKey),
+      [`seo-template:${descriptor.templateKey}`, 'seo-templates'],
+      supabaseKey
     ),
     warmOne(
       cache,
-      overrideUrl(descriptor.seoKey),
-      [`seo-override:${descriptor.seoKey}`, 'seo-overrides']
+      overrideUrl(supabaseUrl, descriptor.seoKey),
+      [`seo-override:${descriptor.seoKey}`, 'seo-overrides'],
+      supabaseKey
     )
   ]);
 
@@ -140,7 +167,8 @@ export default async function handler(request, context) {
   if (request.method !== 'GET') return context.next();
 
   const url = new URL(request.url);
-  const descriptor = requestDescriptor(url);
+  const supabase = getSupabaseConfig(request);
+  const descriptor = requestDescriptor(url, supabase.url);
   if (!descriptor) return context.next();
 
   const totalStarted = performance.now();
@@ -148,7 +176,7 @@ export default async function handler(request, context) {
   let states;
 
   try {
-    states = await warmInputs(descriptor);
+    states = await warmInputs(descriptor, supabase.url, supabase.key);
   } catch (error) {
     console.warn('SEO input warmup failed', error);
     states = { entity: 'ERROR', template: 'ERROR', override: 'ERROR' };
@@ -165,6 +193,7 @@ export default async function handler(request, context) {
     'X-JDJ-SEO-Prewarm',
     `entity:${states.entity},template:${states.template},override:${states.override}`
   );
+  headers.set('X-JDJ-SEO-Prewarm-Env', supabase.environment);
 
   const existingTiming = headers.get('Server-Timing');
   const timings = [

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>JDJ Cache QA</title>
+  <script src="/env-config.js"></script>
+  <style>
+    body{font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a;margin:0;padding:24px}
+    main{max-width:900px;margin:auto} h1{margin:0 0 8px;font-size:28px} p{color:#475569}
+    #summary{font-weight:700;margin:18px 0;padding:14px;border-radius:12px;background:white;border:1px solid #e2e8f0}
+    .row{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin:10px 0}
+    .pending{border-right:5px solid #94a3b8}.pass{border-right:5px solid #16a34a}.fail{border-right:5px solid #dc2626}
+    .name{font-weight:800}.detail{font-size:13px;color:#64748b;margin-top:5px;white-space:pre-wrap;direction:ltr;text-align:left;max-height:260px;overflow:auto}
+    button{border:0;background:#0f172a;color:white;border-radius:10px;padding:11px 18px;font-weight:700;cursor:pointer}
+    iframe{position:absolute;width:1px;height:1px;border:0;opacity:.01;pointer-events:none}
+  </style>
+</head>
+<body>
+<main>
+  <h1>בדיקת Cache אוטומטית — Sprint 1.027</h1>
+  <p>עמוד QA זמני לסביבת TEST / Deploy Preview בלבד. אינו משנה נתוני תוכן. בדיקת purge מנקה רק Cache Tag של recommended.</p>
+  <button id="rerun" type="button">הרצה מחדש</button>
+  <div id="summary">ממתין להרצה…</div>
+  <div id="results"></div>
+  <div id="frames"></div>
+</main>
+<script>
+(() => {
+  const TEST_PROJECT = 'sdekeyakrtdwmykvpbwq';
+  const tests = [
+    ['environment','סביבת Preview מחוברת ל-Supabase TEST'],
+    ['recommended','מקור המומלצים המשותף זמין'],
+    ['purge','ביטול תוקף recommended עובד ב-Netlify'],
+    ['disclaimer','Disclaimer קורא דרך Data Cache ולא ישירות ל-DB'],
+    ['sweep','כל עמודי ה-Public שנבדקו נקיים מ-Direct DB'],
+    ['fallback','Fallback מבוקר ל-Supabase מזוהה ונרשם'],
+    ['flood','טקסט מוצא הנחל השגוי הוסר']
+  ];
+  const state = new Map(tests.map(([id,name]) => [id,{id,name,status:'pending',detail:''}]));
+
+  const PUBLIC_SWEEP = [
+    '/',
+    '/category?type=routes', '/category?type=technical', '/category?type=viewpoints', '/category?type=water', '/category?type=poi',
+    '/item?id=200043', '/point?id=600015', '/khan?id=800008', '/article?id=700012',
+    '/stories', '/khan-catalog', '/floods', '/floods/judean-desert', '/floods/negev-arava', '/floods/negev-arava/tzin',
+    '/about', '/disclaimer', '/access', '/camp', '/mview', '/accessibility'
+  ];
+
+  function nonProdHost() {
+    const h = location.hostname.toLowerCase();
+    return h === 'jdj-test.netlify.app' || h.endsWith('--jdj-test.netlify.app');
+  }
+  function escapeHtml(v='') { return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function render() {
+    const values=[...state.values()], passed=values.filter(x=>x.status==='pass').length, failed=values.filter(x=>x.status==='fail').length, pending=values.filter(x=>x.status==='pending').length;
+    document.getElementById('summary').textContent=failed?`נכשלו ${failed} בדיקות מתוך ${values.length}`:pending?`עברו ${passed}, ממתינות ${pending}`:`הכול תקין: ${passed}/${values.length}`;
+    document.getElementById('results').innerHTML=values.map(x=>`<div class="row ${x.status}"><div class="name">${x.status==='pass'?'✅':x.status==='fail'?'❌':'⏳'} ${escapeHtml(x.name)}</div>${x.detail?`<div class="detail">${escapeHtml(x.detail)}</div>`:''}</div>`).join('');
+  }
+  function setResult(id,status,detail=''){const item=state.get(id);if(!item)return;item.status=status;item.detail=detail;render();}
+  function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+  function withQaNonce(src){const join=src.includes('?')?'&':'?';return `${src}${join}jdj_qa=${Date.now()}_${Math.random().toString(36).slice(2)}`;}
+
+  async function testEnvironment(){
+    const url=window.JDJ_ENV?.supabaseUrl||'';
+    const ok=nonProdHost()&&url.includes(TEST_PROJECT)&&!url.includes('edjmwcnxsqnsxqrcsjxp');
+    setResult('environment',ok?'pass':'fail',`host=${location.hostname}\nsupabase=${url||'(missing)'}`); return ok;
+  }
+  async function testRecommended(){
+    try{const r=await fetch('/.netlify/functions/recommended-routes',{cache:'no-store'});const p=await r.json();const count=Array.isArray(p?.data)?p.data.length:-1;const ok=r.ok&&count>=1&&count<=3;setResult('recommended',ok?'pass':'fail',`HTTP ${r.status}; count=${count}`);}catch(e){setResult('recommended','fail',String(e));}
+  }
+  async function testPurge(){
+    try{const r=await fetch('/.netlify/functions/qa-cache-purge',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});const p=await r.json().catch(()=>({}));setResult('purge',r.ok&&p?.ok?'pass':'fail',`HTTP ${r.status}; ${JSON.stringify(p)}`);}catch(e){setResult('purge','fail',String(e));}
+  }
+  function loadFrame(src,timeout=15000){return new Promise((resolve,reject)=>{const f=document.createElement('iframe');const timer=setTimeout(()=>{f.remove();reject(new Error(`timeout loading ${src}`));},timeout);f.onload=()=>{clearTimeout(timer);resolve(f)};f.src=src;document.getElementById('frames').appendChild(f);});}
+  function frameResources(frame){try{return frame.contentWindow.performance.getEntriesByType('resource').map(x=>x.name);}catch(_){return [];}}
+  function directRest(resources){return resources.filter(u=>u.includes(`${TEST_PROJECT}.supabase.co/rest/v1/`));}
+
+  async function testDisclaimer(){
+    let f;try{f=await loadFrame(withQaNonce('/disclaimer'));await wait(2200);const resources=frameResources(f);const direct=directRest(resources).filter(u=>u.includes('/pages')||u.includes('/floods_page_config'));const cached=resources.filter(u=>u.includes('/.netlify/functions/collection-data')&&(decodeURIComponent(u).includes('table=pages')||decodeURIComponent(u).includes('table=floods_page_config')));const ok=direct.length===0&&cached.length>=2;setResult('disclaimer',ok?'pass':'fail',`direct DB=${direct.length}; collection-data=${cached.length}${direct.length?'\n'+direct.join('\n'):''}`);}catch(e){setResult('disclaimer','fail',String(e));}finally{f?.remove();}
+  }
+
+  async function inspectPage(src){
+    let f;try{f=await loadFrame(withQaNonce(src));await wait(1400);const direct=directRest(frameResources(f));return {src,direct};}catch(e){return {src,direct:[],error:String(e)};}finally{f?.remove();}
+  }
+  async function testPublicSweep(){
+    const results=[];
+    for(const src of PUBLIC_SWEEP) results.push(await inspectPage(src));
+    const errors=results.filter(x=>x.error), offenders=results.filter(x=>x.direct.length);
+    const ok=errors.length===0&&offenders.length===0;
+    const detail=[`pages=${results.length}; directDB pages=${offenders.length}; load errors=${errors.length}`,...offenders.map(x=>`${x.src}\n  ${x.direct.join('\n  ')}`),...errors.map(x=>`${x.src}: ${x.error}`)].join('\n');
+    setResult('sweep',ok?'pass':'fail',detail);
+  }
+
+  async function testFallback(){
+    let f,fallbackEvent=null;const listener=event=>{if(event.origin!==location.origin)return;const d=event.data;if(d?.source==='jdj-cache-observability'&&d?.type==='fallback-to-supabase')fallbackEvent=d;};window.addEventListener('message',listener);
+    try{f=await loadFrame(withQaNonce('/category?type=routes&jdj_cache_debug=fallback'));for(let i=0;i<35&&!fallbackEvent;i++)await wait(300);const ok=Boolean(fallbackEvent&&fallbackEvent.detail?.table);setResult('fallback',ok?'pass':'fail',fallbackEvent?JSON.stringify(fallbackEvent.detail,null,2):'No fallback event received');}catch(e){setResult('fallback','fail',String(e));}finally{window.removeEventListener('message',listener);f?.remove();}
+  }
+  async function testFloodPopup(){
+    try{const r=await fetch(withQaNonce('/floods/negev-arava/tzin'),{headers:{Accept:'text/html'},cache:'no-store'});const html=await r.text();const wrong=html.includes('אזור מוצא הנחל לכיוון ים המלח');const transformed=r.headers.get('X-JDJ-Flood-Popup-Fix')==='1';const ok=r.ok&&!wrong&&transformed;setResult('flood',ok?'pass':'fail',`HTTP ${r.status}; transformed=${transformed}; wrongTextPresent=${wrong}`);}catch(e){setResult('flood','fail',String(e));}
+  }
+
+  async function run(){
+    state.forEach(x=>{x.status='pending';x.detail='';});render();
+    if(!(await testEnvironment())){['recommended','purge','disclaimer','sweep','fallback','flood'].forEach(id=>setResult(id,'fail','Blocked: environment safety check failed'));return;}
+    await testRecommended(); await testPurge(); await testDisclaimer(); await testPublicSweep(); await testFallback(); await testFloodPopup();
+  }
+  document.getElementById('rerun').addEventListener('click',run);render();run();
+})();
+</script>
+</body>
+</html>

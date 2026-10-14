@@ -9,6 +9,10 @@ function injectBeforeHeadClose(html, snippet) {
   return `${html.slice(0, index)}${snippet}\n${html.slice(index)}`;
 }
 
+function isFloodRiverDetail(path) {
+  return /^\/floods\/[^/]+\/[^/]+$/.test(path);
+}
+
 export default async function handler(request, context) {
   if (request.method !== 'GET') return context.next();
 
@@ -20,6 +24,21 @@ export default async function handler(request, context) {
   const path = normalizePath(url.pathname);
   let html = await response.text();
   let injection = '';
+  let transformed = false;
+
+  // JDJ-61: the river outlet popup used a hard-coded sentence that is not
+  // reliable for every river. Keep the popup title/type/action and suppress
+  // only that automatic description. Configured point descriptions remain.
+  if (isFloodRiverDetail(path)) {
+    const corrected = html.replace(
+      "description: 'אזור מוצא הנחל לכיוון ים המלח',",
+      "description: '',"
+    );
+    if (corrected !== html) {
+      html = corrected;
+      transformed = true;
+    }
+  }
 
   // JDJ-65: disclaimer historically created a Supabase client without loading
   // the shared Data Cache Proxy. Inject it after the Supabase library and before
@@ -35,13 +54,17 @@ export default async function handler(request, context) {
     injection += '<script src="/cache-observability.js"></script>';
   }
 
-  if (!injection) return response;
+  if (injection) {
+    html = injectBeforeHeadClose(html, `\n    <!-- JDJ Data Cache bootstrap -->\n    ${injection}`);
+    transformed = true;
+  }
 
-  html = injectBeforeHeadClose(html, `\n    <!-- JDJ Data Cache bootstrap -->\n    ${injection}`);
+  if (!transformed) return response;
 
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.set('X-JDJ-Data-Cache-Bootstrap', '1');
+  if (isFloodRiverDetail(path)) headers.set('X-JDJ-Flood-Popup-Fix', '1');
 
   return new Response(html, {
     status: response.status,

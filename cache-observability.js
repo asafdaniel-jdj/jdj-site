@@ -7,9 +7,52 @@
   const originalFetch = window.fetch.bind(window);
   const recentFailures = [];
   const FAILURE_TTL_MS = 10_000;
+  let forcedQaFallbackUsed = false;
 
   function pageKey() {
     return `${window.location.pathname}${window.location.search || ''}`;
+  }
+
+  function isNonProdHost() {
+    const host = String(window.location.hostname || '').toLowerCase();
+    return host === 'jdj-test.netlify.app' || host.endsWith('--jdj-test.netlify.app');
+  }
+
+  function forceFallbackQaEnabled() {
+    if (!isNonProdHost()) return false;
+    return new URLSearchParams(window.location.search).get('jdj_cache_debug') === 'fallback';
+  }
+
+  function emitQaEvent(type, detail = {}) {
+    if (!isNonProdHost()) return;
+    const message = {
+      source: 'jdj-cache-observability',
+      type,
+      detail,
+      page: pageKey(),
+      at: new Date().toISOString()
+    };
+
+    try {
+      window.dispatchEvent(new CustomEvent('jdj-cache-qa', { detail: message }));
+    } catch (_) {}
+
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(message, window.location.origin);
+      }
+    } catch (_) {}
+  }
+
+  function reportFallback(payload) {
+    try {
+      originalFetch('/.netlify/functions/cache-fallback-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: 'fallback-to-supabase', ...payload }),
+        keepalive: true
+      }).catch(() => {});
+    } catch (_) {}
   }
 
   function normalizeTableFromContentType(type) {
@@ -77,7 +120,7 @@
     recentFailures.push(event);
     pruneFailures(event.time);
 
-    console.warn('JDJ_DATA_CACHE_ENDPOINT_FAILED', {
+    const payload = {
       page: event.page,
       layer: event.layer,
       table: event.table,
@@ -85,7 +128,9 @@
       cacheEndpoint: event.endpoint,
       status: event.status,
       reason: event.reason
-    });
+    };
+    console.warn('JDJ_DATA_CACHE_ENDPOINT_FAILED', payload);
+    emitQaEvent('cache-endpoint-failed', payload);
   }
 
   function logFallbackToSupabase(table, rawUrl) {
@@ -107,7 +152,7 @@
       supabasePath = new URL(rawUrl, window.location.origin).pathname;
     } catch (_) {}
 
-    console.warn('JDJ_DATA_CACHE_FALLBACK_TO_SUPABASE', {
+    const payload = {
       page: pageKey(),
       table,
       cacheLayer: failure.layer,
@@ -116,7 +161,10 @@
       reason: failure.reason,
       supabasePath,
       elapsedMs: Date.now() - failure.time
-    });
+    };
+    console.warn('JDJ_DATA_CACHE_FALLBACK_TO_SUPABASE', payload);
+    emitQaEvent('fallback-to-supabase', payload);
+    reportFallback(payload);
   }
 
   window.fetch = async function jdjObservedFetch(input, init = {}) {
@@ -125,6 +173,18 @@
     const directTable = rawUrl ? supabaseTable(rawUrl) : null;
 
     if (directTable) logFallbackToSupabase(directTable, rawUrl);
+
+    // TEST / Deploy Preview only: one forced cache failure makes the fallback path
+    // deterministic to verify without breaking production traffic. Add
+    // ?jdj_cache_debug=fallback to a public page and inspect the browser console.
+    if (cacheInfo && forceFallbackQaEnabled() && !forcedQaFallbackUsed) {
+      forcedQaFallbackUsed = true;
+      rememberFailure(cacheInfo, 599, 'forced QA fallback');
+      return new Response(JSON.stringify({ error: 'forced QA fallback' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json; charset=utf-8' }
+      });
+    }
 
     try {
       const response = await originalFetch(input, init);
