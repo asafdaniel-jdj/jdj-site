@@ -44,6 +44,17 @@
     } catch (_) {}
   }
 
+  function reportFallback(payload) {
+    try {
+      originalFetch('/.netlify/functions/cache-fallback-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: 'fallback-to-supabase', ...payload }),
+        keepalive: true
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
   function normalizeTableFromContentType(type) {
     if (type === 'point') return 'routes';
     if (type === 'khan') return 'khans';
@@ -153,6 +164,7 @@
     };
     console.warn('JDJ_DATA_CACHE_FALLBACK_TO_SUPABASE', payload);
     emitQaEvent('fallback-to-supabase', payload);
+    reportFallback(payload);
   }
 
   window.fetch = async function jdjObservedFetch(input, init = {}) {
