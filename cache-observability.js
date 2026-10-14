@@ -7,9 +7,20 @@
   const originalFetch = window.fetch.bind(window);
   const recentFailures = [];
   const FAILURE_TTL_MS = 10_000;
+  let forcedQaFallbackUsed = false;
 
   function pageKey() {
     return `${window.location.pathname}${window.location.search || ''}`;
+  }
+
+  function isNonProdHost() {
+    const host = String(window.location.hostname || '').toLowerCase();
+    return host === 'jdj-test.netlify.app' || host.endsWith('--jdj-test.netlify.app');
+  }
+
+  function forceFallbackQaEnabled() {
+    if (!isNonProdHost()) return false;
+    return new URLSearchParams(window.location.search).get('jdj_cache_debug') === 'fallback';
   }
 
   function normalizeTableFromContentType(type) {
@@ -125,6 +136,18 @@
     const directTable = rawUrl ? supabaseTable(rawUrl) : null;
 
     if (directTable) logFallbackToSupabase(directTable, rawUrl);
+
+    // TEST / Deploy Preview only: one forced cache failure makes the fallback path
+    // deterministic to verify without breaking production traffic. Add
+    // ?jdj_cache_debug=fallback to a public page and inspect the browser console.
+    if (cacheInfo && forceFallbackQaEnabled() && !forcedQaFallbackUsed) {
+      forcedQaFallbackUsed = true;
+      rememberFailure(cacheInfo, 599, 'forced QA fallback');
+      return new Response(JSON.stringify({ error: 'forced QA fallback' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json; charset=utf-8' }
+      });
+    }
 
     try {
       const response = await originalFetch(input, init);
