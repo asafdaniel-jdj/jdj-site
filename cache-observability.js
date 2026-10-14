@@ -23,6 +23,27 @@
     return new URLSearchParams(window.location.search).get('jdj_cache_debug') === 'fallback';
   }
 
+  function emitQaEvent(type, detail = {}) {
+    if (!isNonProdHost()) return;
+    const message = {
+      source: 'jdj-cache-observability',
+      type,
+      detail,
+      page: pageKey(),
+      at: new Date().toISOString()
+    };
+
+    try {
+      window.dispatchEvent(new CustomEvent('jdj-cache-qa', { detail: message }));
+    } catch (_) {}
+
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(message, window.location.origin);
+      }
+    } catch (_) {}
+  }
+
   function normalizeTableFromContentType(type) {
     if (type === 'point') return 'routes';
     if (type === 'khan') return 'khans';
@@ -88,7 +109,7 @@
     recentFailures.push(event);
     pruneFailures(event.time);
 
-    console.warn('JDJ_DATA_CACHE_ENDPOINT_FAILED', {
+    const payload = {
       page: event.page,
       layer: event.layer,
       table: event.table,
@@ -96,7 +117,9 @@
       cacheEndpoint: event.endpoint,
       status: event.status,
       reason: event.reason
-    });
+    };
+    console.warn('JDJ_DATA_CACHE_ENDPOINT_FAILED', payload);
+    emitQaEvent('cache-endpoint-failed', payload);
   }
 
   function logFallbackToSupabase(table, rawUrl) {
@@ -118,7 +141,7 @@
       supabasePath = new URL(rawUrl, window.location.origin).pathname;
     } catch (_) {}
 
-    console.warn('JDJ_DATA_CACHE_FALLBACK_TO_SUPABASE', {
+    const payload = {
       page: pageKey(),
       table,
       cacheLayer: failure.layer,
@@ -127,7 +150,9 @@
       reason: failure.reason,
       supabasePath,
       elapsedMs: Date.now() - failure.time
-    });
+    };
+    console.warn('JDJ_DATA_CACHE_FALLBACK_TO_SUPABASE', payload);
+    emitQaEvent('fallback-to-supabase', payload);
   }
 
   window.fetch = async function jdjObservedFetch(input, init = {}) {
