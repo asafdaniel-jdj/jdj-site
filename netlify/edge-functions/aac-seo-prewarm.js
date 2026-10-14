@@ -1,4 +1,4 @@
-import { getEdgeSupabasePublicConfig, edgeSupabaseHeaders } from './_supabase-public.js';
+import { getEdgeSupabasePublicConfig, edgeSupabaseHeaders } from '../lib/edge-supabase-public.js';
 
 const SEO_SHARED_CACHE_NAME = 'jdj-seo-data-v1';
 const SEO_CACHE_SECONDS = 86_400; // 24 hours; Admin mutations purge the relevant tags immediately.
