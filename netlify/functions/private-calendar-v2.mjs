@@ -55,7 +55,7 @@ function supabaseHeaders() {
 
 async function fetchItems() {
   const params = new URLSearchParams({
-    select: 'id,item_type,title,start_date,end_date,region,summary,status,whatsapp_url,event_url,location_url,is_visible,slug',
+    select: 'id,item_type,title,start_date,end_date,region,summary,status,whatsapp_url,event_url,location_url,guide_name,route_url,is_visible,slug',
     is_visible: 'eq.true',
     order: 'start_date.asc,title.asc',
   });
