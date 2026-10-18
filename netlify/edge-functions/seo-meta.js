@@ -1,10 +1,14 @@
 const SITE_URL = 'https://jdj.co.il';
 const SITE_NAME = "מסלולי הג'יפים של מדבר יהודה";
-const SUPABASE_URL = Netlify.env.get('JDJ_SUPABASE_URL');
-const SUPABASE_KEY = Netlify.env.get('JDJ_SUPABASE_KEY');
-
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  throw new Error('Missing JDJ_SUPABASE_URL / JDJ_SUPABASE_KEY environment variables');
+// TEST-only SEO; never merge this module into PROD. The key below is public, not privileged.
+const SUPABASE_URL = 'https://sdekeyakrtdwmykvpbwq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Zt1DlF4MDoNQcLvAybABZQ_FrKfqq5Z';
+const SEO_FETCH_TIMEOUT_MS = 1800;
+async function fetchWithTimeout(url, opts = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), SEO_FETCH_TIMEOUT_MS);
+  try { return await fetch(url, { ...opts, signal: controller.signal }); }
+  finally { clearTimeout(timer); }
 }
 
 const CATEGORY_MAP = {
@@ -140,7 +144,7 @@ async function fetchSupabaseWithSharedCache(url, { tags = [] } = {}) {
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
-  const fresh = await fetch(url, {
+  const fresh = await fetchWithTimeout(url, {
     headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
   });
 
@@ -581,7 +585,7 @@ async function getFloodRiverBySlug(slug) {
     status: 'eq.published',
     limit: '1'
   });
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/flood_rivers?${params.toString()}`, {
+  const response = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/flood_rivers?${params.toString()}`, {
     headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
   });
   if (!response.ok) throw new Error(`Supabase flood_rivers request failed with ${response.status}`);
@@ -596,7 +600,7 @@ async function getFloodRiverPoints(riverId) {
     is_active: 'eq.true',
     order: 'sort_order.asc'
   });
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/flood_river_points?${params.toString()}`, {
+  const response = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/flood_river_points?${params.toString()}`, {
     headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
   });
   if (!response.ok) throw new Error(`Supabase flood_river_points request failed with ${response.status}`);
@@ -742,7 +746,7 @@ async function getCategorySchemaRows(url) {
   const rawType = url.searchParams.get('type');
   if (!Object.prototype.hasOwnProperty.call(CATEGORY_MAP, rawType)) return [];
   const params = new URLSearchParams({ select: 'id,title,route_type,region,status,early_access_until', status: 'eq.פורסם', order: 'id.desc' });
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/routes?${params.toString()}`, {
+  const response = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/routes?${params.toString()}`, {
     headers: { apikey: SUPABASE_KEY, Accept: 'application/json' }
   });
   if (!response.ok) throw new Error(`Supabase category schema request failed with ${response.status}`);
@@ -768,6 +772,10 @@ function isTestHostname(hostname) {
 
 export default async function handler(request, context) {
   const url = new URL(request.url);
+  if (!isTestHostname(url.hostname)) {
+    console.error('TEST-only SEO Edge rejected non-TEST host', url.hostname);
+    return context.next();
+  }
   const pagePath = normalizePagePath(url.pathname);
   const response = await context.next();
 
@@ -924,6 +932,7 @@ export default async function handler(request, context) {
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.set('x-jdj-seo-edge', '1');
+  headers.set('X-JDJ-SEO-Data-Environment', 'TEST');
 
   if (isTestSite) {
     headers.set('X-Robots-Tag', 'noindex, nofollow');
