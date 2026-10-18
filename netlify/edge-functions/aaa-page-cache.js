@@ -93,6 +93,15 @@ function withHeader(response, name, value, version) {
   });
 }
 
+function logCacheFailure(stage, url, error, started) {
+  console.warn('JDJ page cache fail-open', {
+    stage,
+    path: `${url.pathname}${url.search}`,
+    durationMs: Number((performance.now() - started).toFixed(1)),
+    error: error instanceof Error ? error.message : String(error)
+  });
+}
+
 export default async function handler(request, context) {
   if (request.method !== 'GET') return context.next();
   if (request.headers.get('authorization')) return context.next();
@@ -101,11 +110,18 @@ export default async function handler(request, context) {
   const url = new URL(request.url);
   const version = cacheVersion(context);
   const policy = cachePolicy(url);
-  const cache = await caches.open(`${PAGE_CACHE_PREFIX}-${version}`);
-  const cacheKey = new Request(url.toString(), { method: 'GET' });
+  let cache;
+  let cacheKey;
 
-  const cached = await cache.match(cacheKey);
-  if (cached) return withHeader(cached, 'X-JDJ-Page-Cache', 'HIT', version);
+  try {
+    cache = await caches.open(`${PAGE_CACHE_PREFIX}-${version}`);
+    cacheKey = new Request(url.toString(), { method: 'GET' });
+    const cached = await cache.match(cacheKey);
+    if (cached) return withHeader(cached, 'X-JDJ-Page-Cache', 'HIT', version);
+  } catch (error) {
+    logCacheFailure('read', url, error, started);
+    return context.next();
+  }
 
   const response = await context.next();
   const contentType = response.headers.get('content-type') || '';
@@ -137,7 +153,12 @@ export default async function handler(request, context) {
     headers
   });
 
-  await cache.put(cacheKey, cacheable.clone());
+  const writeStarted = performance.now();
+  context.waitUntil(
+    cache.put(cacheKey, cacheable.clone()).catch((error) => {
+      logCacheFailure('write', url, error, writeStarted);
+    })
+  );
   return cacheable;
 }
 

@@ -4,6 +4,7 @@ const TEST_SUPABASE_KEY = 'sb_publishable_Zt1DlF4MDoNQcLvAybABZQ_FrKfqq5Z';
 const SEO_SHARED_CACHE_NAME = 'jdj-seo-data-v1';
 const SEO_CACHE_SECONDS = 86_400; // 24 hours; Admin mutations purge the relevant tags immediately.
 const SEO_STALE_SECONDS = 3_600;
+const PREWARM_FETCH_TIMEOUT_MS = 1_200;
 
 function isTestHost(hostname = '') {
   const host = String(hostname).toLowerCase();
@@ -107,16 +108,32 @@ function overrideUrl(supabaseUrl, seoKey) {
   return `${supabaseUrl}/rest/v1/seo_overrides?${params.toString()}`;
 }
 
-async function warmOne(cache, url, tags, supabaseKey) {
+async function fetchWithTimeout(url, options = {}, timeoutMs = PREWARM_FETCH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function warmOne(cache, url, tags, supabaseKey, context) {
   if (!url) return 'N/A';
 
   const cacheKey = new Request(url, { method: 'GET' });
   const cached = await cache.match(cacheKey);
   if (cached) return 'HIT';
 
-  const fresh = await fetch(url, {
-    headers: supabaseHeaders(supabaseKey)
-  });
+  let fresh;
+  try {
+    fresh = await fetchWithTimeout(url, {
+      headers: supabaseHeaders(supabaseKey)
+    });
+  } catch (error) {
+    if (error?.name === 'AbortError') return 'TIMEOUT';
+    throw error;
+  }
 
   if (!fresh.ok) return `BYPASS-${fresh.status}`;
 
@@ -134,29 +151,35 @@ async function warmOne(cache, url, tags, supabaseKey) {
     headers
   });
 
-  await cache.put(cacheKey, cacheable.clone());
-  return 'MISS-STORED';
+  context.waitUntil(
+    cache.put(cacheKey, cacheable.clone()).catch((error) => {
+      console.warn('JDJ SEO prewarm cache write failed', error);
+    })
+  );
+  return 'MISS-QUEUED';
 }
 
-async function warmInputs(descriptor, supabaseUrl, supabaseKey) {
+async function warmInputs(descriptor, supabaseUrl, supabaseKey, context) {
   if (!supabaseUrl || !supabaseKey || !descriptor) {
     return { entity: 'BYPASS-CONFIG', template: 'BYPASS-CONFIG', override: 'BYPASS-CONFIG' };
   }
 
   const cache = await caches.open(SEO_SHARED_CACHE_NAME);
   const [entity, template, override] = await Promise.all([
-    warmOne(cache, descriptor.entityUrl, descriptor.entityTags, supabaseKey),
+    warmOne(cache, descriptor.entityUrl, descriptor.entityTags, supabaseKey, context),
     warmOne(
       cache,
       templateUrl(supabaseUrl, descriptor.templateKey),
       [`seo-template:${descriptor.templateKey}`, 'seo-templates'],
-      supabaseKey
+      supabaseKey,
+      context
     ),
     warmOne(
       cache,
       overrideUrl(supabaseUrl, descriptor.seoKey),
       [`seo-override:${descriptor.seoKey}`, 'seo-overrides'],
-      supabaseKey
+      supabaseKey,
+      context
     )
   ]);
 
@@ -176,9 +199,13 @@ export default async function handler(request, context) {
   let states;
 
   try {
-    states = await warmInputs(descriptor, supabase.url, supabase.key);
+    states = await warmInputs(descriptor, supabase.url, supabase.key, context);
   } catch (error) {
-    console.warn('SEO input warmup failed', error);
+    console.warn('JDJ SEO input warmup fail-open', {
+      path: `${url.pathname}${url.search}`,
+      durationMs: Number((performance.now() - warmStarted).toFixed(1)),
+      error: error instanceof Error ? error.message : String(error)
+    });
     states = { entity: 'ERROR', template: 'ERROR', override: 'ERROR' };
   }
 
