@@ -126,7 +126,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
 
                 <div class="pt-0.5">
-                    <div id="topPageHeading" class="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight leading-tight"></div>
+                    <div id="topPageHeading" class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight"></div>
                 </div>
             </div>
 
@@ -1254,7 +1254,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         async function loadRelatedItems(item) {
             try {
-                const region = item.region || 'מדבר יהודה';
+                const region = typeof item.region === 'string' ? item.region.trim() : '';
+                // Never recommend cross-region content; missing region means no suggestions.
+                if (!region) {
+                    document.getElementById('relatedRoutesSection').classList.add('hidden');
+                    loadRelatedKhanForItem(item);
+                    return;
+                }
 
                 let { data: routesList } = await supabaseClient
                     .from('routes')
@@ -1267,25 +1273,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                 routesList = (routesList || []).filter(isPubliclyVisible).slice(0, 2);
 
-                if (routesList.length < 2) {
-                    const seenIds = new Set([item.id, ...routesList.map(r => r.id)]);
-                    const { data: extraRoutes } = await supabaseClient
-                        .from('routes')
-                        .select('*')
-                        .eq('status', 'פורסם')
-                        .neq('id', item.id)
-                        .eq('route_type', 'מסלול טיול')
-                        .not('id', 'in', `(${Array.from(seenIds).join(',')})`)
-                        .order('id', { ascending: false });
-
-                    const visibleExtraRoutes = (extraRoutes || []).filter(isPubliclyVisible).slice(0, 2 - routesList.length);
-                    if (visibleExtraRoutes.length > 0) routesList = routesList.concat(visibleExtraRoutes);
-                }
-
                 const routesGrid = document.getElementById('relatedRoutesGrid');
                 routesGrid.innerHTML = '';
 
                 if (routesList.length > 0) {
+                    document.getElementById('relatedRoutesSection').classList.remove('hidden');
                     routesList.forEach(rel => {
                         const card = document.createElement('a');
                         card.href = `/item?id=${rel.id}`;
