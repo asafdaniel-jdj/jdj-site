@@ -899,7 +899,7 @@ export default async function handler(request, context) {
           });
           html = applySeo(html, seo);
           if (seo.h1 && cfg.h1Id) html = replaceElementTextById(html, cfg.h1Id, seo.h1);
-          if (seo.h1 && pagePath === '/item') html = replaceElementTextById(html, 'topPageHeading', seo.h1);
+          if (seo.h1 && (pagePath === '/item' || pagePath === '/khan')) html = replaceElementTextById(html, 'topPageHeading', seo.h1);
           if (pagePath === '/article' && row.author) html = replaceElementTextById(html, 'articleAuthor', `מאת ${row.author}`);
           if (seo.h2 && cfg.h2Id) html = replaceElementTextById(html, cfg.h2Id, seo.h2);
           if (pagePath === '/item') {

@@ -101,8 +101,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <article id="itemContainer" class="space-y-5 hidden">
 
-            <!-- 🧭 1. חלק עליון: Breadcrumbs וכפתור חזרה -->
-            <div class="flex items-center justify-between text-xs sm:text-sm">
+            <div class="space-y-2">
+                <!-- 🧭 1. חלק עליון: Breadcrumbs וכפתור חזרה -->
+                <div class="flex items-center justify-between text-xs sm:text-sm">
                 <div class="flex items-center gap-1.5 sm:gap-2 text-slate-500 font-medium overflow-hidden text-ellipsis whitespace-nowrap">
                     <a href="/" class="hover:text-indigo-600 transition">בית</a>
                     <i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i>
@@ -115,6 +116,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <i class="fa-solid fa-arrow-right"></i>
                     <span>חזרה</span>
                 </button>
+                </div>
+                <div class="pt-0.5">
+                    <div id="topPageHeading" class="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight leading-tight"></div>
+                </div>
             </div>
 
             <!-- 💜 Early Access Banner Component (Deep Purple) -->
@@ -839,6 +844,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             renderGallery(khan);
 
             document.getElementById('itemTitle').innerText = h1;
+            document.getElementById('topPageHeading').innerText = h1;
             document.getElementById('khanSeoH2').innerText = h2;
             const khanRegionLink = document.getElementById('itemRegion');
             const khanRegionName = khan.region || 'הנגב והערבה';
@@ -971,12 +977,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         async function loadRelatedKhans(currentKhan) {
+            const region = typeof currentKhan?.region === 'string' ? currentKhan.region.trim() : '';
+            if (!region) {
+                document.getElementById('relatedSection').classList.add('hidden');
+                return;
+            }
             try {
                 const { data } = await supabaseClient
                     .from('khans')
                     .select('*')
                     .neq('id', currentKhan.id)
-                    .eq('region', currentKhan.region || 'הנגב והערבה')
+                    .eq('region', region)
                     .order('id', { ascending: false });
 
                 const visibleRelatedKhans = (data || []).filter(isPubliclyVisible).slice(0, 3);

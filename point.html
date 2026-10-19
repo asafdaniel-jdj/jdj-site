@@ -114,8 +114,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <article id="itemContainer" class="hidden space-y-5">
 
-            <!-- 🧭 Breadcrumbs דינמי -->
-            <nav aria-label="Breadcrumb" class="flex items-center justify-between text-xs sm:text-sm">
+            <div class="space-y-2">
+                <!-- 🧭 Breadcrumbs דינמי -->
+                <nav aria-label="Breadcrumb" class="flex items-center justify-between text-xs sm:text-sm">
                 <ol class="flex items-center gap-1.5 sm:gap-2 text-slate-500 font-medium overflow-hidden text-ellipsis whitespace-nowrap">
                     <li><a href="/" class="hover:text-indigo-600 transition">בית</a></li>
                     <li aria-hidden="true"><i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i></li>
@@ -131,8 +132,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </nav>
 
             <header class="pt-0.5">
-                <h1 id="mainH1Title" class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight"></h1>
+                <h1 id="mainH1Title" class="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight leading-tight"></h1>
             </header>
+            </div>
 
             <!-- 💜 Early Access Banner Component (Deep Purple) -->
             <section id="earlyAccessBanner" class="hidden relative w-full bg-gradient-to-r from-purple-950 via-slate-950 to-purple-950 border border-purple-500/40 rounded-2xl p-3.5 sm:px-6 sm:py-4 shadow-lg overflow-hidden transition-all duration-300" aria-label="גישה מוקדמת לחברי קבוצת הוואטסאפ">
@@ -1344,7 +1346,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             try {
                 let relatedList = [];
                 const seenIds = new Set([item.id]);
-                const itemRegion = item.region || 'מדבר יהודה';
+                const itemRegion = typeof item.region === 'string' ? item.region.trim() : '';
+                // Missing region must not fall back to a different region's content.
+                if (!itemRegion) {
+                    document.getElementById('relatedSection').classList.add('hidden');
+                    loadRelatedKhanForPoint(item);
+                    return;
+                }
                 const currentType = item.route_type || '';
 
                 // זיהוי קבוצת סוגי התוכן התואמת לפי TYPE_TO_CATEGORY_CONFIG
