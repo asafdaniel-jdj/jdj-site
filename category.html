@@ -81,7 +81,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- 📄 תוכן העמוד הראשי -->
     <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-6 flex-grow space-y-5 md:space-y-8">
 
-        <!-- 🎯 כותרת ראשית + מנוע חיפוש -->
+                <!-- JDJ-74: Accessible, consistent internal-page breadcrumbs -->
+        <nav aria-label="פירורי לחם" data-jdj-breadcrumbs class="min-w-0 text-xs sm:text-sm text-slate-500 font-medium">
+          <ol class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <li class="shrink-0"><a href="/" class="hover:text-indigo-600 transition">בית</a></li>
+            <li aria-hidden="true" class="shrink-0"><i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i></li>
+            <li class="min-w-0"><span id="categoryBreadcrumbCurrent" aria-current="page" class="block truncate text-slate-800 font-bold">מסלולי טיול</span></li>
+          </ol>
+        </nav>
+
+<!-- 🎯 כותרת ראשית + מנוע חיפוש -->
         <div class="text-center space-y-3.5 md:space-y-4 pb-1 md:pb-2">
             <h1 id="categoryPageTitle" class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
                 מסלולי טיול
@@ -498,6 +507,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         function applyCategorySeoValues(seo, itemsForSchema = rawCategoryItems) {
             document.getElementById('categoryPageTitle').innerText = seo.h1;
+            document.getElementById('categoryBreadcrumbCurrent').textContent = seo.h1;
             document.getElementById('categoryContentHeading').innerText = seo.h2;
             document.getElementById('loadMoreBtnText').innerText = seo.config.btnText;
             document.title = seo.fullTitle;

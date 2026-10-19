@@ -71,7 +71,18 @@
 
   <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6 md:space-y-8 flex-grow">
 
-    <!-- PAGE TITLE -->
+            <!-- JDJ-74: Accessible, consistent internal-page breadcrumbs -->
+        <nav aria-label="פירורי לחם" data-jdj-breadcrumbs class="min-w-0 text-xs sm:text-sm text-slate-500 font-medium">
+          <ol class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <li class="shrink-0"><a href="/" class="hover:text-indigo-600 transition">בית</a></li>
+            <li aria-hidden="true" class="shrink-0"><i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i></li>
+            <li class="shrink-0"><a href="/floods" class="hover:text-indigo-600 transition">שטפונות בנחלי הדרום והמזרח</a></li>
+            <li aria-hidden="true" class="shrink-0"><i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i></li>
+            <li class="min-w-0"><span id="floodRegionBreadcrumb" aria-current="page" class="block truncate text-slate-800 font-bold">שטפונות בנגב ובערבה</span></li>
+          </ol>
+        </nav>
+
+<!-- PAGE TITLE -->
     <section class="text-center space-y-2 max-w-3xl mx-auto">
       <h1 id="pageTitle" class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-950">שטפונות בנגב ובערבה</h1>
       <p id="pageIntro" class="text-sm md:text-base text-slate-500 font-medium leading-relaxed mx-auto">כל הנחלים במקום אחד. בחרו נחל והמשיכו למידע על אגן הניקוז, נקודות ביקורת, תצפיות ותיעוד שטפונות.</p>
@@ -408,6 +419,7 @@
       document.getElementById('twitterTitleTag')?.setAttribute('content', seo?.ogTitle || title);
       document.getElementById('twitterDescTag')?.setAttribute('content', seo?.ogDescription || description);
       document.getElementById('pageTitle').textContent = h1;
+      document.getElementById('floodRegionBreadcrumb').textContent = h1;
       document.getElementById('riversHeading').textContent = h2;
     }
 
@@ -527,6 +539,7 @@
 
     function renderPage() {
       document.getElementById('pageTitle').textContent = regionPageData.title;
+      document.getElementById('floodRegionBreadcrumb').textContent = regionPageData.title;
       document.getElementById('pageIntro').textContent = regionPageData.intro;
 
       renderRivers();
