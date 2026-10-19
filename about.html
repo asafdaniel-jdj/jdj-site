@@ -97,7 +97,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- 📄 גוף העמוד הראשי -->
     <main class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 space-y-6 flex-grow">
         
-        <div class="bg-white p-6 sm:p-8 md:p-10 rounded-3xl border border-slate-200 shadow-md space-y-8">
+                <!-- JDJ-74: Accessible, consistent internal-page breadcrumbs -->
+        <nav aria-label="פירורי לחם" data-jdj-breadcrumbs class="min-w-0 text-xs sm:text-sm text-slate-500 font-medium">
+          <ol class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <li class="shrink-0"><a href="/" class="hover:text-indigo-600 transition">בית</a></li>
+            <li aria-hidden="true" class="shrink-0"><i class="fa-solid fa-chevron-left text-[9px] text-slate-400"></i></li>
+            <li class="min-w-0"><span aria-current="page" class="block truncate text-slate-800 font-bold">אודות המיזם</span></li>
+          </ol>
+        </nav>
+
+<div class="bg-white p-6 sm:p-8 md:p-10 rounded-3xl border border-slate-200 shadow-md space-y-8">
             
             <!-- כותרת ראשית וניווט חזרה -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
