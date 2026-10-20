@@ -19,6 +19,9 @@ https://camp.jdj.co.il/*      https://jdj.co.il/camp      301!
 /stories.html        /stories        301!
 /trips.html          /trips          301!
 
+/near-east-trail.html  /near-east-trail  301!
+/near-east-trail       /near-east-trail.html  200
+
 /sitemap.xml    /.netlify/functions/sitemap    200!
 
 /trips/*                    /trips-v2.html                       200!

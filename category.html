@@ -1137,6 +1137,109 @@ function toggleFilterDrawer(open) {
                 </div>`;
         }
 
+        // Editorial promotion stays outside the routes array, filters, counts and SEO schema.
+        let categoryTrailPromotion = null;
+
+        function categoryTrailCanAppearInGrid() {
+            if (currentCategoryType !== 'routes' || !categoryTrailPromotion) return false;
+            if (currentRegionFilter !== 'הכל' || isAiActive || currentSearchQuery.trim()) return false;
+            if (currentSortMode !== 'recommended') return false;
+            if (document.getElementById('categorySearchInput')?.value.trim()) return false;
+            if (document.getElementById('filterTitleInput')?.value.trim()) return false;
+            if (document.getElementById('filterDifficulty')?.value !== 'הכל') return false;
+            return !['filterRecommended','filterTechnical','filterWater','filterKids','filterNoFiring',
+                'lenShort','lenMed','lenLong'].some(id=>document.getElementById(id)?.checked);
+        }
+
+        function createNearEastTrailGridCard(data) {
+            // Editorial landing-page card: exactly the same grid footprint, padding and
+            // content proportions as ordinary route cards; restrained purple accents only.
+            const card=document.createElement('a');
+            card.href='/near-east-trail';
+            card.dataset.trailPromotion='true';
+            card.setAttribute('aria-label','מיזם תוכן מיוחד: שביל המזרח הקרוב, כניסה לדף הנחיתה');
+            card.className='bg-white rounded-3xl border border-transparent ring-2 ring-inset ring-violet-500 p-5 shadow-sm hover:shadow-xl hover:ring-violet-600 transition cursor-pointer flex flex-col justify-between overflow-hidden group';
+            card.innerHTML=[
+                '<div>',
+                  '<div class="relative mb-4 overflow-hidden rounded-2xl border border-violet-100 bg-slate-100">',
+                    '<div data-trail-image-fallback class="h-48 w-full flex items-center justify-center bg-slate-100 text-violet-300">',
+                      '<i class="fa-solid fa-compass text-5xl" aria-hidden="true"></i>',
+                    '</div>',
+                    '<img data-trail-image class="hidden w-full h-48 object-cover group-hover:scale-105 transition duration-300" loading="lazy" alt="נוף שביל המזרח הקרוב">',
+                  '</div>',
+                  '<div class="mb-2">',
+                    '<span class="inline-flex items-center gap-1.5 bg-violet-50 text-violet-800 text-xs font-bold px-3 py-1 rounded-xl border border-violet-200/80">',
+                      '<i class="fa-solid fa-compass text-[11px]" aria-hidden="true"></i>',
+                      '<span data-trail-kicker></span>',
+                    '</span>',
+                  '</div>',
+                  '<h3 data-trail-title class="font-extrabold text-slate-900 text-xl mb-2 group-hover:text-violet-700 transition tracking-tight"></h3>',
+                  '<p data-trail-desc class="text-xs md:text-sm text-slate-600 mb-4 line-clamp-2 leading-relaxed font-medium"></p>',
+                '</div>',
+                '<div class="w-full border-2 border-violet-700 text-violet-900 group-hover:bg-violet-800 group-hover:text-white font-extrabold py-3.5 px-4 rounded-2xl text-center text-sm transition flex items-center justify-center gap-2 tracking-tight">',
+                  '<i class="fa-solid fa-arrow-left text-base" aria-hidden="true"></i><span data-trail-cta></span>',
+                '</div>'
+            ].join('');
+            const text=(selector,val,fallback)=>{
+                card.querySelector(selector).textContent=String(val||fallback).trim();
+            };
+            // Admin-managed kicker appears once, as the category-style tag.
+            text('[data-trail-kicker]',data.home_kicker,'מסע שטח מיוחד באתר');
+            text('[data-trail-title]',data.home_title,'שביל המזרח הקרוב');
+            text('[data-trail-desc]',data.home_description,'שישה מקטעים לאורך שביל המזרח הקרוב.');
+            text('[data-trail-cta]',data.home_cta,'לגלות את השביל');
+
+            const imgUrl=[data.home_image_url,data.hero_desktop_url,
+                ...(Array.isArray(data.gallery_media)?data.gallery_media.filter(m=>m?.type==='image').map(m=>m.url):[])
+            ].find(url=>{
+                try {return new URL(String(url||''),location.origin).protocol==='https:';}
+                catch (_){return false;}
+            });
+            if(imgUrl){
+                const img=card.querySelector('[data-trail-image]');
+                const placeholder=card.querySelector('[data-trail-image-fallback]');
+                img.addEventListener('load',()=>{
+                    img.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                },{once:true});
+                img.addEventListener('error',()=>{
+                    img.classList.add('hidden');
+                    placeholder.classList.remove('hidden');
+                },{once:true});
+                img.src=imgUrl;
+            }
+            return card;
+        }
+
+        async function loadNearEastTrailCategoryFeature() {
+            if(currentCategoryType!=='routes') return;
+            try {
+                const {data,error}=await supabaseClient
+                    .from('near_east_trail_pages')
+                    .select('is_published,category_visible,home_title,home_kicker,home_description,home_cta,home_image_url,hero_desktop_url,gallery_media')
+                    .eq('id','main').maybeSingle();
+                if(error || !data) {
+                    if(error) console.warn('Trail category feature visibility unavailable:',error);
+                    return;
+                }
+                let visible=data.is_published===true && data.category_visible===true;
+                // QA override only on TEST deploy previews.
+                if(/^deploy-preview-\d+--jdj-test\.netlify\.app$/i.test(location.hostname) &&
+                  window.JDJ_ENV?.environment!=='production'){
+                    const override=new URLSearchParams(location.search).get('trail');
+                    if(override==='off')visible=false;
+                    if(override==='on')visible=data.is_published===true;
+                }
+                categoryTrailPromotion=visible?data:null;
+                if(categoryTrailPromotion && categoryTrailCanAppearInGrid() &&
+                    document.querySelector('#categoryGrid > a')) {
+                    renderCategoryGrid();
+                }
+            } catch(error) {
+                console.warn('Trail category feature hidden:',error);
+            }
+        }
+
         async function initCategoryPage() {
             const urlParams = new URLSearchParams(window.location.search);
             const rawType = urlParams.get('type');
@@ -1148,6 +1251,7 @@ function toggleFilterDrawer(open) {
             }
 
             currentCategoryType = rawType || 'routes';
+            void loadNearEastTrailCategoryFeature();
             currentSearchQuery = urlParams.get('q') || '';
             const initialRegion = urlParams.get('region') || 'הכל';
 
@@ -1666,7 +1770,7 @@ function toggleFilterDrawer(open) {
             document.getElementById('displayedCount').innerText = itemsToDisplay.length;
             document.getElementById('displayedCountMobile').innerText = itemsToDisplay.length;
 
-            itemsToDisplay.forEach(item => {
+            itemsToDisplay.forEach((item, index) => {
                 const isRoute = item.route_type === 'מסלול טיול';
                 const targetUrl = isRoute ? `/item?id=${item.id}` : `/point?id=${item.id}`;
 
@@ -1747,6 +1851,10 @@ function toggleFilterDrawer(open) {
                     </div>
                 `;
                 grid.appendChild(card);
+                // Position 3: after two route results, without replacing or counting a route.
+                if(index===1 && categoryTrailCanAppearInGrid()) {
+                    grid.appendChild(createNearEastTrailGridCard(categoryTrailPromotion));
+                }
             });
 
             const loadMoreBtn = document.getElementById('loadMoreContainer');
@@ -1800,6 +1908,17 @@ function toggleFilterDrawer(open) {
             setRegionFilter('הכל');
 
         }
+
+        document.getElementById('categorySearchInput').addEventListener('input', event => {
+            // Hide as soon as the user starts typing, before submit or AI evaluation.
+            const card=document.querySelector('#categoryGrid [data-trail-promotion]');
+            if(event.target.value.trim()) {
+                if(card) card.remove();
+            } else if(!currentSearchQuery.trim() && categoryTrailCanAppearInGrid() &&
+                      filteredCategoryItems.length>=2 && !card) {
+                renderCategoryGrid();
+            }
+        });
 
         initCategoryPage();
     </script>
