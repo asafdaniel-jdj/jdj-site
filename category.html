@@ -1152,36 +1152,38 @@ function toggleFilterDrawer(open) {
         }
 
         function createNearEastTrailGridCard(data) {
-            // Distinct dark-purple card, explicitly a special project and not sponsored.
+            // Editorial landing-page card: exactly the same grid footprint, padding and
+            // content proportions as ordinary route cards; restrained purple accents only.
             const card=document.createElement('a');
             card.href='/near-east-trail';
             card.dataset.trailPromotion='true';
             card.setAttribute('aria-label','מיזם תוכן מיוחד: שביל המזרח הקרוב, כניסה לדף הנחיתה');
-            card.className='group relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-indigo-400/80 bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 p-4 shadow-lg shadow-indigo-950/15 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-950/25 transition text-white';
+            card.className='bg-white rounded-3xl border border-violet-400 ring-1 ring-violet-100 p-5 shadow-sm hover:shadow-xl hover:border-violet-500 hover:ring-violet-200 transition cursor-pointer flex flex-col justify-between overflow-hidden group';
             card.innerHTML=[
                 '<div>',
-                  '<div class="relative overflow-hidden rounded-2xl bg-indigo-900/80 border border-white/15 mb-4">',
-                    '<div data-trail-image-fallback class="h-48 w-full flex items-center justify-center bg-gradient-to-br from-indigo-800 to-purple-950 text-indigo-200">',
-                      '<i class="fa-solid fa-compass text-5xl opacity-80" aria-hidden="true"></i>',
+                  '<div class="relative mb-4 overflow-hidden rounded-2xl border border-violet-100 bg-slate-100">',
+                    '<div data-trail-image-fallback class="h-48 w-full flex items-center justify-center bg-slate-100 text-violet-300">',
+                      '<i class="fa-solid fa-compass text-5xl" aria-hidden="true"></i>',
                     '</div>',
-                    '<img data-trail-image class="hidden w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" alt="נוף שביל המזרח הקרוב">',
-                    '<div class="absolute top-3 right-3 bg-indigo-950/90 border border-indigo-300/50 text-white px-3 py-1.5 rounded-full shadow-md text-xs font-black flex items-center gap-2 backdrop-blur-sm">',
-                      '<i class="fa-solid fa-compass text-indigo-300" aria-hidden="true"></i><span>מיזם מיוחד</span>',
-                    '</div>',
+                    '<img data-trail-image class="hidden w-full h-48 object-cover group-hover:scale-105 transition duration-300" loading="lazy" alt="נוף שביל המזרח הקרוב">',
                   '</div>',
-                  '<div class="space-y-2 mb-5">',
-                    '<div data-trail-kicker class="text-xs font-black text-indigo-200"></div>',
-                    '<h3 data-trail-title class="text-2xl md:text-[25px] font-black tracking-tight leading-tight text-white"></h3>',
-                    '<p data-trail-desc class="text-sm font-medium leading-relaxed text-indigo-100/90 line-clamp-3"></p>',
+                  '<div class="mb-2">',
+                    '<span class="inline-flex items-center gap-1.5 bg-violet-50 text-violet-800 text-xs font-bold px-3 py-1 rounded-xl border border-violet-200/80">',
+                      '<i class="fa-solid fa-compass text-[11px]" aria-hidden="true"></i>',
+                      '<span data-trail-kicker></span>',
+                    '</span>',
                   '</div>',
+                  '<h3 data-trail-title class="font-extrabold text-slate-900 text-xl mb-2 group-hover:text-violet-700 transition tracking-tight"></h3>',
+                  '<p data-trail-desc class="text-xs md:text-sm text-slate-600 mb-4 line-clamp-2 leading-relaxed font-medium"></p>',
                 '</div>',
-                '<div class="w-full rounded-2xl border-2 border-purple-300/80 bg-white/10 group-hover:bg-white group-hover:text-indigo-950 text-white px-3 py-3.5 flex items-center justify-center gap-2 font-black text-sm transition">',
-                  '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span data-trail-cta></span>',
+                '<div class="w-full border-2 border-violet-700 text-violet-900 group-hover:bg-violet-800 group-hover:text-white font-extrabold py-3.5 px-4 rounded-2xl text-center text-sm transition flex items-center justify-center gap-2 tracking-tight">',
+                  '<i class="fa-solid fa-arrow-left text-base" aria-hidden="true"></i><span data-trail-cta></span>',
                 '</div>'
             ].join('');
             const text=(selector,val,fallback)=>{
                 card.querySelector(selector).textContent=String(val||fallback).trim();
             };
+            // Admin-managed kicker appears once, as the category-style tag.
             text('[data-trail-kicker]',data.home_kicker,'מסע שטח מיוחד באתר');
             text('[data-trail-title]',data.home_title,'שביל המזרח הקרוב');
             text('[data-trail-desc]',data.home_description,'שישה מקטעים לאורך שביל המזרח הקרוב.');
