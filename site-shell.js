@@ -264,10 +264,7 @@
         trailLinksVisibilityPromise = Promise.resolve(false);
       } else {
         trailLinksVisibilityPromise = fetch(TRAIL_LINKS_CONFIG.endpoint, {
-          headers: {
-            apikey: TRAIL_LINKS_CONFIG.apiKey,
-            Authorization: 'Bearer ' + TRAIL_LINKS_CONFIG.apiKey
-          }
+          headers: { apikey: TRAIL_LINKS_CONFIG.apiKey }
         })
           .then(response => {
             if (!response.ok) throw new Error('Trail links visibility request failed: ' + response.status);
