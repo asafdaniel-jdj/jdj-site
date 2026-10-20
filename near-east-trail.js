@@ -135,7 +135,11 @@
           '</div>' +
           '<h3 class="font-extrabold text-slate-900 text-xl mb-2 group-hover:text-indigo-600 transition tracking-tight">' + safe(segment.title) + '</h3>' +
           '<p title="' + safe(segment.short_description) + '" class="text-xs md:text-sm text-slate-600 mb-4 line-clamp-2 leading-relaxed font-medium min-h-[2.75rem]">' + safe(segment.short_description) + '</p>' +
-          '<div class="flex flex-wrap items-center gap-2 mb-5 text-xs font-bold">' + difficultyChip + distanceChip + stopsChip + '</div>' +
+          '<div class="flex flex-wrap items-center gap-2 mb-5 text-xs font-bold">' + difficultyChip + distanceChip + stopsChip +
+            '<button type="button" data-action="details" data-id="' + n + '" aria-controls="segmentDetailsPanel" aria-expanded="false" class="inline-flex items-center gap-1 text-violet-700 hover:text-violet-900 hover:underline font-black px-1 py-1 transition">' +
+              '<i class="fa-solid fa-list-ul text-xs" aria-hidden="true"></i><span>פרטי המקטע והתחנות</span>' +
+            '</button>' +
+          '</div>' +
         '</div>' +
         '<button type="button" class="w-full border-2 border-indigo-800 text-indigo-900 hover:bg-indigo-900 hover:text-white font-extrabold py-3.5 px-4 rounded-2xl text-center text-sm transition flex items-center justify-center gap-2 tracking-tight" data-action="offroad" data-id="' + n + '"' +
           ' aria-label="פתיחת מקטע ' + n + ' באופרוד">' +
@@ -145,6 +149,10 @@
     }).join('');
 
     $('allGpxButton').disabled = segments.length !== 6 || segments.some(s => !validUrl(s.gpx_url));
+    grid.querySelectorAll('[data-action="details"]').forEach(button => button.addEventListener('click', () => {
+      const segment = segments.find(s => Number(s.segment_number) === Number(button.dataset.id));
+      if (segment) showSegmentDetails(segment);
+    }));
     grid.querySelectorAll('[data-action="offroad"]').forEach(button => button.addEventListener('click', () => {
       const segment = segments.find(s => Number(s.segment_number) === Number(button.dataset.id));
       if (!segment) return;
@@ -163,13 +171,63 @@
   }
   function stopMarkup(stops) {
     if (!stops.length) return '<p class="text-slate-500 text-sm">עדיין לא הוזנו תחנות למקטע הזה.</p>';
-    return '<ol class="stops-list">' + stops.map((x, i) => '<li><span>' + (i + 1) + '.</span><span class="!text-slate-700 !font-medium">' + safe(typeof x === 'string' ? x : x.name) + '</span></li>').join('') + '</ol>';
+    return '<ol class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 list-decimal list-inside">' +
+      stops.map(x => '<li class="text-slate-700 font-medium leading-relaxed">' +
+        safe(typeof x === 'string' ? x : x?.name || '') + '</li>').join('') + '</ol>';
   }
-  function toggleStops(n, btn) {
-    const div = $('segmentCards').querySelector('[data-stops-container="' + n + '"]');
-    const showing = div.classList.toggle('hide');
-    btn.setAttribute('aria-expanded', String(!showing));
-    btn.textContent = showing ? 'הצגת תחנות' : 'הסתרת תחנות';
+  function showSegmentDetails(segment) {
+    const panel=$('segmentDetailsPanel');
+    const n=Number(segment.segment_number);
+    if (!panel || !Number.isInteger(n)) return;
+    $('segmentDetailsTitle').textContent=plainText(segment.title);
+    $('segmentDetailsEyebrow').textContent='מקטע ' + n + ' מתוך 6 · ' + plainText(segment.region,'שביל המזרח הקרוב');
+    const text=String(segment.full_description || segment.short_description || '').trim();
+    const notes=String(segment.operational_notes || '').trim();
+    const stops=list(segment.stops);
+    const tags=list(segment.tags).filter(Boolean);
+    const gpx=validUrl(segment.gpx_url);
+    const offroad=validUrl(segment.offroad_url);
+    const stats=[
+      Number(segment.length_km)>0 ? Number(segment.length_km).toLocaleString('he-IL')+' ק״מ' : '',
+      segment.difficulty,segment.duration_text
+    ].filter(Boolean);
+    const media=list(segment.media).filter(m => validUrl(m?.url));
+    const mediaMarkup=media.length ? '<div class="grid grid-cols-2 md:grid-cols-4 gap-3">' +
+      media.map(m=>{
+        const url=validUrl(m.url);
+        return m.type==='video'
+          ? '<a href="'+safe(url)+'" target="_blank" rel="noopener noreferrer" class="text-violet-700 underline rounded-xl border border-violet-100 p-3 font-bold">צפייה בסרטון <i class="fa-solid fa-play mr-1" aria-hidden="true"></i></a>'
+          : '<a href="'+safe(url)+'" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-slate-200 overflow-hidden block"><img src="'+safe(url)+'" alt="'+safe(m.alt||'תמונת המקטע')+'" loading="lazy" class="w-full h-32 object-cover"></a>';
+      }).join('')+'</div>' : '';
+    $('segmentDetailsBody').innerHTML =
+      (stats.length ? '<div class="flex flex-wrap gap-2">'+stats.map(v=>'<span class="bg-violet-50 text-violet-800 rounded-xl px-3 py-1.5 text-xs font-bold border border-violet-100">'+safe(v)+'</span>').join('')+'</div>' : '') +
+      (text ? '<p class="text-slate-700 whitespace-pre-line leading-relaxed">'+safe(text)+'</p>' : '') +
+      (tags.length ? '<div class="flex flex-wrap gap-2">'+tags.map(t=>'<span class="bg-slate-100 text-slate-700 rounded-lg px-2 py-1 text-xs font-medium">'+safe(t)+'</span>').join('')+'</div>' : '') +
+      '<div class="border-t border-slate-100 pt-4"><h4 class="text-base font-black text-slate-900 mb-3">התחנות לאורך המקטע ('+stops.length+')</h4>'+stopMarkup(stops)+'</div>' +
+      (notes ? '<div class="rounded-xl border border-amber-200 bg-amber-50 p-3"><h4 class="font-black text-amber-950 mb-1">הערות למטייל</h4><p class="whitespace-pre-line">'+safe(notes)+'</p></div>' : '') +
+      (mediaMarkup ? '<div class="border-t border-slate-100 pt-4"><h4 class="text-base font-black mb-3">תמונות וסרטונים מהמקטע</h4>'+mediaMarkup+'</div>' : '') +
+      '<div class="flex flex-wrap gap-2 border-t border-slate-100 pt-4">' +
+        (gpx ? '<button type="button" id="segmentDetailsGpx" class="btn text-xs"><i class="fa-solid fa-download" aria-hidden="true"></i> הורדת GPX למקטע</button>'
+             : '<span class="text-xs text-slate-500 bg-slate-100 rounded-lg px-3 py-2">קובץ GPX טרם הועלה למקטע</span>') +
+        (offroad ? '<button type="button" id="segmentDetailsOffroad" class="btn btn-outline text-xs">פתיחה באופרוד</button>'
+                 : '<span class="text-xs text-slate-500 bg-slate-100 rounded-lg px-3 py-2">קישור אופרוד טרם הוזן למקטע</span>') +
+        (gpx ? '<button type="button" id="segmentDetailsMap" class="btn btn-outline text-xs">מפת GPX של המקטע</button>' : '') +
+      '</div>';
+    if (gpx) {
+      $('segmentDetailsGpx').addEventListener('click',()=>openGate({type:'gpx',segment}));
+      $('segmentDetailsMap').addEventListener('click',()=>openWholeTrailMap(n));
+    }
+    if (offroad) $('segmentDetailsOffroad').addEventListener('click',()=>openGate({type:'offroad',segment}));
+    panel.classList.remove('hide');
+    $('segmentCards').querySelectorAll('[data-action="details"]').forEach(button=>
+      button.setAttribute('aria-expanded',String(Number(button.dataset.id)===n)));
+    panel.scrollIntoView({behavior:'smooth',block:'start'});
+    panel.focus({preventScroll:true});
+  }
+  function closeSegmentDetails() {
+    $('segmentDetailsPanel').classList.add('hide');
+    $('segmentCards').querySelectorAll('[data-action="details"]').forEach(button=>
+      button.setAttribute('aria-expanded','false'));
   }
   let pendingAction = null;
   async function openGate(action) {
@@ -237,13 +295,15 @@
     if (wholeTrailMap) { wholeTrailMap.remove(); wholeTrailMap=null; }
     $('wholeTrailMapButton').focus();
   }
-  async function openWholeTrailMap() {
+  async function openWholeTrailMap(targetSegmentNumber = null) {
     if (typeof L === 'undefined') { alert('רכיב המפה עדיין לא נטען, נסה שוב בעוד רגע.'); return; }
     const overlay=$('wholeTrailMapOverlay'),status=$('wholeTrailMapStatus');
     overlay.classList.remove('hidden');overlay.classList.add('flex');
     document.body.classList.add('overflow-hidden');
     $('closeWholeTrailMap').focus();
-    const validSegments=segments.filter(s=>validUrl(s.gpx_url));
+    const isSingle=Number.isInteger(targetSegmentNumber);
+    const validSegments=segments.filter(s=>validUrl(s.gpx_url) &&
+      (!isSingle || Number(s.segment_number)===targetSegmentNumber));
     status.textContent='טוענים מפה ותוואים...';
     wholeTrailMap=L.map('wholeTrailMapCanvas',{scrollWheelZoom:false}).setView([32.04,35.35],10);
     const topo=L.tileLayer('https://israelhiking.osm.org.il/Hebrew/Tiles/{z}/{x}/{y}.png',{maxZoom:16,minZoom:7,attribution:'Israel Hiking Map'});
@@ -279,8 +339,10 @@
     }
     if(!wholeTrailMap)return;
     if(loaded)wholeTrailMap.fitBounds(allTracks.getBounds(),{padding:[30,30]});
-    status.textContent=loaded===6?'כל ששת המקטעים מוצגים לפי קובצי GPX. יש לבדוק הגבלות שטח לפני יציאה.':
-      'מוצגים '+loaded+' מתוך 6 מקטעים. תוואי מלא יהיה זמין לאחר העלאת קובצי GPX תקינים לכל השישה.';
+    status.textContent=isSingle
+      ? (loaded ? 'מוצג תוואי GPX של מקטע '+targetSegmentNumber+'. יש לבדוק מגבלות שטח לפני יציאה.' : 'תוואי מקטע '+targetSegmentNumber+' לא נטען.')
+      : (loaded===6 ? 'כל ששת המקטעים מוצגים לפי קובצי GPX. יש לבדוק הגבלות שטח לפני יציאה.' :
+          'מוצגים '+loaded+' מתוך 6 מקטעים. תוואי מלא יהיה זמין לאחר העלאת קובצי GPX תקינים לכל השישה.');
     wholeTrailMap.invalidateSize();
   }
   async function boot() {
@@ -301,7 +363,8 @@
   }
   $('allGpxButton').addEventListener('click', () => openGate({type:'zip'}));
   $('shareTrailButton').addEventListener('click',shareWholeTrail);
-  $('wholeTrailMapButton').addEventListener('click',openWholeTrailMap);
+  $('wholeTrailMapButton').addEventListener('click',()=>openWholeTrailMap());
+  $('closeSegmentDetails').addEventListener('click',closeSegmentDetails);
   $('closeWholeTrailMap').addEventListener('click',closeWholeTrailMap);
   $('gateConfirm').addEventListener('click',executePending);
   $('gateCancel').addEventListener('click',closeGate);
@@ -309,6 +372,7 @@
     if(e.key==='Escape'){
       if($('wholeTrailMapOverlay').classList.contains('flex'))closeWholeTrailMap();
       else if($('gateOverlay').classList.contains('active'))closeGate();
+      else if(!$('segmentDetailsPanel').classList.contains('hide'))closeSegmentDetails();
     }
   });
   boot();
