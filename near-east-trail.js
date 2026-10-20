@@ -358,7 +358,10 @@
       page = pageData; segments = segData || [];
       applyPage(page); drawCards(); renderTrailGallery();
       status.classList.add('hide'); root.classList.remove('hide');
-      $('wholeTrailMapButton').disabled=false;
+      // A navigable GPX map is unavailable until at least one real track is uploaded.
+      const hasTrack=segments.some(segment=>validUrl(segment.gpx_url));
+      $('wholeTrailMapButton').disabled=!hasTrack;
+      $('wholeTrailMapButton').title=hasTrack ? 'מפת ניווט על בסיס קובצי GPX' : 'מפת הניווט תהיה זמינה לאחר העלאת קובצי GPX';
     } catch(e) { displayStatus('לא ניתן לטעון את השביל: ' + errorText(e),true); }
   }
   $('allGpxButton').addEventListener('click', () => openGate({type:'zip'}));
