@@ -107,30 +107,59 @@
     return image ? mediaUrl(image) : '';
   }
   function drawCards() {
-    $('segmentCards').innerHTML = segments.map(s => {
-      const n=Number(s.segment_number),stops=list(s.stops),cover=segmentCoverUrl(s);
-      const hasOffroad=!!validUrl(s.offroad_url);
-      const region=plainText(s.region,'השביל');
-      const image=cover
-        ? '<img src="'+safe(cover)+'" alt="תמונת מקטע '+n+'" loading="lazy" class="segment-cover" onerror="this.style.display=\'none\';this.parentElement.classList.add(\'segment-cover-placeholder\');this.parentElement.textContent=\'תמונת שער תעודכן בקרוב\'">'
-        : '<div class="segment-cover-placeholder">תמונת שער תעודכן בקרוב</div>';
-      return '<article class="surface seg flex flex-col" data-segment="'+n+'">' +
-        '<div class="segment-cover-shell">'+image+'</div>' +
-        '<div class="segment-body flex flex-col flex-1">' +
-        '<div class="flex justify-between gap-2 items-center mb-3"><span class="card-region">'+safe(region)+'</span><span class="text-xs font-black text-indigo-400">מקטע '+n+' / 6</span></div>' +
-        '<h3 class="font-black text-xl md:text-[22px] leading-snug text-slate-950 mb-2">'+safe(s.title)+'</h3>' +
-        '<p class="card-text text-slate-600 text-sm md:text-base leading-relaxed mb-3">'+safe(s.short_description)+'</p>' +
-        '<div class="flex gap-3 flex-wrap items-center text-xs font-bold text-slate-500 mt-auto mb-4">' +
-        '<span><i class="fa-solid fa-ruler-horizontal ml-1" aria-hidden="true"></i>'+safe(s.length_km || '—')+' ק״מ</span>' +
-        '<details class="group"><summary class="cursor-pointer hover:text-indigo-700"> '+stops.length+' תחנות בדרך <i class="fa-solid fa-chevron-down text-[9px] mr-1" aria-hidden="true"></i></summary><div class="mt-2 rounded-xl bg-slate-50 p-3 max-h-52 overflow-auto text-right min-w-48">'+stopMarkup(stops)+'</div></details>' +
-        '</div><button class="card-cta" data-action="offroad" data-id="'+n+'"'+(hasOffroad?'':' disabled title="נדרש קישור אופרוד במערכת הניהול"')+'><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>למסלול המלא באופרוד</button>' +
-        '</div></article>';
+    const grid = $('segmentCards');
+    grid.innerHTML = segments.map(segment => {
+      const n = Number(segment.segment_number);
+      const cover = segmentCoverUrl(segment);
+      const stops = list(segment.stops);
+      const region = plainText(segment.region, 'השביל');
+      const distance = Number(segment.length_km);
+      const distanceText = Number.isFinite(distance) && distance > 0 ? distance.toLocaleString('he-IL') : '';
+      const difficulty = plainText(segment.difficulty).trim();
+      const photo = cover
+        ? '<img src="' + safe(cover) + '" alt="תמונת מקטע ' + n + '" loading="lazy" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300" onerror="this.onerror=null;this.parentElement.classList.add(\'bg-indigo-50\');this.style.display=\'none\'">'
+        : '<div class="w-full h-48 flex items-center justify-center text-sm text-slate-400">תמונת המקטע תתווסף בקרוב</div>';
+      const difficultyChip = difficulty
+        ? '<span class="bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-1.5"><span>' + safe(difficulty) + '</span><i class="fa-solid fa-triangle-exclamation text-amber-500 text-[11px]" aria-hidden="true"></i></span>'
+        : '';
+      const distanceChip = distanceText
+        ? '<span class="bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-1.5"><span>' + safe(distanceText) + ' ק״מ</span><i class="fa-solid fa-ruler-horizontal text-slate-400 text-[11px]" aria-hidden="true"></i></span>'
+        : '';
+      const stopsChip = '<span class="bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-1.5"><span>' + stops.length + ' תחנות</span><i class="fa-solid fa-location-dot text-indigo-400 text-[11px]" aria-hidden="true"></i></span>';
+      return '<article class="trail-route-card bg-white rounded-3xl border border-slate-200/80 p-5 shadow-sm hover:shadow-xl hover:border-indigo-400 transition flex flex-col justify-between overflow-hidden group" data-segment="' + n + '">' +
+        '<div>' +
+          '<div class="relative mb-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">' + photo + '</div>' +
+          '<div class="flex items-center justify-between gap-2 mb-2">' +
+            '<span class="bg-purple-50 text-purple-900 text-xs font-bold px-3 py-1 rounded-xl border border-purple-200/60">' + safe(region) + '</span>' +
+            '<span class="text-[11px] font-bold text-slate-400 whitespace-nowrap">מקטע ' + n + ' מתוך 6</span>' +
+          '</div>' +
+          '<h3 class="font-extrabold text-slate-900 text-xl mb-2 group-hover:text-indigo-600 transition tracking-tight">' + safe(segment.title) + '</h3>' +
+          '<p title="' + safe(segment.short_description) + '" class="text-xs md:text-sm text-slate-600 mb-4 line-clamp-2 leading-relaxed font-medium min-h-[2.75rem]">' + safe(segment.short_description) + '</p>' +
+          '<div class="flex flex-wrap items-center gap-2 mb-5 text-xs font-bold">' + difficultyChip + distanceChip + stopsChip + '</div>' +
+        '</div>' +
+        '<button type="button" class="w-full border-2 border-indigo-800 text-indigo-900 hover:bg-indigo-900 hover:text-white font-extrabold py-3.5 px-4 rounded-2xl text-center text-sm transition flex items-center justify-center gap-2 tracking-tight" data-action="offroad" data-id="' + n + '"' +
+          ' aria-label="פתיחת מקטע ' + n + ' באופרוד">' +
+          '<i class="fa-solid fa-map-location-dot text-base" aria-hidden="true"></i><span>למסלול המלא באופרוד</span>' +
+        '</button>' +
+      '</article>';
     }).join('');
-    $('allGpxButton').disabled = segments.length!==6 || segments.some(s=>!validUrl(s.gpx_url));
-    $('segmentCards').querySelectorAll('[data-action="offroad"]').forEach(btn=>btn.addEventListener('click',()=>{
-      const segment=segments.find(s=>Number(s.segment_number)===Number(btn.dataset.id));
-      if(segment && validUrl(segment.offroad_url))openGate({type:'offroad',segment});
+
+    $('allGpxButton').disabled = segments.length !== 6 || segments.some(s => !validUrl(s.gpx_url));
+    grid.querySelectorAll('[data-action="offroad"]').forEach(button => button.addEventListener('click', () => {
+      const segment = segments.find(s => Number(s.segment_number) === Number(button.dataset.id));
+      if (!segment) return;
+      if (validUrl(segment.offroad_url)) {
+        openGate({type:'offroad',segment});
+      } else {
+        showOffroadUnavailable(segment);
+      }
     }));
+  }
+  function showOffroadUnavailable(segment) {
+    const notice = $('offroadNotice');
+    notice.textContent = 'קישור האופרוד של מקטע ' + segment.segment_number + ' עדיין לא הוזן. לאחר הוספתו ב־Admin הכפתור יפתח את המסלול, בכפוף לאישור תנאי השימוש.';
+    notice.classList.remove('hide');
+    notice.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
   function stopMarkup(stops) {
     if (!stops.length) return '<p class="text-slate-500 text-sm">עדיין לא הוזנו תחנות למקטע הזה.</p>';
