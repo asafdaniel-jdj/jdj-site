@@ -7,7 +7,7 @@
   const ENV = window.JDJ_ENV || {};
   const root = document.getElementById('trailContent');
   const status = document.getElementById('loadStatus');
-  let client, page, segments = [], active = null, currentTab = 'about', leaflet = null;
+  let client, page, segments = [];
   const $ = id => document.getElementById(id);
   const safe = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function validUrl(raw) {
@@ -61,12 +61,12 @@
     const description = document.querySelector('meta[name="description"]');
     if (description) description.content = plainText(p.seo_description, p.intro);
     const recs = [
-      {rows:list(p.lodging_stops),box:'lodgingBox',target:'lodgingList'},
-      {rows:list(p.food_stops),box:'foodBox',target:'foodList'}
+      {rows:list(p.lodging_stops),box:'lodgingBox',target:'lodgingList',icon:'fa-solid fa-bed'},
+      {rows:list(p.food_stops),box:'foodBox',target:'foodList',icon:'fa-solid fa-mug-hot'}
     ];
     recs.forEach(r => {
       $(r.box).classList.toggle('hide',!r.rows.length);
-      $(r.target).innerHTML = r.rows.map(item => '<li class="flex gap-2"><span class="text-indigo-500">◆</span><span>' + safe(item) + '</span></li>').join('');
+      $(r.target).innerHTML = r.rows.map(item => '<li class="flex gap-2 items-center min-w-0"><i class="' + r.icon + ' text-indigo-500 w-4 shrink-0" aria-hidden="true"></i><span>' + safe(item) + '</span></li>').join('');
     });
     $('travelNotesBox').classList.toggle('hide',!p.travel_notes);
     assignText('travelNotesText',p.travel_notes);
