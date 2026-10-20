@@ -39,6 +39,11 @@
     assignText('authorRole', p.author_role);
     assignText('authorBio', p.author_bio);
     if (validUrl(p.hero_desktop_url)) $('heroImg').src = validUrl(p.hero_desktop_url);
+    if (validUrl(p.hero_mobile_url)) $('heroMobileSource').srcset = validUrl(p.hero_mobile_url);
+    const og = validUrl(p.og_image_url) || validUrl(p.hero_desktop_url) || 'https://jdj.co.il/og-image.jpg';
+    $('trailOgTitle').content = plainText(p.seo_title,p.title);
+    $('trailOgDesc').content = plainText(p.seo_description,p.intro);
+    $('trailOgImage').content = og;
     if (validUrl(p.illustrated_map_url)) {
       $('mapIllustrationImage').src = validUrl(p.illustrated_map_url);
       $('mapIllustrationImage').classList.remove('hide');
@@ -63,6 +68,7 @@
       const stops = list(s.stops);
       return '<article class="surface seg overflow-hidden p-5 md:p-6" data-segment="' + n + '">' +
         '<div class="flex items-start justify-between gap-2"><div class="segnum">' + n + '</div><span class="rounded-xl bg-indigo-50 text-indigo-800 text-xs font-black px-3 py-2">' + safe(s.length_km || '—') + ' ק״מ</span></div>' +
+        (validUrl(s.hero_image_url) ? '<img src="' + safe(validUrl(s.hero_image_url)) + '" loading="lazy" class="w-full h-36 object-cover rounded-xl my-3" alt="נוף המקטע">' : '') +
         '<div class="text-indigo-600 font-black text-xs mt-1">מקטע ' + n + ' מתוך שישה</div>' +
         '<h3 class="font-black text-xl mt-1">' + safe(s.title) + '</h3>' +
         '<p class="text-slate-500 text-xs mt-1">' + safe(s.region) + '</p>' +
