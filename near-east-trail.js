@@ -32,14 +32,13 @@
     const node = $(id); if (node) node.textContent = plainText(content);
   }
   function applyPage(p) {
-    assignText('pageTitle', p.title);
-    assignText('pageSubtitle', p.subtitle);
+    assignText('pageTitle', [p.title,p.subtitle].filter(Boolean).join(': '));
+    assignText('storyHeading',p.story_heading||'הדרך שמחברת את המרחב');
+    assignText('storySubtitle',p.story_subtitle||'שישה מקטעים מצפון הבקעה ועד ספר מדבר יהודה');
     assignText('pageIntro', p.intro);
     assignText('authorName', p.author_name);
     assignText('authorRole', p.author_role);
     assignText('authorBio', p.author_bio);
-    if (validUrl(p.hero_desktop_url)) $('heroImg').src = validUrl(p.hero_desktop_url);
-    if (validUrl(p.hero_mobile_url)) $('heroMobileSource').srcset = validUrl(p.hero_mobile_url);
     const og = validUrl(p.og_image_url) || validUrl(p.hero_desktop_url) || 'https://jdj.co.il/og-image.jpg';
     $('trailOgTitle').content = plainText(p.seo_title,p.title);
     $('trailOgDesc').content = plainText(p.seo_description,p.intro);
@@ -53,9 +52,9 @@
     const inviteUrl = validUrl(p.group_invite_url);
     const groupLink = $('joinGroupLink');
     if (inviteUrl && new URL(inviteUrl).hostname === 'chat.whatsapp.com') {
-      groupLink.href=inviteUrl;groupLink.textContent='הצטרפו לקבוצה';groupLink.removeAttribute('aria-disabled');
+      groupLink.href=inviteUrl;groupLink.textContent='הצטרפו לקבוצה';groupLink.removeAttribute('aria-disabled');groupLink.classList.remove('opacity-50','pointer-events-none');
     } else {
-      groupLink.removeAttribute('href');groupLink.textContent='קישור להצטרפות יתווסף בקרוב';groupLink.setAttribute('aria-disabled','true');
+      groupLink.removeAttribute('href');groupLink.textContent='הצטרפו לקבוצה';groupLink.setAttribute('aria-disabled','true');groupLink.classList.add('opacity-50','pointer-events-none');
     }
     document.title = plainText(p.seo_title, p.title);
     const description = document.querySelector('meta[name="description"]');
@@ -66,12 +65,40 @@
     ];
     recs.forEach(r => {
       $(r.box).classList.toggle('hide',!r.rows.length);
-      $(r.target).innerHTML = r.rows.map(item => '<li class="flex gap-2 items-center min-w-0"><i class="' + r.icon + ' text-indigo-500 w-4 shrink-0" aria-hidden="true"></i><span>' + safe(item) + '</span></li>').join('');
+      $(r.target).innerHTML = r.rows.map(item => {
+        const name=String(typeof item==='string' ? item : (item?.name||'')).trim();
+        if (!name) return '';
+        const explicit=validUrl(typeof item==='object'?item.url:'');
+        const destination=explicit || ('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(name));
+        const hint=explicit?'פתיחת הקישור':'חיפוש המקום במפות Google';
+        return '<li class="min-w-0"><a target="_blank" rel="noopener noreferrer" title="'+safe(hint)+'" href="'+safe(destination)+'" class="flex gap-2 items-center rounded-lg hover:bg-indigo-50 hover:text-indigo-800 py-1.5 px-1 transition"><i class="'+r.icon+' text-indigo-500 w-4 shrink-0" aria-hidden="true"></i><span>'+safe(name)+'</span><i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-400 mr-auto" aria-hidden="true"></i></a></li>';
+      }).join('');
     });
     $('travelNotesBox').classList.toggle('hide',!p.travel_notes);
     assignText('travelNotesText',p.travel_notes);
     $('trailRecommendations').classList.toggle('hide',!recs.some(r => r.rows.length) && !p.travel_notes);
     // The Preview HTML always remains noindex. Publication/SEO integration is release-gated.
+  }
+
+  function renderTrailGallery() {
+    const gallery=window.JDJMediaGallery;
+    if (!gallery) { console.warn('JDJMediaGallery is unavailable'); return; }
+    const pageMedia=list(page?.gallery_media).filter(m => !!mediaUrl(m));
+    // Initial preview uses existing local route photography until the dedicated trail gallery is populated.
+    const fallback=segments.map((segment,i)=>({type:'image',url:segmentCoverUrl(segment),sort_order:(i+1)*10})).filter(m=>m.url);
+    const media=pageMedia.length ? pageMedia : fallback;
+    const main=validUrl(page?.hero_desktop_url);
+    gallery.render({
+      container:$('#trailGallery'),
+      galleryId:'nearEastTrailGallery',
+      mainImage:main,
+      media,
+      includeMainInMosaic:true,
+      includeMainInViewer:true,
+      maxVisible:5,
+      altBase:'תמונות מאזור שביל המזרח הקרוב',
+      title:'גלריית שביל המזרח הקרוב'
+    });
   }
   function segmentCoverUrl(segment) {
     const primary = validUrl(segment.hero_image_url);
@@ -81,32 +108,28 @@
   }
   function drawCards() {
     $('segmentCards').innerHTML = segments.map(s => {
-      const n = Number(s.segment_number);
-      const tags = list(s.tags).slice(0,3), stops = list(s.stops);
-      const cover = segmentCoverUrl(s);
-      const coverHtml = cover
-        ? '<img src="' + safe(cover) + '" alt="תמונת שער למקטע ' + n + '" loading="lazy" class="segment-cover" onerror="this.style.display=\'none\';this.parentElement.classList.add(\'segment-cover-placeholder\');this.parentElement.textContent=\'תמונת שער תעודכן בקרוב\'">'
-        : '<div class="segment-cover-placeholder"><span aria-hidden="true">▧</span>תמונת שער תעודכן בקרוב</div>';
-      const hasOffroad = !!validUrl(s.offroad_url);
-      return '<article class="surface seg" data-segment="' + n + '">' +
-        '<div class="segment-cover-shell">' + coverHtml + '</div>' +
-        '<div class="segment-body">' +
-        '<div class="flex items-start justify-between gap-2"><div class="segnum">' + n + '</div><span class="rounded-xl bg-indigo-50 text-indigo-800 text-xs font-black px-3 py-2">' + safe(s.length_km || '—') + ' ק״מ</span></div>' +
-        '<div class="text-indigo-600 font-black text-xs mt-1">מקטע ' + n + ' מתוך שישה</div>' +
-        '<h3 class="font-black text-xl mt-1">' + safe(s.title) + '</h3>' +
-        '<p class="text-slate-500 text-xs mt-1">' + safe(s.region) + '</p>' +
-        '<p class="text-slate-600 text-sm leading-relaxed my-3">' + safe(s.short_description) + '</p>' +
-        '<div class="flex flex-wrap gap-1.5 mb-4">' + tags.map(t=>'<span class="detail-pill">' + safe(t) + '</span>').join('') + '</div>' +
-        '<div class="flex flex-wrap gap-2"><button class="btn btn-lite flex-1" data-action="stops" data-id="' + n + '" aria-expanded="false">הצגת ' + stops.length + ' תחנות</button>' +
-        '<button class="btn flex-1" data-action="offroad" data-id="' + n + '"' + (hasOffroad ? '' : ' disabled title="נדרש קישור אופרוד למקטע זה במערכת הניהול"') + '>למסלול המלא</button></div>' +
-        '<div class="hide pt-4" data-stops-container="' + n + '">' + stopMarkup(stops) + '</div>' +
+      const n=Number(s.segment_number),stops=list(s.stops),cover=segmentCoverUrl(s);
+      const hasOffroad=!!validUrl(s.offroad_url);
+      const region=plainText(s.region,'השביל');
+      const image=cover
+        ? '<img src="'+safe(cover)+'" alt="תמונת מקטע '+n+'" loading="lazy" class="segment-cover" onerror="this.style.display=\'none\';this.parentElement.classList.add(\'segment-cover-placeholder\');this.parentElement.textContent=\'תמונת שער תעודכן בקרוב\'">'
+        : '<div class="segment-cover-placeholder">תמונת שער תעודכן בקרוב</div>';
+      return '<article class="surface seg flex flex-col" data-segment="'+n+'">' +
+        '<div class="segment-cover-shell">'+image+'</div>' +
+        '<div class="segment-body flex flex-col flex-1">' +
+        '<div class="flex justify-between gap-2 items-center mb-3"><span class="card-region">'+safe(region)+'</span><span class="text-xs font-black text-indigo-400">מקטע '+n+' / 6</span></div>' +
+        '<h3 class="font-black text-xl md:text-[22px] leading-snug text-slate-950 mb-2">'+safe(s.title)+'</h3>' +
+        '<p class="card-text text-slate-600 text-sm md:text-base leading-relaxed mb-3">'+safe(s.short_description)+'</p>' +
+        '<div class="flex gap-3 flex-wrap items-center text-xs font-bold text-slate-500 mt-auto mb-4">' +
+        '<span><i class="fa-solid fa-ruler-horizontal ml-1" aria-hidden="true"></i>'+safe(s.length_km || '—')+' ק״מ</span>' +
+        '<details class="group"><summary class="cursor-pointer hover:text-indigo-700"> '+stops.length+' תחנות בדרך <i class="fa-solid fa-chevron-down text-[9px] mr-1" aria-hidden="true"></i></summary><div class="mt-2 rounded-xl bg-slate-50 p-3 max-h-52 overflow-auto text-right min-w-48">'+stopMarkup(stops)+'</div></details>' +
+        '</div><button class="card-cta" data-action="offroad" data-id="'+n+'"'+(hasOffroad?'':' disabled title="נדרש קישור אופרוד במערכת הניהול"')+'><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>למסלול המלא באופרוד</button>' +
         '</div></article>';
     }).join('');
-    $('allGpxButton').disabled = segments.length !== 6 || segments.some(s => !validUrl(s.gpx_url));
-    $('segmentCards').querySelectorAll('[data-action]').forEach(btn => btn.addEventListener('click', () => {
-      const n = Number(btn.dataset.id), segment = segments.find(s=>Number(s.segment_number)===n);
-      if (btn.dataset.action === 'stops') toggleStops(n,btn);
-      else if (segment && validUrl(segment.offroad_url)) openGate({type:'offroad',segment});
+    $('allGpxButton').disabled = segments.length!==6 || segments.some(s=>!validUrl(s.gpx_url));
+    $('segmentCards').querySelectorAll('[data-action="offroad"]').forEach(btn=>btn.addEventListener('click',()=>{
+      const segment=segments.find(s=>Number(s.segment_number)===Number(btn.dataset.id));
+      if(segment && validUrl(segment.offroad_url))openGate({type:'offroad',segment});
     }));
   }
   function stopMarkup(stops) {
@@ -242,7 +265,7 @@
       const {data:segData,error:segError} = await client.from('near_east_trail_segments').select('*').eq('is_visible',true).order('sort_order',{ascending:true});
       if (segError) throw segError;
       page = pageData; segments = segData || [];
-      applyPage(page); drawCards();
+      applyPage(page); drawCards(); renderTrailGallery();
       status.classList.add('hide'); root.classList.remove('hide');
       $('wholeTrailMapButton').disabled=false;
     } catch(e) { displayStatus('לא ניתן לטעון את השביל: ' + errorText(e),true); }
