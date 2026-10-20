@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <script src="/env-config.js"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>שביל המזרח הקרוב | מסלולי הג׳יפים של מדבר יהודה</title>
+  <meta name="description" content="שביל המזרח הקרוב: שישה מקטעי ג׳יפים ממחולה למצפה דני, עם 99 תחנות וסיפורי דרך.">
+  <link rel="canonical" href="https://jdj.co.il/near-east-trail">
+  <link rel="icon" href="/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/site-shell.js" defer></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
+  <style>
+    body {font-family:Heebo,Arial,sans-serif;background:#f8fafc;color:#0f172a}
+    .focus:focus-visible,button:focus-visible,a:focus-visible {outline:3px solid #818cf8;outline-offset:3px}
+    .surface {background:white;border:1px solid #e2e8f0;border-radius:24px;box-shadow:0 5px 25px #0f172a09}
+    .btn {display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;border-radius:13px;padding:11px 17px;cursor:pointer;transition:.15s;background:#4f46e5;color:white}
+    .btn:hover:not(:disabled) {background:#3730a3}.btn:disabled {opacity:.42;cursor:not-allowed}
+    .btn-lite {background:#eef2ff;color:#3730a3}.btn-lite:hover:not(:disabled) {background:#e0e7ff}
+    .btn-outline {background:white;color:#334155;border:1px solid #cbd5e1}.btn-outline:hover:not(:disabled) {background:#f1f5f9}
+    .hero-picture {min-height:285px;background:#334155;position:relative;overflow:hidden}
+    .hero-picture img {position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .hero-picture::after {content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(15,23,42,.88),rgba(15,23,42,.02) 76%)}
+    .hero-copy {position:absolute;bottom:22px;right:28px;left:24px;z-index:2;color:white}
+    .map-illustration {background:linear-gradient(150deg,#eef2ff,#e2e8f0);min-height:285px;position:relative;overflow:hidden}
+    .map-illustration svg {width:100%;height:100%;position:absolute;inset:0}
+    .map-note {position:absolute;bottom:13px;left:16px;z-index:2;background:#ffffffeb;padding:5px 10px;border-radius:10px;color:#475569;font-size:11px;font-weight:800}
+    .stat-num {font-size:25px;line-height:1.2;font-weight:900;color:#312e81}
+    .seg {transition:box-shadow .2s,border-color .2s}.seg:hover {box-shadow:0 8px 35px #312e811a;border-color:#c7d2fe}
+    .segnum {font-size:42px;font-weight:900;color:#c7d2fe;line-height:1}
+    .segnum::before {content:"0"}
+    .tab {padding:11px 17px;font-weight:800;border-radius:12px;color:#64748b}
+    .tab[aria-selected="true"] {background:#4f46e5;color:white}
+    .detail-pill {display:inline-block;background:#f1f5f9;color:#475569;border-radius:50px;padding:6px 12px;font-size:12px;font-weight:700}
+    .stops-list {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .stops-list li {background:#f8fafc;border-radius:10px;padding:9px 12px;color:#475569;font-size:13px;display:flex;gap:10px;align-items:baseline}
+    .stops-list li span {color:#6366f1;font-weight:900}
+    #trailMap {height:390px;border-radius:18px;z-index:0}
+    #gateOverlay {position:fixed;inset:0;background:#0f172acc;z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+    #gateOverlay.active {display:flex}
+    .hide {display:none!important}
+    .trail-media img {width:100%;height:200px;object-fit:cover;border-radius:14px}
+    @media(max-width:680px) {.stops-list{grid-template-columns:1fr}.hero-picture,.map-illustration{min-height:255px}.stat-num{font-size:22px}#trailMap{height:310px}}
+  </style>
+</head>
+<body data-section="routes" class="min-h-screen">
+  <div data-site-header="desktop"></div>
+  <div data-site-header="mobile-overlay"></div>
+  <div data-site-side-menu></div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-5">
+    <nav aria-label="פירורי לחם" class="text-xs sm:text-sm text-slate-500 flex gap-2 items-center flex-wrap">
+      <a class="hover:text-indigo-600" href="/">בית</a><span aria-hidden="true">‹</span>
+      <a class="hover:text-indigo-600" href="/category?type=routes">מסלולי טיול</a><span aria-hidden="true">‹</span>
+      <strong aria-current="page">שביל המזרח הקרוב</strong>
+    </nav>
+  </div>
+  <main id="trailMain" class="max-w-7xl mx-auto px-4 sm:px-6 pt-5 pb-16">
+    <div id="loadStatus" role="status" class="surface text-center p-8 text-slate-500">טוענים את שביל המזרח הקרוב...</div>
+    <div id="trailContent" class="hide">
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5" aria-label="פתיחת השביל">
+        <div class="surface hero-picture">
+          <img id="heroImg" src="/access-banner.jpg" alt="נוף של אזור השביל" fetchpriority="high">
+          <div class="hero-copy">
+            <span class="inline-flex bg-white/20 border border-white/30 rounded-full px-3 py-1 text-xs font-extrabold mb-2">שישה מקטעים · מסע שטח אחד</span>
+            <h1 id="pageTitle" class="text-3xl md:text-5xl font-black leading-tight">שביל המזרח הקרוב</h1>
+            <p id="pageSubtitle" class="text-white/90 font-bold text-sm md:text-lg mt-2"></p>
+          </div>
+        </div>
+        <div class="surface map-illustration" aria-label="איור סכמטי של השביל, לא מפת ניווט">
+          <img id="mapIllustrationImage" alt="מפת אילוסטרציה של שביל המזרח הקרוב" class="hide absolute inset-0 h-full w-full object-cover" style="z-index:1">
+          <svg id="mapDrawing" viewBox="0 0 600 330" preserveAspectRatio="xMidYMid slice" role="img" aria-label="מפת המחשה של המסלול מצפון לדרום">
+            <defs><linearGradient id="sand" x2="1" y2="1"><stop stop-color="#e0e7ff"/><stop offset="1" stop-color="#f1f5f9"/></linearGradient></defs>
+            <rect width="600" height="330" fill="url(#sand)"/>
+            <path d="M-50 28 Q130 5 250 90 T660 60 M-30 94 Q160 74 290 145 T620 115 M-50 215 Q160 170 250 230 T650 180" fill="none" stroke="#c7d2fe" stroke-width="2"/>
+            <path d="M300 -5 Q260 90 315 150 T340 340 M375 -20 Q335 86 398 150 T419 340" stroke="#94a3b8" opacity=".45" fill="none" stroke-dasharray="4 8" stroke-width="3"/>
+            <path d="M295 25 C230 64 335 91 270 132 S345 167 288 214 S342 270 305 310" fill="none" stroke="#4338ca" stroke-width="8" stroke-linecap="round"/>
+            <path d="M295 25 C230 64 335 91 270 132 S345 167 288 214 S342 270 305 310" fill="none" stroke="#a5b4fc" stroke-width="2.5" stroke-dasharray="2 11"/>
+            <g fill="#fff" stroke="#4338ca" stroke-width="4"><circle cx="295" cy="25" r="7"/><circle cx="270" cy="132" r="7"/><circle cx="288" cy="214" r="7"/><circle cx="305" cy="310" r="7"/></g>
+            <g font-family="Heebo,Arial" fill="#312e81" font-weight="800" font-size="16"><text x="314" y="28">מחולה</text><text x="302" y="308">מצפה דני</text><text x="55" y="45" font-size="22">צפון</text><text x="55" y="71" font-size="22">↓</text></g>
+          </svg>
+          <div class="map-note">מפת המחשה בלבד · אינה מיועדת לניווט</div>
+        </div>
+      </section>
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-7" aria-label="נתוני השביל">
+        <div class="surface p-4"><div class="stat-num">כ־340 ק״מ</div><p class="text-xs text-slate-500 mt-1">אורך השביל לכל ששת המקטעים</p></div>
+        <div class="surface p-4"><div class="stat-num">6 מקטעים</div><p class="text-xs text-slate-500 mt-1">כל מקטע הוא מסלול שטח עצמאי</p></div>
+        <div class="surface p-4"><div class="stat-num">4×4</div><p class="text-xs text-slate-500 mt-1">רכב שטח עם הילוך כוח וניסיון נהיגה מתאים</p></div>
+        <div class="surface p-4"><div class="stat-num">צפון ← דרום</div><p class="text-xs text-slate-500 mt-1">כיוון ההתקדמות המומלץ, ניתן גם להפוך</p></div>
+      </section>
+      <section class="surface p-5 md:p-8 mb-8">
+        <div class="flex items-center gap-3 mb-2">
+          <img src="/newlogo.png" alt="מצפן האתר" width="50" height="50" class="object-contain rounded-xl" onerror="this.style.display='none'">
+          <h2 class="font-black text-xl md:text-2xl">מסע אחד, הרבה דרכים</h2>
+        </div>
+        <p id="pageIntro" class="text-slate-600 leading-loose"></p>
+      </section>
+      <section aria-labelledby="segmentsHeading">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+          <div><h2 id="segmentsHeading" class="text-2xl md:text-3xl font-black">שישה מקטעים, מאות סיבות לעצור בדרך</h2><p class="text-sm text-slate-500 mt-1">פותחים כל מקטע בנפרד ומגלים את כל תחנותיו</p></div>
+          <button id="allGpxButton" class="btn" disabled><i class="fa-solid fa-download"></i> קובצי הניווט של השביל</button>
+        </div>
+        <div id="segmentCards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+        <section id="segmentDetails" tabindex="-1" aria-labelledby="detailTitle" class="surface hide p-5 md:p-8 mt-6">
+          <div class="flex items-start justify-between gap-3"><div><div id="detailNumber" class="text-indigo-600 text-sm font-extrabold"></div><h3 id="detailTitle" class="text-2xl md:text-3xl font-black mt-1"></h3><p id="detailMeta" class="text-slate-500 mt-1"></p></div><button id="closeDetails" class="btn btn-outline" aria-label="סגירת המסלול">סגירה ×</button></div>
+          <div class="flex flex-wrap gap-2 my-5" role="tablist" aria-label="פרטי המקטע">
+            <button class="tab" data-tab="about" role="tab" aria-selected="true">על המסלול</button>
+            <button class="tab" data-tab="map" role="tab" aria-selected="false">מפה וניווט</button>
+            <button class="tab" data-tab="gallery" role="tab" aria-selected="false">גלריה</button>
+          </div>
+          <div id="detailPanel" role="tabpanel" class="min-h-[110px]"></div>
+          <div class="flex gap-2 flex-wrap border-t border-slate-200 mt-6 pt-5">
+            <button id="segmentGpxBtn" class="btn" disabled>הורדת GPX</button>
+            <button id="segmentOffroadBtn" class="btn btn-lite" disabled>פתיחה באופרוד</button>
+            <button id="shareSegment" class="btn btn-outline">שיתוף מקטע</button>
+          </div>
+        </section>
+      </section>
+      <section id="authorSection" class="surface overflow-hidden mt-10 border-r-[5px] border-r-indigo-600">
+        <div class="grid grid-cols-1 md:grid-cols-[minmax(160px,240px)_1fr] gap-0">
+          <div id="authorPhotoBox" class="hidden bg-slate-50 p-5 md:p-7"><img id="authorPhoto" class="w-full aspect-square rounded-2xl object-cover" alt="יחזקאל בלומשטיין"></div>
+          <div class="p-6 md:p-9"><div class="text-indigo-700 font-black text-sm mb-2">האיש שמאחורי השביל</div><h2 id="authorName" class="text-2xl md:text-3xl font-black"></h2><p id="authorRole" class="text-indigo-600 font-bold mt-1"></p><p id="authorBio" class="text-slate-600 leading-loose mt-4 whitespace-pre-line"></p><a id="authorWhatsapp" class="btn mt-5" rel="noopener noreferrer" target="_blank" href="https://wa.me/972526071037"><i class="fa-brands fa-whatsapp"></i> כתבו ליחזקאל בוואטסאפ</a></div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <div data-site-footer></div>
+  <div id="gateOverlay" role="presentation">
+    <div class="surface max-w-lg w-full p-6 md:p-8" role="dialog" aria-modal="true" aria-labelledby="gateHeading">
+      <h2 id="gateHeading" class="font-black text-xl">אישור תנאים לפני יציאה לשטח</h2>
+      <div id="gateText" class="my-4 max-h-[45vh] overflow-y-auto text-slate-600 text-sm whitespace-pre-line leading-relaxed"></div>
+      <div class="flex flex-col gap-2">
+        <button id="gateConfirm" class="btn">קראתי והבנתי · המשך לפעולה</button>
+        <button id="gateCancel" class="btn btn-outline">ביטול</button>
+      </div>
+    </div>
+  </div>
+  <script src="/near-east-trail.js" defer></script>
+</body>
+</html>
