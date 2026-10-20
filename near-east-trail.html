@@ -37,6 +37,12 @@
     .author-grid > * {min-width:0}
     #segmentDetails {scroll-margin-top:24px}
     .stat-num {font-size:25px;line-height:1.2;font-weight:900;color:#312e81}
+    .trail-stat {text-align:center!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;min-height:122px}
+    .trail-stat * {text-align:center!important}
+    .seg {padding:0!important;overflow:hidden!important;border-radius:24px}
+    .seg .segment-cover-shell {margin:0!important;border-radius:0!important;width:100%;height:190px;overflow:hidden}
+    .seg .segment-body {padding:20px}
+    @media(min-width:768px){.seg .segment-body {padding:24px}}
     .seg {transition:box-shadow .2s,border-color .2s}.seg:hover {box-shadow:0 8px 35px #312e811a;border-color:#c7d2fe}
     .segnum {font-size:42px;font-weight:900;color:#c7d2fe;line-height:1}
     .segnum::before {content:"0"}
@@ -70,7 +76,6 @@
     <div id="trailContent" class="hide">
       <section aria-label="פתיחת השביל" class="mb-6">
         <div class="mb-5 pt-2">
-          <div class="text-indigo-600 font-extrabold text-sm mb-2">שבילי שטח ומסעות ג׳יפים</div>
           <h1 id="pageTitle" class="text-3xl md:text-[44px] font-black text-slate-950 tracking-tight leading-tight">שביל המזרח הקרוב</h1>
           <p id="pageSubtitle" class="mt-2 text-base md:text-xl text-slate-600 font-medium leading-relaxed"></p>
         </div>
@@ -82,41 +87,31 @@
         </div>
       </section>
       <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-7" aria-label="נתוני השביל">
-        <div class="surface p-4 text-center flex flex-col items-center justify-center"><div class="stat-num">כ־340 ק״מ</div><p class="text-xs text-slate-500 mt-1">אורך השביל לכל ששת המקטעים</p></div>
-        <div class="surface p-4"><div class="stat-num">6 מקטעים</div><p class="text-xs text-slate-500 mt-1">כל מקטע הוא מסלול שטח עצמאי</p></div>
+        <div class="surface trail-stat p-4"><div class="stat-num">כ־340 ק״מ</div><p class="text-xs text-slate-500 mt-1">אורך השביל לכל ששת המקטעים</p></div>
+        <div class="surface trail-stat p-4"><div class="stat-num">6 מקטעים</div><p class="text-xs text-slate-500 mt-1">כל מקטע הוא מסלול שטח עצמאי</p></div>
         <div class="surface p-4"><div class="stat-num">4×4</div><p class="text-xs text-slate-500 mt-1">רכב שטח עם הילוך כוח וניסיון נהיגה מתאים</p></div>
         <div class="surface p-4"><div class="stat-num">צפון ← דרום</div><p class="text-xs text-slate-500 mt-1">כיוון ההתקדמות המומלץ, ניתן גם להפוך</p></div>
       </section>
       <section class="surface p-5 md:p-8 mb-8">
-        <div class="flex items-center gap-3 mb-2">
-          <img src="/newlogo.png" alt="מצפן האתר" width="50" height="50" class="object-contain rounded-xl" onerror="this.style.display='none'">
-          <h2 class="font-black text-xl md:text-2xl">מסע אחד, הרבה דרכים</h2>
+        <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_190px] items-center gap-4 md:gap-8">
+          <div class="min-w-0"><h2 class="font-black text-xl md:text-2xl mb-3">מסע אחד, הרבה דרכים</h2><p id="pageIntro" class="text-slate-600 leading-loose"></p></div>
+          <div class="flex items-center justify-center md:justify-end" aria-hidden="true">
+            <img src="/favicon.png" alt="" width="158" height="158" class="w-28 h-28 md:w-40 md:h-40 object-contain" loading="lazy">
+          </div>
         </div>
-        <p id="pageIntro" class="text-slate-600 leading-loose"></p>
       </section>
       <section aria-labelledby="segmentsHeading" id="segmentsSection">
         <div id="segmentListView">
         <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div><h2 id="segmentsHeading" class="text-2xl md:text-3xl font-black">שישה מקטעים, מאות סיבות לעצור בדרך</h2><p class="text-sm text-slate-500 mt-1">פותחים כל מקטע בנפרד ומגלים את כל תחנותיו</p></div>
-          <button id="allGpxButton" class="btn" disabled><i class="fa-solid fa-download"></i> קובצי הניווט של השביל</button>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="shareTrailButton" class="btn btn-outline"><i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i> שיתוף השביל בוואטסאפ</button>
+            <button id="wholeTrailMapButton" class="btn btn-lite" disabled title="מפת השביל תהיה זמינה לאחר העלאת ששת קובצי GPX"><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> מפת השביל המלא</button>
+            <button id="allGpxButton" class="btn" disabled><i class="fa-solid fa-download" aria-hidden="true"></i> קובצי הניווט של השביל</button>
+          </div>
         </div>
         <div id="segmentCards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
         </div>
-        <section id="segmentDetails" tabindex="-1" aria-labelledby="detailTitle" class="surface hide p-5 md:p-8">
-          <div class="flex items-start justify-between gap-3 flex-wrap"><div><div id="detailNumber" class="text-indigo-600 text-sm font-extrabold"></div><h3 id="detailTitle" class="text-2xl md:text-3xl font-black mt-1"></h3><p id="detailMeta" class="text-slate-500 mt-1"></p></div><button id="closeDetails" class="btn btn-outline" aria-label="חזרה לששת המקטעים"><i class="fa-solid fa-arrow-right"></i> חזרה לששת המקטעים</button></div>
-          <div id="detailCoverWrap" class="hide mt-5"><img id="detailCoverImage" class="detail-cover" alt="תמונת שער של המקטע"></div>
-          <div class="flex flex-wrap gap-2 my-5" role="tablist" aria-label="פרטי המקטע">
-            <button class="tab" data-tab="about" role="tab" aria-selected="true">על המסלול</button>
-            <button class="tab" data-tab="map" role="tab" aria-selected="false">מפה וניווט</button>
-            <button class="tab" data-tab="gallery" role="tab" aria-selected="false">גלריה</button>
-          </div>
-          <div id="detailPanel" role="tabpanel" class="min-h-[110px]"></div>
-          <div class="flex gap-2 flex-wrap border-t border-slate-200 mt-6 pt-5">
-            <button id="segmentGpxBtn" class="btn" disabled>הורדת GPX</button>
-            <button id="segmentOffroadBtn" class="btn btn-lite" disabled>פתיחה באופרוד</button>
-            <button id="shareSegment" class="btn btn-outline">שיתוף מקטע</button>
-          </div>
-        </section>
       </section>
       <section id="trailRecommendations" class="hide mt-10 space-y-4" aria-labelledby="trailRecHeading">
         <h2 id="trailRecHeading" class="text-2xl md:text-3xl font-black">בדרך: איפה עוצרים?</h2>
@@ -127,14 +122,47 @@
         <div id="travelNotesBox" class="surface hide p-5 md:p-6"><h3 class="font-black mb-2">מידע נוסף למטייל</h3><p id="travelNotesText" class="text-slate-600 whitespace-pre-line leading-relaxed"></p></div>
       </section>
       <section id="authorSection" class="surface overflow-hidden mt-10 border-r-[5px] border-r-indigo-600">
-        <div id="authorGrid" class="author-grid gap-0">
-          <div id="authorPhotoBox" class="hidden bg-slate-50 p-5 md:p-7"><img id="authorPhoto" class="w-full aspect-square rounded-2xl object-cover" alt="יחזקאל בלומשטיין"></div>
-          <div class="p-6 md:p-9"><div class="text-indigo-700 font-black text-sm mb-2">האיש שמאחורי השביל</div><h2 id="authorName" class="text-2xl md:text-3xl font-black"></h2><p id="authorRole" class="text-indigo-600 font-bold mt-1"></p><p id="authorBio" class="text-slate-600 leading-loose mt-4 whitespace-pre-line"></p><a id="authorWhatsapp" class="btn mt-5" rel="noopener noreferrer" target="_blank" href="https://wa.me/972526071037"><i class="fa-brands fa-whatsapp"></i> כתבו ליחזקאל בוואטסאפ</a></div>
+        <div id="authorGrid" class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_250px] items-center gap-5 md:gap-8 p-6 md:p-9">
+          <div class="min-w-0">
+            <div class="text-indigo-700 font-black text-sm mb-2">האיש שמאחורי השביל</div>
+            <h2 id="authorName" class="text-2xl md:text-3xl font-black"></h2>
+            <p id="authorRole" class="text-indigo-600 font-bold mt-1"></p>
+            <p id="authorBio" class="text-slate-600 leading-loose mt-4 whitespace-pre-line"></p>
+          </div>
+          <div id="authorPhotoBox" class="w-full max-w-[250px] mx-auto md:mr-auto md:ml-0">
+            <div class="aspect-[4/5] bg-indigo-50 border border-indigo-100 rounded-[22px] overflow-hidden relative flex items-center justify-center">
+              <img id="authorPhoto" class="hide w-full h-full object-cover" alt="תמונה של יחזקאל בלומשטיין" loading="lazy">
+              <div id="authorPhotoPlaceholder" class="text-center text-indigo-400 px-5">
+                <i class="fa-solid fa-user text-6xl mb-3" aria-hidden="true"></i>
+                <p class="font-bold text-sm">תמונה אישית של יוזם השביל תתווסף כאן</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
+      <section id="groupJoinSection" class="rounded-[24px] border border-emerald-300 bg-emerald-50 mt-6 p-5 md:p-7 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4 min-w-0">
+          <div class="shrink-0 w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center"><i class="fa-brands fa-whatsapp text-3xl" aria-hidden="true"></i></div>
+          <div>
+            <h2 id="groupTitle" class="text-lg md:text-xl font-black text-slate-950">הצטרפו לקבוצת הטיולים בשומרון</h2>
+            <p id="groupSubtitle" class="text-sm text-slate-600 mt-1">טיולי ג׳יפים, מסלולים ועדכונים מהשטח עם יוזם השביל.</p>
+          </div>
+        </div>
+        <a id="joinGroupLink" href="#" class="btn btn-outline !border-emerald-500 !text-emerald-800 whitespace-nowrap" target="_blank" rel="noopener noreferrer" aria-disabled="true">קישור להצטרפות יתווסף בקרוב</a>
       </section>
     </div>
   </main>
   <div data-site-footer></div>
+  <div id="wholeTrailMapOverlay" class="fixed inset-0 z-[90] hidden bg-slate-950/80 p-3 md:p-6 items-center justify-center" role="presentation">
+    <section role="dialog" aria-modal="true" aria-labelledby="wholeTrailMapHeading" class="bg-white rounded-[24px] w-full max-w-6xl max-h-[95vh] overflow-y-auto p-4 md:p-6 shadow-xl">
+      <div class="flex justify-between gap-4 items-center mb-4">
+        <div><h2 id="wholeTrailMapHeading" class="text-xl md:text-2xl font-black">מפת שביל המזרח הקרוב</h2><p class="text-xs text-slate-500">ששת המקטעים על גבי מפת סימון השבילים, לפי קובצי הניווט</p></div>
+        <button id="closeWholeTrailMap" class="btn btn-outline" aria-label="סגירת מפת השביל">סגירה ×</button>
+      </div>
+      <div id="wholeTrailMapCanvas" class="rounded-xl overflow-hidden border border-slate-200" style="height:min(68vh,610px)"></div>
+      <p id="wholeTrailMapStatus" class="text-sm text-slate-600 mt-3" role="status"></p>
+    </section>
+  </div>
   <div id="gateOverlay" role="presentation">
     <div class="surface max-w-lg w-full p-6 md:p-8" role="dialog" aria-modal="true" aria-labelledby="gateHeading">
       <h2 id="gateHeading" class="font-black text-xl">אישור תנאים לפני יציאה לשטח</h2>
