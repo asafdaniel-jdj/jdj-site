@@ -44,15 +44,10 @@
     $('trailOgTitle').content = plainText(p.seo_title,p.title);
     $('trailOgDesc').content = plainText(p.seo_description,p.intro);
     $('trailOgImage').content = og;
-    if (validUrl(p.illustrated_map_url)) {
-      $('mapIllustrationImage').src = validUrl(p.illustrated_map_url);
-      $('mapIllustrationImage').classList.remove('hide');
-      $('mapDrawing').classList.add('hide');
-    }
-    if (validUrl(p.author_photo_url)) {
-      $('authorPhoto').src = validUrl(p.author_photo_url);
-      $('authorPhotoBox').classList.remove('hidden');
-    }
+    const authorImageUrl = validUrl(p.author_photo_url);
+    $('authorPhotoBox').classList.toggle('hidden', !authorImageUrl);
+    $('authorGrid').classList.toggle('has-photo', !!authorImageUrl);
+    if (authorImageUrl) $('authorPhoto').src = authorImageUrl;
     const wa = String(p.author_whatsapp || '').replace(/\D/g, '');
     $('authorWhatsapp').href = wa ? 'https://wa.me/' + wa : '#';
     $('authorWhatsapp').classList.toggle('hide', !wa);
@@ -72,14 +67,24 @@
     $('trailRecommendations').classList.toggle('hide',!recs.some(r => r.rows.length) && !p.travel_notes);
     // The Preview HTML always remains noindex. Publication/SEO integration is release-gated.
   }
+  function segmentCoverUrl(segment) {
+    const primary = validUrl(segment.hero_image_url);
+    if (primary) return primary;
+    const image = list(segment.media).find(m => (typeof m === 'string' || m.type === 'image') && mediaUrl(m));
+    return image ? mediaUrl(image) : '';
+  }
   function drawCards() {
     $('segmentCards').innerHTML = segments.map(s => {
       const n = Number(s.segment_number);
       const tags = list(s.tags).slice(0, 3);
       const stops = list(s.stops);
+      const cover = segmentCoverUrl(s);
+      const coverHtml = cover
+        ? '<img src="' + safe(cover) + '" alt="תמונת שער למקטע ' + n + ' (להמחשה)" loading="lazy" class="segment-cover" onerror="this.style.display=\'none\';this.parentElement.classList.add(\'segment-cover-placeholder\');this.parentElement.textContent=\'תמונת שער תעודכן בקרוב\'">'
+        : '<div class="segment-cover-placeholder"><span aria-hidden="true">▧</span>תמונת שער תעודכן בקרוב</div>';
       return '<article class="surface seg overflow-hidden p-5 md:p-6" data-segment="' + n + '">' +
+        '<div class="segment-cover-shell -mx-5 -mt-5 mb-5">' + coverHtml + '</div>' +
         '<div class="flex items-start justify-between gap-2"><div class="segnum">' + n + '</div><span class="rounded-xl bg-indigo-50 text-indigo-800 text-xs font-black px-3 py-2">' + safe(s.length_km || '—') + ' ק״מ</span></div>' +
-        (validUrl(s.hero_image_url) ? '<img src="' + safe(validUrl(s.hero_image_url)) + '" loading="lazy" class="w-full h-36 object-cover rounded-xl my-3" alt="נוף המקטע">' : '') +
         '<div class="text-indigo-600 font-black text-xs mt-1">מקטע ' + n + ' מתוך שישה</div>' +
         '<h3 class="font-black text-xl mt-1">' + safe(s.title) + '</h3>' +
         '<p class="text-slate-500 text-xs mt-1">' + safe(s.region) + '</p>' +
@@ -166,25 +171,40 @@
       setTimeout(() => map.invalidateSize(), 100);
     } catch(e) { if (st) st.textContent = 'לא ניתן להציג את המפה: ' + errorText(e); }
   }
-  function openSegment(n) {
+  function openSegment(n, skipHistory = false) {
     const found = segments.find(s => Number(s.segment_number) === n);
     if (!found) return;
     active = found;
+    $('segmentListView').classList.add('hide');
     $('segmentDetails').classList.remove('hide');
     assignText('detailNumber','מקטע ' + n + ' מתוך שישה');
-    assignText('detailTitle',found.title);
+    assignText('detailTitle', found.title);
     assignText('detailMeta', [found.region, found.length_km ? found.length_km + ' ק״מ' : ''].filter(Boolean).join(' · '));
     $('segmentGpxBtn').disabled = !validUrl(found.gpx_url);
     $('segmentOffroadBtn').disabled = !validUrl(found.offroad_url);
+    const cover = segmentCoverUrl(found);
+    $('detailCoverWrap').classList.toggle('hide', !cover);
+    if (cover) $('detailCoverImage').src = cover;
     selectTab('about');
-    history.replaceState(null,'',location.pathname + location.search + '#segment=' + n);
-    $('segmentDetails').scrollIntoView({behavior:'smooth',block:'start'});
+    if (!skipHistory && location.hash !== '#segment=' + n) {
+      history.pushState({segment:n},'',location.pathname + location.search + '#segment=' + n);
+    }
+    $('segmentsSection').scrollIntoView({behavior:'smooth',block:'start'});
   }
-  function closeSegment() {
+  function closeSegment(skipHistory = false) {
     active = null;
     $('segmentDetails').classList.add('hide');
+    $('segmentListView').classList.remove('hide');
     if (leaflet) { leaflet.remove(); leaflet = null; }
-    history.replaceState(null,'',location.pathname + location.search);
+    if (!skipHistory && location.hash) {
+      history.pushState(null,'',location.pathname + location.search);
+    }
+    $('segmentsSection').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function syncSegmentFromUrl() {
+    const match = location.hash.match(/^#segment=([1-6])$/);
+    if (match) openSegment(Number(match[1]), true);
+    else if (active) closeSegment(true);
   }
   let pendingAction = null;
   async function openGate(action) {
@@ -260,7 +280,7 @@
       applyPage(page); drawCards();
       status.classList.add('hide'); root.classList.remove('hide');
       const match = location.hash.match(/^#segment=([1-6])$/);
-      if (match) openSegment(Number(match[1]));
+      if (match) openSegment(Number(match[1]), true);
     } catch(e) { displayStatus('לא ניתן לטעון את השביל: ' + errorText(e),true); }
   }
   document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => selectTab(btn.dataset.tab)));
@@ -272,6 +292,7 @@
   $('gateConfirm').addEventListener('click', executePending);
   $('gateCancel').addEventListener('click', closeGate);
   window.addEventListener('keydown', e => { if(e.key === 'Escape' && $('gateOverlay').classList.contains('active')) closeGate(); });
-  window.addEventListener('hashchange', () => {const match=location.hash.match(/^#segment=([1-6])$/); if(match) openSegment(Number(match[1]));});
+  window.addEventListener('hashchange', syncSegmentFromUrl);
+  window.addEventListener('popstate', syncSegmentFromUrl);
   boot();
 })();
