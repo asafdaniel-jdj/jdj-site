@@ -59,6 +59,17 @@
     document.title = plainText(p.seo_title, p.title);
     const description = document.querySelector('meta[name="description"]');
     if (description) description.content = plainText(p.seo_description, p.intro);
+    const recs = [
+      {rows:list(p.lodging_stops),box:'lodgingBox',target:'lodgingList'},
+      {rows:list(p.food_stops),box:'foodBox',target:'foodList'}
+    ];
+    recs.forEach(r => {
+      $(r.box).classList.toggle('hide',!r.rows.length);
+      $(r.target).innerHTML = r.rows.map(item => '<li class="flex gap-2"><span class="text-indigo-500">◆</span><span>' + safe(item) + '</span></li>').join('');
+    });
+    $('travelNotesBox').classList.toggle('hide',!p.travel_notes);
+    assignText('travelNotesText',p.travel_notes);
+    $('trailRecommendations').classList.toggle('hide',!recs.some(r => r.rows.length) && !p.travel_notes);
     // The Preview HTML always remains noindex. Publication/SEO integration is release-gated.
   }
   function drawCards() {
