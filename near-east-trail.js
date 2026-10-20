@@ -284,7 +284,7 @@
     } catch(e) { displayStatus('לא ניתן לטעון את השביל: ' + errorText(e),true); }
   }
   document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => selectTab(btn.dataset.tab)));
-  $('closeDetails').addEventListener('click', closeSegment);
+  $('closeDetails').addEventListener('click', () => closeSegment());
   $('segmentGpxBtn').addEventListener('click', () => active && openGate({type:'gpx',segment:active}));
   $('segmentOffroadBtn').addEventListener('click', () => active && openGate({type:'offroad',segment:active}));
   $('allGpxButton').addEventListener('click', () => openGate({type:'zip'}));
