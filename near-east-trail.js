@@ -183,8 +183,15 @@
   function closeGate() { pendingAction = null; $('gateOverlay').classList.remove('active'); }
   async function downloadSingle(s) {
     const url = validUrl(s?.gpx_url); if (!url) return;
-    const a = document.createElement('a'); a.href = url; a.download = 'near-east-trail-segment-' + s.segment_number + '.gpx';
-    a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+    const response = await fetch(url, {credentials:'omit'});
+    if (!response.ok) throw new Error('קובץ GPX אינו זמין (HTTP ' + response.status + ')');
+    const blob = await response.blob();
+    if (blob.size > 12_000_000) throw new Error('קובץ GPX גדול מדי');
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl; a.download = 'near-east-trail-segment-' + s.segment_number + '.gpx';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl),30000);
   }
   async function downloadAll() {
     if (segments.length !== 6 || segments.some(s => !validUrl(s.gpx_url))) return;
