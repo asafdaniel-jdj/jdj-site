@@ -89,7 +89,7 @@
     const media=pageMedia.length ? pageMedia : fallback;
     const main=validUrl(page?.hero_desktop_url);
     gallery.render({
-      container:$('#trailGallery'),
+      container:$('trailGallery'),
       galleryId:'nearEastTrailGallery',
       mainImage:main,
       media,
