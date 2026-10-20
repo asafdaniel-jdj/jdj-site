@@ -136,24 +136,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- 🏷️ פילטרים פעילים -->
         <div id="activeChipsContainer" class="hidden flex items-center gap-2 overflow-x-auto no-scrollbar py-1"></div>
 
-        <!-- JDJ-78: standalone editorial landing-page banner, NEVER a route result -->
-        <section id="categoryTrailFeature" class="hidden rounded-3xl bg-white overflow-hidden border border-indigo-200 shadow-sm" aria-label="שביל המזרח הקרוב, דף נחיתה ייעודי">
-          <div class="grid grid-cols-1 md:grid-cols-[minmax(220px,30%)_minmax(0,1fr)] items-stretch md:min-h-[165px]">
-            <a href="/near-east-trail" class="relative block min-h-[155px] md:min-h-0 overflow-hidden bg-indigo-50" aria-label="לגלות את שביל המזרח הקרוב">
-              <img id="categoryTrailImage" class="w-full h-44 md:absolute md:inset-0 md:h-full object-cover hidden" loading="lazy" alt="תמונת שביל המזרח הקרוב">
-              <div id="categoryTrailPlaceholder" class="absolute inset-0 flex items-center justify-center text-indigo-300 bg-gradient-to-br from-indigo-100 to-slate-100" aria-hidden="true"><i class="fa-solid fa-route text-5xl"></i></div>
-            </a>
-            <div class="p-5 md:p-6 flex flex-col justify-center gap-2">
-              <span id="categoryTrailKicker" class="text-xs font-black text-indigo-700">מסע שטח מיוחד באתר</span>
-              <h2 id="categoryTrailTitle" class="text-xl md:text-2xl font-black text-slate-900">שביל המזרח הקרוב</h2>
-              <p id="categoryTrailDescription" class="text-xs md:text-sm font-medium text-slate-600 leading-relaxed line-clamp-2">שישה מקטעים, כ־340 ק״מ של שבילי ג׳יפים ומפגשים לאורך הדרך.</p>
-              <div class="pt-1">
-                <a href="/near-east-trail" class="inline-flex items-center gap-2 text-xs md:text-sm font-black text-indigo-700 hover:text-indigo-950 transition"><span id="categoryTrailCta">לגלות את השביל</span><i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i></a>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <!-- גריד ראשי -->
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
             
@@ -1155,45 +1137,102 @@ function toggleFilterDrawer(open) {
                 </div>`;
         }
 
+        // Editorial promotion stays outside the routes array, filters, counts and SEO schema.
+        let categoryTrailPromotion = null;
+
+        function categoryTrailCanAppearInGrid() {
+            if (currentCategoryType !== 'routes' || !categoryTrailPromotion) return false;
+            if (currentRegionFilter !== 'הכל' || isAiActive || currentSearchQuery.trim()) return false;
+            if (currentSortMode !== 'recommended') return false;
+            if (document.getElementById('categorySearchInput')?.value.trim()) return false;
+            if (document.getElementById('filterTitleInput')?.value.trim()) return false;
+            if (document.getElementById('filterDifficulty')?.value !== 'הכל') return false;
+            return !['filterRecommended','filterTechnical','filterWater','filterKids','filterNoFiring',
+                'lenShort','lenMed','lenLong'].some(id=>document.getElementById(id)?.checked);
+        }
+
+        function createNearEastTrailGridCard(data) {
+            // Distinct dark-purple card, explicitly a special project and not sponsored.
+            const card=document.createElement('a');
+            card.href='/near-east-trail';
+            card.dataset.trailPromotion='true';
+            card.setAttribute('aria-label','מיזם תוכן מיוחד: שביל המזרח הקרוב, כניסה לדף הנחיתה');
+            card.className='group relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-indigo-400/80 bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 p-4 shadow-lg shadow-indigo-950/15 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-950/25 transition text-white';
+            card.innerHTML=[
+                '<div>',
+                  '<div class="relative overflow-hidden rounded-2xl bg-indigo-900/80 border border-white/15 mb-4">',
+                    '<div data-trail-image-fallback class="h-48 w-full flex items-center justify-center bg-gradient-to-br from-indigo-800 to-purple-950 text-indigo-200">',
+                      '<i class="fa-solid fa-compass text-5xl opacity-80" aria-hidden="true"></i>',
+                    '</div>',
+                    '<img data-trail-image class="hidden w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" alt="נוף שביל המזרח הקרוב">',
+                    '<div class="absolute top-3 right-3 bg-indigo-950/90 border border-indigo-300/50 text-white px-3 py-1.5 rounded-full shadow-md text-xs font-black flex items-center gap-2 backdrop-blur-sm">',
+                      '<i class="fa-solid fa-compass text-indigo-300" aria-hidden="true"></i><span>מיזם מיוחד</span>',
+                    '</div>',
+                  '</div>',
+                  '<div class="space-y-2 mb-5">',
+                    '<div data-trail-kicker class="text-xs font-black text-indigo-200"></div>',
+                    '<h3 data-trail-title class="text-2xl md:text-[25px] font-black tracking-tight leading-tight text-white"></h3>',
+                    '<p data-trail-desc class="text-sm font-medium leading-relaxed text-indigo-100/90 line-clamp-3"></p>',
+                  '</div>',
+                '</div>',
+                '<div class="w-full rounded-2xl border-2 border-purple-300/80 bg-white/10 group-hover:bg-white group-hover:text-indigo-950 text-white px-3 py-3.5 flex items-center justify-center gap-2 font-black text-sm transition">',
+                  '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span data-trail-cta></span>',
+                '</div>'
+            ].join('');
+            const text=(selector,val,fallback)=>{
+                card.querySelector(selector).textContent=String(val||fallback).trim();
+            };
+            text('[data-trail-kicker]',data.home_kicker,'מסע שטח מיוחד באתר');
+            text('[data-trail-title]',data.home_title,'שביל המזרח הקרוב');
+            text('[data-trail-desc]',data.home_description,'שישה מקטעים לאורך שביל המזרח הקרוב.');
+            text('[data-trail-cta]',data.home_cta,'לגלות את השביל');
+
+            const imgUrl=[data.home_image_url,data.hero_desktop_url,
+                ...(Array.isArray(data.gallery_media)?data.gallery_media.filter(m=>m?.type==='image').map(m=>m.url):[])
+            ].find(url=>{
+                try {return new URL(String(url||''),location.origin).protocol==='https:';}
+                catch (_){return false;}
+            });
+            if(imgUrl){
+                const img=card.querySelector('[data-trail-image]');
+                const placeholder=card.querySelector('[data-trail-image-fallback]');
+                img.addEventListener('load',()=>{
+                    img.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                },{once:true});
+                img.addEventListener('error',()=>{
+                    img.classList.add('hidden');
+                    placeholder.classList.remove('hidden');
+                },{once:true});
+                img.src=imgUrl;
+            }
+            return card;
+        }
+
         async function loadNearEastTrailCategoryFeature() {
-            const panel=document.getElementById('categoryTrailFeature');
-            if(!panel || currentCategoryType!=='routes') return;
-            // Independent category toggle; nothing is inserted into route results or filters.
+            if(currentCategoryType!=='routes') return;
             try {
                 const {data,error}=await supabaseClient
                     .from('near_east_trail_pages')
                     .select('is_published,category_visible,home_title,home_kicker,home_description,home_cta,home_image_url,hero_desktop_url,gallery_media')
                     .eq('id','main').maybeSingle();
                 if(error || !data) {
-                    if(error)console.warn('Trail category feature visibility unavailable:',error);
+                    if(error) console.warn('Trail category feature visibility unavailable:',error);
                     return;
                 }
                 let visible=data.is_published===true && data.category_visible===true;
-                if(/^deploy-preview-\d+--jdj-test\.netlify\.app$/i.test(location.hostname) && window.JDJ_ENV?.environment!=='production'){
+                // QA override only on TEST deploy previews.
+                if(/^deploy-preview-\d+--jdj-test\.netlify\.app$/i.test(location.hostname) &&
+                  window.JDJ_ENV?.environment!=='production'){
                     const override=new URLSearchParams(location.search).get('trail');
                     if(override==='off')visible=false;
                     if(override==='on')visible=data.is_published===true;
                 }
-                if(!visible)return;
-                const text=(id,value,fallback)=>{document.getElementById(id).textContent=String(value||fallback).trim();};
-                text('categoryTrailTitle',data.home_title,'שביל המזרח הקרוב');
-                text('categoryTrailKicker',data.home_kicker,'מסע שטח מיוחד באתר');
-                text('categoryTrailDescription',data.home_description,'שישה מקטעים לאורך שביל המזרח הקרוב.');
-                text('categoryTrailCta',data.home_cta,'לגלות את השביל');
-                const isValidImage=url=>{
-                    try {const u=new URL(String(url||''),location.origin);return u.protocol==='https:' || u.protocol==='http:';}
-                    catch(_){return false;}
-                };
-                const galleryImage=Array.isArray(data.gallery_media)?data.gallery_media.find(m=>m?.type==='image' && isValidImage(m.url))?.url:null;
-                const photo=[data.home_image_url,data.hero_desktop_url,galleryImage].find(isValidImage);
-                if(photo){
-                    const image=document.getElementById('categoryTrailImage');
-                    const placeholder=document.getElementById('categoryTrailPlaceholder');
-                    image.addEventListener('load',()=>{image.classList.remove('hidden');placeholder.classList.add('hidden');},{once:true});
-                    image.addEventListener('error',()=>{image.classList.add('hidden');placeholder.classList.remove('hidden');},{once:true});
-                    image.src=photo;
+                categoryTrailPromotion=visible?data:null;
+                if(categoryTrailPromotion && categoryTrailCanAppearInGrid() &&
+                    document.querySelector('#categoryGrid > a')) {
+                    renderCategoryGrid();
                 }
-                panel.classList.remove('hidden');
             } catch(error) {
                 console.warn('Trail category feature hidden:',error);
             }
@@ -1729,7 +1768,7 @@ function toggleFilterDrawer(open) {
             document.getElementById('displayedCount').innerText = itemsToDisplay.length;
             document.getElementById('displayedCountMobile').innerText = itemsToDisplay.length;
 
-            itemsToDisplay.forEach(item => {
+            itemsToDisplay.forEach((item, index) => {
                 const isRoute = item.route_type === 'מסלול טיול';
                 const targetUrl = isRoute ? `/item?id=${item.id}` : `/point?id=${item.id}`;
 
@@ -1810,6 +1849,10 @@ function toggleFilterDrawer(open) {
                     </div>
                 `;
                 grid.appendChild(card);
+                // Position 3: after two route results, without replacing or counting a route.
+                if(index===1 && categoryTrailCanAppearInGrid()) {
+                    grid.appendChild(createNearEastTrailGridCard(categoryTrailPromotion));
+                }
             });
 
             const loadMoreBtn = document.getElementById('loadMoreContainer');
@@ -1863,6 +1906,17 @@ function toggleFilterDrawer(open) {
             setRegionFilter('הכל');
 
         }
+
+        document.getElementById('categorySearchInput').addEventListener('input', event => {
+            // Hide as soon as the user starts typing, before submit or AI evaluation.
+            const card=document.querySelector('#categoryGrid [data-trail-promotion]');
+            if(event.target.value.trim()) {
+                if(card) card.remove();
+            } else if(!currentSearchQuery.trim() && categoryTrailCanAppearInGrid() &&
+                      filteredCategoryItems.length>=2 && !card) {
+                renderCategoryGrid();
+            }
+        });
 
         initCategoryPage();
     </script>
