@@ -21,6 +21,16 @@
 
   let floodsVisibilityPromise = null;
 
+  // JDJ-78: a single TEST-managed switch controls BOTH the drawer link and
+  // footer link. Fail-closed until the published trail visibility is confirmed.
+  const TRAIL_LINKS_CONFIG = {
+    endpoint: JDJ_ENV.supabaseUrl
+      ? `${JDJ_ENV.supabaseUrl}/rest/v1/near_east_trail_pages?id=eq.main&select=is_published,menu_footer_visible`
+      : '',
+    apiKey: JDJ_ENV.supabaseKey || ''
+  };
+  let trailLinksVisibilityPromise = null;
+
   const topNav = `
     <nav class="hidden lg:flex items-center justify-center text-lg md:text-xl font-bold text-slate-900 tracking-tight absolute left-1/2 -translate-x-1/2" style="gap: 20px;">
       <a href="/category?type=routes" id="nav-routes" class="hover:text-indigo-600 transition whitespace-nowrap">מסלולי טיול</a>
@@ -120,6 +130,7 @@
             <div class="space-y-0.5">
               <a href="/khan-catalog" id="drawer-nav-khans" class="block py-2 px-3 rounded-xl ${activeClass('khans')} transition">חאנים ומתחמי לינה</a>
               <a href="/stories" class="block py-2 px-3 rounded-xl ${activeClass('stories')} transition">סיפורי מדבר ומורשת</a>
+              <a href="/near-east-trail" data-site-trail-link id="drawer-nav-near-east-trail" class="hidden py-2 px-3 rounded-xl text-violet-800 hover:bg-violet-50 hover:text-violet-900 transition"><i class="fa-solid fa-compass ml-1 text-xs" aria-hidden="true"></i>שביל המזרח הקרוב</a>
               <a href="/access" class="block py-2 px-3 rounded-xl ${activeClass('access')} transition">דרכי גישה למסלולים</a>
               <a href="/camp" class="block py-2 px-3 rounded-xl ${activeClass('camp')} transition">חניוני לילה חינמיים</a>
               <a href="/mview" class="block py-2 px-3 rounded-xl ${activeClass('mview')} transition">תצפיות מצוק ההעתקים</a>
@@ -162,6 +173,7 @@
           <ul id="footerSec2" class="hidden md:block space-y-2 text-slate-400 font-semibold pb-2 md:pb-0 transition-all duration-200">
             <li><a href="/khan-catalog" class="hover:text-indigo-400 transition block py-1 md:py-0">⛺ חאנים ומתחמי לינה</a></li>
             <li><a href="/stories" class="hover:text-indigo-400 transition block py-1 md:py-0">📖 סיפורי מדבר ומורשת</a></li>
+            <li data-site-trail-link class="hidden"><a href="/near-east-trail" class="hover:text-violet-300 transition block py-1 md:py-0">🧭 שביל המזרח הקרוב</a></li>
             <li><a href="/access" class="hover:text-indigo-400 transition block py-1 md:py-0">🚗 דרכי גישה ומסלולים</a></li>
             <li><a href="/mview" class="hover:text-indigo-400 transition block py-1 md:py-0">🔭 נקודות תצפית במצוק ההעתקים</a></li>
             <li><a href="/camp" class="hover:text-indigo-400 transition block py-1 md:py-0">⛺ חניוני לילה חינמיים</a></li>
@@ -237,6 +249,39 @@
     return enabled;
   }
 
+  function setTrailLinksVisibility(enabled) {
+    document.documentElement.dataset.trailLinks = enabled ? 'on' : 'off';
+    document.querySelectorAll('[data-site-trail-link]').forEach(el => {
+      el.classList.toggle('hidden', !enabled);
+      // The drawer link uses a normal block layout when visible.
+      if (el.id === 'drawer-nav-near-east-trail') el.classList.toggle('block', enabled);
+    });
+  }
+
+  async function loadTrailLinksVisibility() {
+    if (!trailLinksVisibilityPromise) {
+      if (!TRAIL_LINKS_CONFIG.endpoint || !TRAIL_LINKS_CONFIG.apiKey) {
+        trailLinksVisibilityPromise = Promise.resolve(false);
+      } else {
+        trailLinksVisibilityPromise = fetch(TRAIL_LINKS_CONFIG.endpoint, {
+          headers: { apikey: TRAIL_LINKS_CONFIG.apiKey }
+        })
+          .then(response => {
+            if (!response.ok) throw new Error('Trail links visibility request failed: ' + response.status);
+            return response.json();
+          })
+          .then(rows => rows?.[0]?.is_published === true && rows?.[0]?.menu_footer_visible === true)
+          .catch(error => {
+            console.warn('Trail navigation visibility unavailable; links remain hidden:', error);
+            return false;
+          });
+      }
+    }
+    const enabled = await trailLinksVisibilityPromise;
+    setTrailLinksVisibility(enabled);
+    return enabled;
+  }
+
   window.toggleSideMenu = function toggleSideMenu() {
     const drawer = document.getElementById('sideMenuDrawer');
     const backdrop = document.getElementById('sideMenuBackdrop');
@@ -276,6 +321,7 @@
     document.querySelectorAll('[data-site-side-menu]').forEach(el => { el.innerHTML = sideMenu(section); });
     document.querySelectorAll('[data-site-footer]').forEach(el => { el.classList.remove('hidden'); el.style.display = 'block'; el.innerHTML = footer(); });
     loadFloodsVisibility();
+    void loadTrailLinksVisibility();
   }
 
   document.addEventListener('keydown', event => {
@@ -287,5 +333,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render, { once: true });
   else render();
 
-  window.JDJSiteShell = { render, loadFloodsVisibility };
+  window.JDJSiteShell = { render, loadFloodsVisibility, loadTrailLinksVisibility };
 })();
