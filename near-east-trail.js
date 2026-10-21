@@ -286,7 +286,7 @@
   async function boot() {
     try {
       if (!ENV.supabaseUrl || !ENV.supabaseKey || !window.supabase) throw new Error('הגדרות האתר לא נטענו');
-      if (ENV.environment === 'TEST' && !ENV.supabaseUrl.includes('sdekeyakrtdwmykvpbwq')) throw new Error('חיבור TEST אינו מכוון למסד TEST. הפעולה נעצרה.');
+      if (ENV.environment !== 'PROD' || ENV.supabaseUrl !== 'https://edjmwcnxsqnsxqrcsjxp.supabase.co') throw new Error('חיבור דף השביל חייב להצביע למסד PROD המאושר.');
       client = window.supabase.createClient(ENV.supabaseUrl,ENV.supabaseKey);
       const {data:pageData,error:pageError} = await client.from('near_east_trail_pages').select('*').eq('id','main').eq('is_published',true).maybeSingle();
       if (pageError) throw pageError;
