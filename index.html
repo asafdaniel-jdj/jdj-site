@@ -279,6 +279,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
 
 
+        <!-- JDJ-78: landing-page feature, not a route -->
+        <section id="homeNearEastTrail" aria-label="שביל המזרח הקרוב" class="hidden bg-white rounded-[26px] border border-indigo-200 shadow-sm overflow-hidden">
+          <div class="grid grid-cols-1 md:grid-cols-[minmax(260px,35%)_minmax(0,1fr)] md:min-h-[208px] items-stretch">
+            <a href="/near-east-trail" aria-label="לגלות את שביל המזרח הקרוב" class="block overflow-hidden relative bg-indigo-50 min-h-[180px] md:min-h-0">
+              <img id="homeTrailImage" class="hidden w-full h-48 md:h-full md:absolute md:inset-0 object-cover object-center" loading="lazy" alt="נוף לאורך שביל המזרח הקרוב">
+              <div id="homeTrailImageFallback" aria-hidden="true" class="flex items-center justify-center absolute inset-0 bg-gradient-to-br from-indigo-100 via-indigo-50 to-slate-100 text-indigo-300">
+                <i class="fa-solid fa-route text-6xl"></i>
+              </div>
+            </a>
+            <div class="flex flex-col justify-center p-5 sm:p-6 md:px-8 md:py-6 text-right gap-2.5">
+              <div class="flex items-center gap-2 text-xs font-black text-indigo-700"><i class="fa-solid fa-compass" aria-hidden="true"></i><span id="homeTrailKicker">מסע שטח מיוחד באתר</span></div>
+              <h2 id="homeTrailTitle" class="text-2xl md:text-3xl font-black text-slate-950 tracking-tight">שביל המזרח הקרוב</h2>
+              <p id="homeTrailDescription" class="text-sm md:text-base text-slate-600 font-medium leading-relaxed">שישה מקטעים, כ־340 ק״מ של שבילי ג׳יפים, מעיינות וסיפורי מקום. ממחולה ועד מצפה דני.</p>
+              <div class="pt-1">
+                <a href="/near-east-trail" class="inline-flex items-center justify-center gap-2 border-2 border-indigo-700 hover:bg-indigo-700 hover:text-white text-indigo-800 px-5 py-2.5 rounded-xl text-sm font-black transition min-h-[44px]">
+                  <span id="homeTrailCta">לגלות את השביל</span><i class="fa-solid fa-arrow-left text-[11px]" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- 🌊 שטפונות | מוד קיץ -->
         <section id="homeFloodsSummer" class="flood-home-card hidden bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="grid grid-cols-1 md:grid-cols-[300px_1fr_auto] lg:grid-cols-[360px_1fr_auto] items-stretch">
@@ -592,8 +614,60 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             return mode;
         }
 
+        async function loadNearEastTrailHomeFeature() {
+            const panel = document.getElementById('homeNearEastTrail');
+            if (!panel) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('near_east_trail_pages')
+                    .select('title,is_published,home_visible,home_kicker,home_title,home_description,home_cta,home_image_url,hero_desktop_url,gallery_media')
+                    .eq('id', 'main')
+                    .maybeSingle();
+                if (error || !data) {
+                    if (error) console.warn('Near East Trail home visibility unavailable:', error);
+                    return;
+                }
+
+                let visible = data.is_published === true && data.home_visible === true;
+                if (!visible) return;
+
+                document.getElementById('homeTrailTitle').textContent = String(data.home_title || data.title || 'שביל המזרח הקרוב').trim();
+                document.getElementById('homeTrailKicker').textContent = String(data.home_kicker || 'מסע שטח מיוחד באתר').trim();
+                document.getElementById('homeTrailDescription').textContent = String(data.home_description || 'שישה מקטעים, כ־340 ק״מ של שבילי ג׳יפים, מעיינות וסיפורי מקום. ממחולה ועד מצפה דני.').trim();
+                document.getElementById('homeTrailCta').textContent = String(data.home_cta || 'לגלות את השביל').trim();
+
+                const isPublicImage = url => {
+                    try {
+                        const parsed = new URL(String(url || ''), window.location.origin);
+                        return ['https:', 'http:'].includes(parsed.protocol);
+                    } catch (_) { return false; }
+                };
+                const galleryImage = Array.isArray(data.gallery_media)
+                    ? data.gallery_media.find(m => m?.type === 'image' && isPublicImage(m.url))?.url
+                    : null;
+                const cover = isPublicImage(data.home_image_url) ? data.home_image_url : (isPublicImage(data.hero_desktop_url) ? data.hero_desktop_url : galleryImage);
+                if (cover) {
+                    const image = document.getElementById('homeTrailImage');
+                    const fallback = document.getElementById('homeTrailImageFallback');
+                    image.addEventListener('load', () => {
+                        image.classList.remove('hidden');
+                        fallback.classList.add('hidden');
+                    }, {once:true});
+                    image.addEventListener('error', () => {
+                        image.classList.add('hidden');
+                        fallback.classList.remove('hidden');
+                    }, {once:true});
+                    image.src = cover;
+                }
+                panel.classList.remove('hidden');
+            } catch (error) {
+                console.warn('Near East Trail homepage feature hidden:', error);
+            }
+        }
+
         async function initHomePage() {
             await loadHomeSeasonMode();
+            void loadNearEastTrailHomeFeature();
             await loadFeaturedRoutes();
             await loadDesertStories();
             await loadFeaturedKhans();
