@@ -28,3 +28,5 @@ https://camp.jdj.co.il/*      https://jdj.co.il/camp      301!
 /floods/judean-desert/*      /flood-river.html                    200
 /floods/negev-arava/*        /flood-river.html                    200
 /floods                      /floods.html                         200
+/near-east-trail.html  /near-east-trail  301!
+/near-east-trail       /near-east-trail.html  200
