@@ -102,41 +102,67 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             scrollbar-width: none;
         }
         .flood-home-image { transform: scale(1.01); }
-        /* Editorial cards share one row only if BOTH cards are active. */
+        /* Two visible editorial cards: compact, aligned cards. A sole card retains its original banner layout. */
         @media (min-width: 1024px) {
             #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
-            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeNearEastTrail > .grid,
-            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer > .grid {
-                display: flex;
-                flex-direction: column;
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) > section > .grid {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-rows: 210px minmax(0, 1fr);
                 height: 100%;
             }
-            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeNearEastTrail > .grid > a:first-child,
-            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer > .grid > a:first-child {
-                flex: none;
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) > section > .grid > a:first-child {
                 width: 100%;
                 height: 210px;
                 min-height: 0;
                 aspect-ratio: auto;
+                position: relative;
             }
-            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeNearEastTrail > .grid > a:first-child img {
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeTrailImage {
                 position: absolute;
                 inset: 0;
+                width: 100%;
                 height: 100%;
             }
             #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeNearEastTrail > .grid > div:nth-child(2),
             #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer > .grid > div:nth-child(2) {
-                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: stretch;
+                gap: 12px;
                 padding: 24px;
+                min-width: 0;
+            }
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeTrailTitle,
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer h2 {
+                font-size: clamp(1.25rem, 2vw, 1.7rem);
+                line-height: 1.2;
+            }
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeNearEastTrail > .grid > div:nth-child(2) > div:last-child {
+                margin-top: auto;
+                padding-top: 16px;
+            }
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeNearEastTrail > .grid > div:nth-child(2) > div:last-child a {
+                width: 100%;
+                min-height: 48px;
+            }
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer > .grid > div:nth-child(2) > div:last-child {
+                margin-bottom: 58px;
             }
             #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer > .grid > div:last-child {
                 border: 0;
                 padding: 0 24px 24px;
-                flex: none;
+                margin-top: -82px;
+                align-self: end;
+                z-index: 1;
             }
-            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer > .grid > div:last-child a { width: 100%; }
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer > .grid > div:last-child a {
+                width: 100%;
+                min-height: 48px;
+            }
         }
         @media (prefers-reduced-motion: no-preference) {
             .flood-home-card:hover .flood-home-image { transform: scale(1.045); }
