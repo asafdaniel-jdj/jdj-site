@@ -102,6 +102,42 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             scrollbar-width: none;
         }
         .flood-home-image { transform: scale(1.01); }
+        /* Editorial cards share one row only if BOTH cards are active. */
+        @media (min-width: 1024px) {
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            #homeEditorialCards #homeNearEastTrail > .grid,
+            #homeEditorialCards #homeFloodsSummer > .grid {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+            #homeEditorialCards #homeNearEastTrail > .grid > a:first-child,
+            #homeEditorialCards #homeFloodsSummer > .grid > a:first-child {
+                flex: none;
+                width: 100%;
+                height: 210px;
+                min-height: 0;
+                aspect-ratio: auto;
+            }
+            #homeEditorialCards #homeNearEastTrail > .grid > a:first-child img {
+                position: absolute;
+                inset: 0;
+                height: 100%;
+            }
+            #homeEditorialCards #homeNearEastTrail > .grid > div:nth-child(2),
+            #homeEditorialCards #homeFloodsSummer > .grid > div:nth-child(2) {
+                flex: 1;
+                padding: 24px;
+            }
+            #homeEditorialCards #homeFloodsSummer > .grid > div:last-child {
+                border: 0;
+                padding: 0 24px 24px;
+                flex: none;
+            }
+            #homeEditorialCards #homeFloodsSummer > .grid > div:last-child a { width: 100%; }
+        }
         @media (prefers-reduced-motion: no-preference) {
             .flood-home-card:hover .flood-home-image { transform: scale(1.045); }
         }
@@ -279,6 +315,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
 
 
+        <!-- Editorial highlights: side by side on desktop only when both are visible. -->
+        <div id="homeEditorialCards" class="grid grid-cols-1 gap-6 lg:gap-8 items-stretch">
         <!-- JDJ-78: landing-page feature, not a route -->
         <section id="homeNearEastTrail" aria-label="שביל המזרח הקרוב" class="hidden bg-white rounded-[26px] border border-indigo-200 shadow-sm overflow-hidden">
           <div class="grid grid-cols-1 md:grid-cols-[minmax(260px,35%)_minmax(0,1fr)] md:min-h-[208px] items-stretch">
@@ -334,6 +372,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
             </div>
         </section>
+
+        </div><!-- /homeEditorialCards -->
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 pt-2">
 
