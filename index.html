@@ -107,36 +107,36 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
-            #homeEditorialCards #homeNearEastTrail > .grid,
-            #homeEditorialCards #homeFloodsSummer > .grid {
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeNearEastTrail > .grid,
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer > .grid {
                 display: flex;
                 flex-direction: column;
                 height: 100%;
             }
-            #homeEditorialCards #homeNearEastTrail > .grid > a:first-child,
-            #homeEditorialCards #homeFloodsSummer > .grid > a:first-child {
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeNearEastTrail > .grid > a:first-child,
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer > .grid > a:first-child {
                 flex: none;
                 width: 100%;
                 height: 210px;
                 min-height: 0;
                 aspect-ratio: auto;
             }
-            #homeEditorialCards #homeNearEastTrail > .grid > a:first-child img {
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeNearEastTrail > .grid > a:first-child img {
                 position: absolute;
                 inset: 0;
                 height: 100%;
             }
-            #homeEditorialCards #homeNearEastTrail > .grid > div:nth-child(2),
-            #homeEditorialCards #homeFloodsSummer > .grid > div:nth-child(2) {
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeNearEastTrail > .grid > div:nth-child(2),
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer > .grid > div:nth-child(2) {
                 flex: 1;
                 padding: 24px;
             }
-            #homeEditorialCards #homeFloodsSummer > .grid > div:last-child {
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer > .grid > div:last-child {
                 border: 0;
                 padding: 0 24px 24px;
                 flex: none;
             }
-            #homeEditorialCards #homeFloodsSummer > .grid > div:last-child a { width: 100%; }
+            #homeEditorialCards:has(#homeNearEastTrail:not(.hidden)):has(#homeFloodsSummer:not(.hidden)) #homeFloodsSummer > .grid > div:last-child a { width: 100%; }
         }
         @media (prefers-reduced-motion: no-preference) {
             .flood-home-card:hover .flood-home-image { transform: scale(1.045); }
