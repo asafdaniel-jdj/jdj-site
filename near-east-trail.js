@@ -172,17 +172,29 @@
     btn.textContent = showing ? 'הצגת תחנות' : 'הסתרת תחנות';
   }
   let pendingAction = null;
+  // ITEM's default safety notice is reused when the site-wide warning is absent.
+  const FALLBACK_SAFETY_WARNING = 'הנסיעה בשטח פתוח ובמסלולי 4x4 כרוכה בסיכונים אמיתיים - כולל תנאי דרך משתנים, מזג אוויר קיצוני ואזורים מרוחקים ללא כיסוי סלולרי. השימוש באתר ובמידע המוצג בו הוא באחריותכם הבלעדית, ואינו מהווה תחליף לשיקול דעת עצמאי, בדיקת תנאי השטח מול הרשויות הרלוונטיות, והתאמת הרכב והציוד למסלול.';
+  let gateReturnFocus = null;
   async function openGate(action) {
     pendingAction = action;
-    $('gateText').textContent = 'לפני היציאה לשטח יש לבדוק מזג אוויר, שטחי אש, הגבלות תנועה, שערים ודרגת עבירות. טעינת קובץ ניווט אינה אישור לכניסה לשטח.';
-    try {
-      const {data,error} = await client.from('pages').select('warning_text').eq('id','disclaimer').maybeSingle();
-      if (!error && data?.warning_text) $('gateText').textContent = data.warning_text;
-    } catch(_) {}
+    gateReturnFocus = document.activeElement;
+    $('gateText').textContent = FALLBACK_SAFETY_WARNING;
     $('gateOverlay').classList.add('active');
     $('gateConfirm').focus();
+    try {
+      const {data,error} = await client.from('pages').select('warning_text').eq('id','disclaimer').maybeSingle();
+      // A closing/cancel action may occur while the warning is being fetched.
+      if (!error && pendingAction === action && typeof data?.warning_text === 'string' && data.warning_text.trim()) {
+        $('gateText').textContent = data.warning_text;
+      }
+    } catch(_) {}
   }
-  function closeGate() { pendingAction = null; $('gateOverlay').classList.remove('active'); }
+  function closeGate() {
+    pendingAction = null;
+    $('gateOverlay').classList.remove('active');
+    if (gateReturnFocus && typeof gateReturnFocus.focus === 'function') gateReturnFocus.focus();
+    gateReturnFocus = null;
+  }
   async function downloadSingle(s) {
     const url = validUrl(s?.gpx_url); if (!url) return;
     const response = await fetch(url, {credentials:'omit'});
